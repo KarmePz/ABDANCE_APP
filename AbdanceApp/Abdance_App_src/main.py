@@ -1,10 +1,21 @@
 import functions_framework 
 from flask import Flask, jsonify, request
+import firebase_admin
+from firebase_admin import credentials, firestore, auth
 #funciones 
 from functions.Asistencias.asistencias import asistencias
 from functions.Cuotas.pagos import cuotas
-from functions.Usuarios.auth_users import usuarios
+from functions.Usuarios.auth_users import register_student
+from functions.Usuarios.usuarios import usuarios
 from functions.Eventos.eventos import eventos
+
+
+app = Flask(__name__)
+
+#si no existe una app firebase la crea con las credenciales automaticas de Google Cloud
+if not firebase_admin._apps:
+    cred = credentials.ApplicationDefault()
+    firebase_admin.initialize_app(cred)
 
 @functions_framework.http
 def main(request):
@@ -23,7 +34,9 @@ def main(request):
         return cuotas(request) 
     elif path == '/eventos' and method == 'GET':
         return eventos(request) 
+    elif path == '/usuarios/auth-user' and method == 'POST':
+        return register_student(request) 
     elif path == '/usuarios' and method == 'GET':
-        return usuarios(request) 
+        return usuarios(request)
     else:
         return 'Method not allowed', 405
