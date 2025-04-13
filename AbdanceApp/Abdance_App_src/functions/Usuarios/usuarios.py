@@ -50,10 +50,13 @@ def usuarios(request):
             return jsonify(usuarios), 200
             
     elif request.method == 'POST':
+        #TODO
         return
     elif request.method == 'PUT':
+        #TODO
         return
     elif request.method == 'DELETE':
+        #TODO
         return
     else:
         return jsonify({'error':'Método no permitido'}), 405   
