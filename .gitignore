@@ -174,4 +174,4 @@ cython_debug/
 .pypirc
 
 serviceKey.json
-./AbdanceApp/EntornoAbdance
+EntornoAbdance/
