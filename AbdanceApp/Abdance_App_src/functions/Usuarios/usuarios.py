@@ -110,28 +110,19 @@ def usuarios(request):
         
         user_ref = db.collection('usuarios').document(data['dni'])
         user_doc = user_ref.get()
+        user_data = user_doc.to_dict()
         
         #control de errores 
         if not user_doc.exists:
             return jsonify({'error': 'No se encontro el usuario especificado'}), 404
         
-        if user_doc.to_dict().get('rol') == 'admin':
-            return jsonify({'error': 'No se puede eliminar un usuario administrador'}), 403
+        if user_data.get('rol') == 'admin':
+            return jsonify({'error': 'No se puede modificar un usuario administrador'}), 403
         
-        #se asignan los datos a las variables correspondientes 
-        user_dni = data.get("dni")
-        user_apellido = data.get("apellido")
-        user_name = data.get("nombre")
-        user_email = data.get("email")
-        user_birthdate = data.get("fechaNacimiento") #firestore timeStamp
-        user_registrationDate = data.get("fechaInscripcion")#firestore timeStamp
-        user_username = data.get("nombreAcceso")
-        user_rol = data.get('rol')
-        
-        
-        
-        
-        return
+        user_ref.update(data)
+        return jsonify({"message":"usuario Actualizado",
+                        "id": user_data.get('user_uid'), 
+                        "nombre usuario modificado" :user_data.get('nombre')}), 200
     
     elif request.method == 'DELETE':
         data = request.json 
