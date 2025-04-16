@@ -28,15 +28,15 @@ def main(request):
     
     if path == '/' and method == 'GET':
         return 'Hola Main View', 200 
-    elif path == '/asistencias' and method == 'GET':
+    elif path == '/asistencias':
         return asistencias(request) 
-    elif path == '/cuotas' and method == 'GET':
+    elif path == '/cuotas':
         return cuotas(request) 
-    elif path == '/eventos' and method == 'GET':
+    elif path == '/eventos':
         return eventos(request) 
-    elif path == '/usuarios/auth-user' and method == 'POST':
+    elif path == '/usuarios/register-student':
         return register_student(request) 
-    elif path == '/usuarios' and method == 'GET':
+    elif path == '/usuarios':
         return usuarios(request)
     else:
         return 'Method not allowed', 405
