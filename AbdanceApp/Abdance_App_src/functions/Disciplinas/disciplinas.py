@@ -14,7 +14,7 @@ from datetime import datetime
 #
 
 
-
+#CRUD DE DISCIPLINAS 
 def disciplinas(request):
     if request.method == 'GET':
         try:
@@ -46,7 +46,7 @@ def disciplinas(request):
         #SE DEBE TRABAJAR TAMBIEN EN EL TEMA DE ALUMNOS DE LAS DISCIPLINAS 
             
     elif request.method == 'POST':
-        #se debe actualizar la disciplina
+        #se debe crear una nueva disciplina
         return
     
     elif request.method == 'PUT':
@@ -71,8 +71,8 @@ def parsearFecha(value_date):
             return {'error': 'Formato de fecha inválido'}, 400 # formato de la fecha = YYYY-mm-ddThh:mm:ss.499588
 
 
-#get subcolecciones
-def getAlumnosPorDisciplina(disciplina_id):
+
+def getAlumnosPorDisciplina(disciplina_id): #get de todos los alumnos anotados a determinada disciplina
     disciplina_ref = db.collection('disciplinas').document(disciplina_id)
     disciplina_doc = disciplina_ref.get()
     disciplina_data = disciplina_doc.to_dict()
@@ -83,8 +83,35 @@ def getAlumnosPorDisciplina(disciplina_id):
     alumnos = [doc.to_dict() for doc in alumnos_ref.stream()]
     return jsonify({"nombre_disciplina": disciplina_name,
                     "alumnos":alumnos}), 200
-    
-def getProfesoresPorDisciplina(disciplina_id,):
+
+def añadirAlumnoDisciplina(disciplina_id, dni_alumno): #metodo para añadir un dni de un alumno a una disciplina particular
     return
-def getHorariosPorDisciplina(disciplina_id,):
+
+
+def eliminarAlumnoDisciplina(disciplina_id, dni_alumno):#metodo para eliminar un dni de un alumno de una disciplina particular
     return
+
+
+
+def getProfesoresPorDisciplina(disciplina_id): #get de todos los profesores anotados a determinada disciplina
+    return
+
+def añadirProfesorDisciplina(disciplina_id, dni_alumno): #metodo para añadir un dni de un profesor a una disciplina particular
+    return
+
+
+def eliminarProfesorDisciplina(disciplina_id, dni_alumno):#metodo para eliminar un dni de un Profesor de una disciplina particular
+    return
+
+
+
+def getHorariosPorDisciplina(disciplina_id):#get de todos los horarios asignados a determinada disciplina
+    return
+
+def añadirHorarioDisciplina(disciplina_id, dni_alumno): #metodo para añadir un horario a una disciplina particular
+    return
+
+
+def eliminarHorarioDisciplina(disciplina_id, dni_alumno):#metodo para eliminar un horario de una disciplina particular
+    return
+
