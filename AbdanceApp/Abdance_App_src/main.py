@@ -8,6 +8,7 @@ from functions.Cuotas.pagos import cuotas
 from functions.Usuarios.auth_users import register_student
 from functions.Usuarios.usuarios import usuarios
 from functions.Eventos.eventos import eventos
+from functions.Disciplinas.disciplinas import disciplinas
 
 
 app = Flask(__name__)
@@ -28,8 +29,6 @@ def main(request):
     #metodos y rutas
     if path == '/' and method == 'GET':
         return 'Hola Main View', 200 
-    elif path == '/asistencias':
-        return asistencias(request) 
     elif path == '/cuotas':
         return cuotas(request) 
     elif path == '/eventos':
@@ -38,5 +37,10 @@ def main(request):
         return register_student(request) 
     elif path == '/usuarios':
         return usuarios(request)
+    elif path == '/asistencias':
+        return asistencias(request) 
+    elif path == '/disciplinas':
+        return disciplinas(request)
+
     else:
         return 'Method not allowed', 405
