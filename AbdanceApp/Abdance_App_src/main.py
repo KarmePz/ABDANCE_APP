@@ -25,7 +25,7 @@ def main(request):
     method = request.method
     
     
-    
+    #metodos y rutas
     if path == '/' and method == 'GET':
         return 'Hola Main View', 200 
     elif path == '/asistencias':
