@@ -60,6 +60,9 @@ def register_student(request):
         return {'error': str(e)}, 400
 
 def login_user(request):
+    #se quiere devolver el mail del usuario y su contraseña
+    #se puede ingresar un username o el mail directo
+    #si se ingresa un username este mismo sera el nombre.acceso del firebase 
     return
 
 
