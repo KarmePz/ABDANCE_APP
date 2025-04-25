@@ -175,3 +175,4 @@ cython_debug/
 
 serviceKey.json
 EntornoAbdance/
+.venv
