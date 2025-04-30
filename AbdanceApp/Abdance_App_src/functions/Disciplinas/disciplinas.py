@@ -32,6 +32,7 @@ def disciplinas(request):
                 for doc in disciplinas_ref.stream():
                     data_disciplina = doc.to_dict()
                     doc_disciplina_id = doc.id
+                    
                     alumnos_inscriptos_id = getAlumnosPorDisciplina(doc_disciplina_id)
                     #agregar horarios y profesores de la misma manera
                     disciplina_data = ordenar_datos_disciplina(data_disciplina, alumnos_inscriptos_id)
@@ -63,28 +64,73 @@ def disciplinas(request):
         #SE DEBE TRABAJAR TAMBIEN EN EL TEMA DE ALUMNOS DE LAS DISCIPLINAS 
             
     elif request.method == 'POST':
+        data_disciplina = request.json
         #se debe crear una nueva disciplina
-        disciplina_data["nombre"] = data_disciplina.get("nombre")
-        disciplina_data["edadMinima"] = data_disciplina.get("edadMinima")
-        disciplina_data["edadMaxima"] = data_disciplina.get("edadMaxima")
-        disciplina_data["precios"] = data_disciplina.get("precios")
+        disciplina_name = data_disciplina.get("nombre")
+        disciplina_minAge = data_disciplina.get("edadMinima")
+        disciplina_maxAge = data_disciplina.get("edadMaxima")
+        disciplina_price = data_disciplina.get("precios") #precios debe ser un mapa
         
-        #precios debe ser una
-            
+        if not disciplina_name or not disciplina_minAge or not disciplina_maxAge or not disciplina_price:
+            return jsonify({'error':'Faltan datos. Revise nombre, edad minima, edad maxima, precios'}), 400
         
-        return
+        #si todos los datos existen se añaden a la base de datos
+        disciplinas_doc_ref = db.collection("disciplinas").document()
+        
+        #generar el id aleatorio
+        disciplina_id = disciplinas_doc_ref.id
+        data_disciplina['id'] = disciplina_id
+        
+        #guardar documento con el id
+        disciplinas_doc_ref.set(data_disciplina)
+        
+        return jsonify({'message': 'Disciplina registrada exitosamente'}), 201
+        
     
     elif request.method == 'PUT':
         #se tiene que actualizar una disciplina segun los nuevos datos que se ingresen
-        
         #actualizar edades
         #actualizar nombre
         #actualizar precios
-        return
+        data = request.json 
+        
+        if not data or 'id' not in data:
+            return jsonify({'error': ' Ingrese el id de la disciplina correspondiente'}), 400 #######
+        
+        
+        disciplina_ref = db.collection('disciplinas').document(data['id'])
+        disciplina_doc = disciplina_ref.get()
+        disciplina_data = disciplina_doc.to_dict()
+        
+        #control de errores 
+        if not disciplina_doc.exists:
+            return jsonify({'error': 'No se encontro la disciplina especificada'}), 404
+        
+        disciplina_ref.update(data)
+        return jsonify({"message":"usuario Actualizado",
+                        "id": disciplina_data.get('id'), 
+                        "nombre disciplina modificado" :disciplina_data.get('nombre')}), 200
     
     elif request.method == 'DELETE':
         #se debe eliminar una disciplina segun el id especificado
-        return
+        
+        data = request.json 
+        
+        if not data or 'id' not in data:
+            return jsonify({'error': ' Ingrese el id de la disciplina correspondiente'}), 400 #######
+        
+        disciplina_ref = db.collection('disciplinas').document(data['id'])
+        disciplina_doc = disciplina_ref.get()
+        disciplina_data = disciplina_doc.to_dict()
+        
+        #control de errores 
+        if not disciplina_doc.exists:
+            return jsonify({'error': 'No se encontro la disciplina especificada'}), 404
+        
+        #eliminacion de BD firestore
+        disciplina_ref.delete()
+        return jsonify({'message':'Disciplina eliminada correctamente'}), 200
+    
     else:
         return jsonify({'error':'Método no permitido'}), 405   
 
@@ -97,6 +143,7 @@ def parsearFecha(value_date):
 
 def ordenar_datos_disciplina(data_disciplina, alumnos_inscriptos=None):   # Armamos el diccionario con orden especifico para hacerlo mas legible
     disciplina_data = OrderedDict()
+    disciplina_data["disciplina_id"] = data_disciplina.get("id")
     disciplina_data["nombre"] = data_disciplina.get("nombre")
     disciplina_data["edadMinima"] = data_disciplina.get("edadMinima")
     disciplina_data["edadMaxima"] = data_disciplina.get("edadMaxima")
@@ -125,7 +172,10 @@ def eliminarAlumnoDisciplina(disciplina_id, dni_alumno):#metodo para eliminar un
 
 
 def getProfesoresPorDisciplina(disciplina_id): #get de todos los profesores anotados a determinada disciplina
-    return
+    profesores_ref = db.collection('disciplinas').document(disciplina_id).collection('profesores')
+    profesores = [doc.to_dict() for doc in profesores_ref.stream()]
+    return profesores
+    
 
 def añadirProfesorDisciplina(disciplina_id, dni_alumno): #metodo para añadir un dni de un profesor a una disciplina particular
     return
@@ -137,7 +187,9 @@ def eliminarProfesorDisciplina(disciplina_id, dni_alumno):#metodo para eliminar 
 
 
 def getHorariosPorDisciplina(disciplina_id):#get de todos los horarios asignados a determinada disciplina
-    return
+    horarios_ref = db.collection('disciplinas').document(disciplina_id).collection('horarios')
+    horarios = [doc.to_dict() for doc in horarios_ref.stream()]
+    return horarios
 
 def añadirHorarioDisciplina(disciplina_id, dni_alumno): #metodo para añadir un horario a una disciplina particular
     return
