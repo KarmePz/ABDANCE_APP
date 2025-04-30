@@ -23,14 +23,14 @@ def asistencias(request):
 def registrar_inasistencia(request):
     data = request.json  #para registrar la inasistencia se requiere el dni del usuario al que se le va a registrar dicha inasistencia
     
-    
+
     if request.method == 'POST':
         #add inasistencia alumno
         #la inasistencia registra la fecha y la hora en la que falto, tambien puede establecer la disciplina en la que fue la falta
         #se guarda como una subcoleccion de usuario con rol alumno
         #se debe crear una nueva inasistencia
         inasistencia_user_dni = data.get("dni_usuario")
-        inasistencia_fecha = data.get("fecha") #debe ser la fecha de HOY 
+        inasistencia_fecha =  datetime.now()##data.get("fecha") #debe ser la fecha de HOY 
         inasistencia_justificacion = data.get("justificada")
         
         if not inasistencia_justificacion or not inasistencia_fecha or not inasistencia_user_dni:
@@ -49,9 +49,16 @@ def registrar_inasistencia(request):
         inasistencia_id = inasistencia_ref.id
         data['id'] = inasistencia_id
         
+        # Creamos el objeto limpio para guardar
+        inasistencia_data = {
+            'id': inasistencia_id,
+            'fecha': inasistencia_fecha,
+            'justificada': inasistencia_justificacion,
+            'dni_usuario': inasistencia_user_dni
+        }
         
         #se guarda el documento con el id generado
-        inasistencia_ref.set(data)
+        inasistencia_ref.set(inasistencia_data)
         return jsonify({'message': 'Inasistencia registrada exitosamente'}), 201
         
         print('Se debe registrar una inasistencia antes de este Print')
