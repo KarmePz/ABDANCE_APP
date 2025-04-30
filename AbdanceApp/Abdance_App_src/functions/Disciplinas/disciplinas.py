@@ -75,14 +75,14 @@ def disciplinas(request):
             return jsonify({'error':'Faltan datos. Revise nombre, edad minima, edad maxima, precios'}), 400
         
         #si todos los datos existen se añaden a la base de datos
-        disciplinas_doc_ref = db.collection("disciplinas").document()
+        disciplinas_ref = db.collection("disciplinas").document()
         
         #generar el id aleatorio
-        disciplina_id = disciplinas_doc_ref.id
+        disciplina_id = disciplinas_ref.id
         data_disciplina['id'] = disciplina_id
         
         #guardar documento con el id
-        disciplinas_doc_ref.set(data_disciplina)
+        disciplinas_ref.set(data_disciplina)
         
         return jsonify({'message': 'Disciplina registrada exitosamente'}), 201
         

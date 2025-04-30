@@ -6,6 +6,7 @@ from firebase_admin import credentials, firestore, auth
 from functions.Asistencias.asistencias import asistencias
 from functions.Cuotas.pagos import cuotas
 from functions.Usuarios.auth_users import register_student
+from functions.Asistencias.asistencias import registrar_inasistencia
 from functions.Usuarios.usuarios import usuarios
 from functions.Eventos.eventos import eventos
 from functions.Disciplinas.disciplinas import disciplinas
@@ -39,6 +40,8 @@ def main(request):
         return usuarios(request)
     elif path == '/asistencias':
         return asistencias(request) 
+    elif path == '/asistencias/registrar':
+        return registrar_inasistencia(request)
     elif path == '/disciplinas':
         return disciplinas(request)
     elif path == '/disciplinas/alumno':
