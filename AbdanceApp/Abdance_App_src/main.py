@@ -41,6 +41,11 @@ def main(request):
         return asistencias(request) 
     elif path == '/disciplinas':
         return disciplinas(request)
-
+    elif path == '/disciplinas/alumno':
+        return ##TODO #se debe agregar, modificar, eliminar,y ver datos de un alumno de una disciplina segun su dni
+    elif path == '/disciplinas/horario':
+        return ##TODO #se debe agregar, modificar, eliminar,y ver datos de un horarios de una disciplina segun su id
+    elif path == '/disciplinas/profesor':
+        return ##TODO #se debe agregar, modificar, eliminar,y ver datos de un alumno de un profesor segun su dni
     else:
         return 'Method not allowed', 405
