@@ -3,7 +3,7 @@ from flask import Flask, jsonify, request
 import firebase_admin
 from firebase_admin import credentials, firestore, auth
 #funciones 
-from functions.Asistencias.asistencias import asistencias
+from functions.Asistencias.asistencias import inasistencias
 from functions.Cuotas.pagos import cuotas
 from functions.Usuarios.auth_users import register_student
 from functions.Asistencias.asistencias import registrar_inasistencia
@@ -38,8 +38,8 @@ def main(request):
         return register_student(request) 
     elif path == '/usuarios':
         return usuarios(request)
-    elif path == '/asistencias':
-        return asistencias(request) 
+    elif path == '/inasistencias':
+        return inasistencias(request) 
     elif path == '/asistencias/registrar':
         return registrar_inasistencia(request)
     elif path == '/disciplinas':

@@ -9,13 +9,32 @@ from datetime import datetime
 
 
 
-def asistencias(request):
+def inasistencias(request):
     data = request.json 
     if request.method == 'GET':
         #mostrar todas las asistencias de un alumno 
         #se debe pedir id  del usuario
-        pass
-    
+        
+        inasistencia_user_dni = data.get("dni_usuario")
+        
+        if not inasistencia_user_dni: 
+            return jsonify({'error':'Ingrese un dni de usuario para ver sus inasistencias'}), 400
+        
+        
+        #se busca en la base de datos el usuario al que corresponde la inasistencia y se agrega
+        user_ref = db.collection('usuarios').document(inasistencia_user_dni)
+        user_doc = user_ref.get()
+        
+        if not user_doc.exists:
+            return jsonify({'error':'No se encontro el usuario especificado.'}), 404
+
+        
+        inasistencias_totales = [doc.to_dict() for doc in user_ref.collection('inasistencias').stream()]
+        
+        if len(inasistencias_totales) <= 0 : 
+            return jsonify({'message':'El usuario no tiene inasistencias.'}), 200
+        return jsonify(inasistencias_totales), 200
+            
     
     return 'hola asistencias', 200
 
@@ -78,10 +97,4 @@ def registrar_inasistencia(request):
         inasistencia_ref.delete()
         return jsonify({'message':'Inasistencia eliminada correctamente'}), 200
         
-    return
-
-
-def eliminar_inasistencias(request):
-    if request.method == 'DELETE':
-        pass
     return
