@@ -6,10 +6,13 @@ from collections import OrderedDict
 from firebase_admin import credentials, firestore, auth
 from firebase_init import db  # Firebase con base de datos inicializada
 from datetime import datetime
+from functions.Usuarios.auth_decorator import require_auth
 
 
 
-def inasistencias(request):
+
+@require_auth(required_roles=['alumno', 'profesor', 'admin']) 
+def inasistencias(request, uid=None, role=None):
     data = request.json 
     if request.method == 'GET':
         #mostrar todas las asistencias de un alumno 
@@ -34,12 +37,10 @@ def inasistencias(request):
         if len(inasistencias_totales) <= 0 : 
             return jsonify({'message':'El usuario no tiene inasistencias.'}), 200
         return jsonify(inasistencias_totales), 200
-            
-    
-    return 'hola asistencias', 200
 
 
-def registrar_inasistencia(request):
+@require_auth(required_roles=['admin', 'profesor']) 
+def registrar_inasistencia(request,  uid=None, role=None):
     data = request.json  #para registrar la inasistencia se requiere el dni del usuario al que se le va a registrar dicha inasistencia
     
 

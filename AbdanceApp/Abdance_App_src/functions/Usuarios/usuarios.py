@@ -4,7 +4,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore, auth
 from firebase_init import db  # Firebase con base de datos inicializada
 from datetime import datetime
-from .auth_users import require_auth
+from .auth_decorator import require_auth
 
 #TODOS ESTOS METODOS DEBEN SER PROTEGIDOS MEDIANTE EL USO DE VERIFICACION DE TOKENS QUE SE ASIGNEN DESDE EL FRONTEND
 #

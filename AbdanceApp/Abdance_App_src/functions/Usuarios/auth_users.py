@@ -4,13 +4,13 @@ import firebase_admin
 from firebase_admin import credentials, firestore, auth
 from firebase_init import db  # Firebase con base de datos inicializada
 from datetime import datetime
-
+from .auth_decorator import require_auth
 from functools import wraps
 
 
 
 
-
+@require_auth(required_roles=['admin', 'profesor'])
 def register_student(request):
     #Se piden los datos del usuario, para poder registrarlo
     data = request.json 
@@ -67,7 +67,7 @@ def login_user(request):
     return
 
 
-
+"""
 
 #decorador para definir que roles pueden acceder a los metodos
 def require_auth(required_roles=None):
@@ -107,7 +107,7 @@ def get_user_role_from_firestore(uid):
         return user_data.get("rol")  # Asegurate de que el campo se llame "rol"
 
     return None  # No se encontró ningún usuario con ese UID
-"""
+
     if user_doc.exists:
         user_data = user_doc.to_dict()
         return user_data.get("rol")  # Asegurate de que el campo se llame exactamente "rol"
