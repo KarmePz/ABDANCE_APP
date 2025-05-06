@@ -4,7 +4,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore, auth
 from firebase_init import db  # Firebase con base de datos inicializada
 from datetime import datetime
-
+from .auth_decorator import require_auth
 
 #TODOS ESTOS METODOS DEBEN SER PROTEGIDOS MEDIANTE EL USO DE VERIFICACION DE TOKENS QUE SE ASIGNEN DESDE EL FRONTEND
 #
@@ -15,10 +15,32 @@ from datetime import datetime
 
 
 
-def usuarios(request):
+def usuarios(request, uid=None, role=None):
     
     if request.method == 'GET':
-        # Si se pide un dni de esta manera: usuarios?dni= <dni de alguien> se devuelve solo un usuario
+        return getUsuarios(request)
+    
+    elif request.method == 'POST':
+        return postUsuarios(request)
+    
+    elif request.method == 'PUT':
+        return putUsuarios(request)
+    
+    elif request.method == 'DELETE':
+        return deleteUsuarios(request)
+    else:
+        return jsonify({'error':'Método no permitido'}), 405   
+
+def parsearFecha(value_date):
+    try:
+        final_value = datetime.fromisoformat(value_date) if value_date else None
+        return final_value
+    except ValueError:
+            return {'error': 'Formato de fecha inválido'}, 400 # formato de la fecha = YYYY-mm-ddThh:mm:ss.499588
+
+@require_auth(required_roles=['admin', 'profesor']) 
+def getUsuarios(request, uid=None, role=None):
+    # Si se pide un dni de esta manera: usuarios?dni= <dni de alguien> se devuelve solo un usuario
         rol = request.args.get('rol')
         dni=request.args.get('dni') 
         
@@ -48,9 +70,10 @@ def usuarios(request):
         else:
             usuarios = [doc.to_dict() for doc in db.collection('usuarios').stream()]
             return jsonify(usuarios), 200
-            
-    elif request.method == 'POST':
-        
+    
+@require_auth(required_roles=['admin', 'profesor']) 
+def postUsuarios(request, uid=None, role=None):
+    
         #Se piden los datos del usuario, para poder registrarlo al igual que con estudiante
         data = request.json 
         
@@ -99,83 +122,62 @@ def usuarios(request):
         except Exception as e:
             return {'error': str(e)}, 400
             return
+
+@require_auth(required_roles=['admin', 'profesor']) 
+def putUsuarios(request, uid=None, role=None):
+    #se tiene que actualizar un usuario segun los nuevos datos que se ingresen
+    data = request.json 
     
-    elif request.method == 'PUT':
-        #se tiene que actualizar un usuario segun los nuevos datos que se ingresen
-        data = request.json 
-        
-        if not data or 'dni' not in data:
-            return jsonify({'error': ' Ingrese el dni del usuario correspondiente'}), 400 #######
-        
-        
-        user_ref = db.collection('usuarios').document(data['dni'])
-        user_doc = user_ref.get()
-        user_data = user_doc.to_dict()
-        
-        #control de errores 
-        if not user_doc.exists:
-            return jsonify({'error': 'No se encontro el usuario especificado'}), 404
-        
-        if user_data.get('rol') == 'admin':
-            return jsonify({'error': 'No se puede modificar un usuario administrador'}), 403
-        
-        user_ref.update(data)
-        return jsonify({"message":"usuario Actualizado",
-                        "id": user_data.get('user_uid'), 
-                        "nombre usuario modificado" :user_data.get('nombre')}), 200
+    if not data or 'dni' not in data:
+        return jsonify({'error': ' Ingrese el dni del usuario correspondiente'}), 400 #######
     
-    elif request.method == 'DELETE':
-        data = request.json 
-        
-        if not data or 'dni' not in data:
-            return jsonify({'error': ' Ingrese el dni del usuario correspondiente'}), 400 #######
-        
-        
-        user_ref = db.collection('usuarios').document(data['dni'])
-        user_doc = user_ref.get()
-        
-        #control de errores 
-        if not user_doc.exists:
-            return jsonify({'error': 'No se encontro el usuario especificado'}), 404
-        
-        if user_doc.to_dict().get('rol') == 'admin':
-            return jsonify({'error': 'No se puede eliminar un usuario administrador'}), 403
-        
-        #si todo coincide : 
-        
-        
-        #eliminacion de authentication firebase
-        user_data = user_doc.to_dict() #se extraen los datos en forma de diccionario 
-        user_uid = user_data.get('user_uid') #se obtiene el uid unico
-        if user_uid:
-            try:
-                auth.delete_user(user_uid)
-            except Exception as e:
-                return jsonify({'error':f'No se pudo eliminar usuario:({str(e)})'}), 500
-        
-        #eliminacion de BD firestore
-        user_ref.delete()
-        return jsonify({'message':'Usuario eliminado correctamente'}), 200
     
-    else:
-        return jsonify({'error':'Método no permitido'}), 405   
+    user_ref = db.collection('usuarios').document(data['dni'])
+    user_doc = user_ref.get()
+    user_data = user_doc.to_dict()
+    
+    #control de errores 
+    if not user_doc.exists:
+        return jsonify({'error': 'No se encontro el usuario especificado'}), 404
+    
+    if user_data.get('rol') == 'admin':
+        return jsonify({'error': 'No se puede modificar un usuario administrador'}), 403
+    
+    user_ref.update(data)
+    return jsonify({"message":"usuario Actualizado",
+                    "id": user_data.get('user_uid'), 
+                    "nombre usuario modificado" :user_data.get('nombre')}), 200
 
-def parsearFecha(value_date):
-    try:
-        final_value = datetime.fromisoformat(value_date) if value_date else None
-        return final_value
-    except ValueError:
-            return {'error': 'Formato de fecha inválido'}, 400 # formato de la fecha = YYYY-mm-ddThh:mm:ss.499588
-
-
-''' TOKEN PARA AUTENTICAR USUARIOS (faltan ROLES) DESDE EL BACKEND
-id_token = request.headers.get('Authorization')
-if not id_token:
-    return jsonify({'error': 'Token faltante'}), 401
-
-try:
-    decoded_token = auth.verify_id_token(id_token)
-    user_uid = decoded_token['uid']
-    user_role = get_user_role_from_firestore(user_uid)  # tu función personalizada
-except Exception as e:
-    return jsonify({'error': 'Token inválido'}), 401'''
+@require_auth(required_roles=['admin', 'profesor']) 
+def deleteUsuarios(request, uid=None, role=None):
+    data = request.json 
+    
+    if not data or 'dni' not in data:
+        return jsonify({'error': ' Ingrese el dni del usuario correspondiente'}), 400 #######
+    
+    
+    user_ref = db.collection('usuarios').document(data['dni'])
+    user_doc = user_ref.get()
+    
+    #control de errores 
+    if not user_doc.exists:
+        return jsonify({'error': 'No se encontro el usuario especificado'}), 404
+    
+    if user_doc.to_dict().get('rol') == 'admin':
+        return jsonify({'error': 'No se puede eliminar un usuario administrador'}), 403
+    
+    #si todo coincide : 
+    
+    
+    #eliminacion de authentication firebase
+    user_data = user_doc.to_dict() #se extraen los datos en forma de diccionario 
+    user_uid = user_data.get('user_uid') #se obtiene el uid unico
+    if user_uid:
+        try:
+            auth.delete_user(user_uid)
+        except Exception as e:
+            return jsonify({'error':f'No se pudo eliminar usuario:({str(e)})'}), 500
+    
+    #eliminacion de BD firestore
+    user_ref.delete()
+    return jsonify({'message':'Usuario eliminado correctamente'}), 200
