@@ -4,9 +4,10 @@ import firebase_admin
 from firebase_admin import credentials, firestore, auth
 #funciones 
 from functions.Asistencias.asistencias import inasistencias
-from functions.Cuotas.pagos import cuotas
-from functions.Usuarios.auth_users import register_student
 from functions.Asistencias.asistencias import registrar_inasistencia
+from functions.Cuotas.cuotas import cuotas
+from functions.Cuotas.cuotas import efectuar_pago
+from functions.Usuarios.auth_users import register_student
 from functions.Usuarios.usuarios import usuarios
 from functions.Eventos.eventos import eventos
 from functions.Disciplinas.disciplinas import disciplinas
@@ -31,7 +32,9 @@ def main(request):
     if path == '/' and method == 'GET':
         return 'Hola Main View', 200 
     elif path == '/cuotas':
-        return cuotas(request) 
+        return cuotas(request)
+    elif path == "/efectuar_pago":
+        return efectuar_pago(request) 
     elif path == '/eventos':
         return eventos(request) 
     elif path == '/usuarios/register-student':
