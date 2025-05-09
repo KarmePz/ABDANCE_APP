@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, Response
+
 import json
 import functions_framework
 import firebase_admin
@@ -8,6 +8,13 @@ from firebase_init import db  # Firebase con base de datos inicializada
 from datetime import datetime
 from functions.Usuarios.auth_decorator import require_auth
 
+
+import functions_framework
+import firebase_admin
+from firebase_admin import firestore
+from datetime import datetime
+from collections import OrderedDict
+from functions.Usuarios.auth_decorator import require_auth
 #TODOS ESTOS METODOS DEBEN SER PROTEGIDOS MEDIANTE EL USO DE VERIFICACION DE TOKENS QUE SE ASIGNEN DESDE EL FRONTEND
 #
 #De otra manera cualquiera puede acceder a estos datos
@@ -33,7 +40,7 @@ def disciplinas(request):
         return deleteDisciplina(request)
     
     else:
-        return jsonify({'error':'Método no permitido'}), 405   
+        return {'error':'Método no permitido'}, 405   
 
 def parsearFecha(value_date):
     try:
@@ -102,7 +109,7 @@ def eliminarHorarioDisciplina(disciplina_id, dni_alumno):#metodo para eliminar u
 @require_auth(required_roles=['alumno', 'profesor', 'admin'])
 def getDisciplinas(request, uid=None, role=None):
     try:
-        data = request.json
+        data = request.get_json(silent=True) or {}
         disciplina_id = data.get('disciplina_id')
         
         
@@ -122,7 +129,7 @@ def getDisciplinas(request, uid=None, role=None):
                 disciplinas.append(disciplina_data)
                 
             #se deben devolver todos los alumnos por cada disciplina: 
-            return Response(json.dumps(disciplinas), mimetype='application/json'), 200
+            return disciplinas, 200
                 
     
         #se debe devolver la disciplina que se pidio si se especifica un id
@@ -137,16 +144,16 @@ def getDisciplinas(request, uid=None, role=None):
             
             disciplina_data = ordenar_datos_disciplina(data_disciplina, alumnos_inscriptos)
             
-            return Response(json.dumps(disciplina_data), mimetype='application/json'), 200
+            return disciplina_data, 200
         else:
-            return jsonify({'error':'Disciplina no encontrada'}), 404
+            return {'error':'Disciplina no encontrada'}, 404
     except Exception as e:
-        return jsonify({'error': str(e)}), 500    
+        return {'error': str(e)}, 500    
 
 @require_auth(required_roles=['admin'])
 def postDisciplinas(request, uid=None, role=None):
     
-    data_disciplina = request.json
+    data_disciplina = request.get_json(silent=True) or {}
         #se debe crear una nueva disciplina
     disciplina_name = data_disciplina.get("nombre")
     disciplina_minAge = data_disciplina.get("edadMinima")
@@ -154,7 +161,7 @@ def postDisciplinas(request, uid=None, role=None):
     disciplina_price = data_disciplina.get("precios") #precios debe ser un mapa
     
     if not disciplina_name or not disciplina_minAge or not disciplina_maxAge or not disciplina_price:
-        return jsonify({'error':'Faltan datos. Revise nombre, edad minima, edad maxima, precios'}), 400
+        return {'error':'Faltan datos. Revise nombre, edad minima, edad maxima, precios'}, 400
     
     #si todos los datos existen se añaden a la base de datos
     disciplinas_ref = db.collection("disciplinas").document()
@@ -166,7 +173,7 @@ def postDisciplinas(request, uid=None, role=None):
     #guardar documento con el id
     disciplinas_ref.set(data_disciplina)
     
-    return jsonify({'message': 'Disciplina registrada exitosamente'}), 201
+    return {'message': 'Disciplina registrada exitosamente'}, 201
 
 @require_auth(required_roles=['admin'])
 def putDisciplinas(request, uid=None, role=None):
@@ -174,10 +181,10 @@ def putDisciplinas(request, uid=None, role=None):
     #actualizar edades
     #actualizar nombre
     #actualizar precios
-    data = request.json 
+    data = request.get_json(silent=True) or {} 
     
     if not data or 'id' not in data:
-        return jsonify({'error': ' Ingrese el id de la disciplina correspondiente'}), 400 #######
+        return {'error': ' Ingrese el id de la disciplina correspondiente'}, 400 #######
     
     
     disciplina_ref = db.collection('disciplinas').document(data['id'])
@@ -186,20 +193,20 @@ def putDisciplinas(request, uid=None, role=None):
     
     #control de errores 
     if not disciplina_doc.exists:
-        return jsonify({'error': 'No se encontro la disciplina especificada'}), 404
+        return {'error': 'No se encontro la disciplina especificada'}, 404
     
     disciplina_ref.update(data)
-    return jsonify({"message":"usuario Actualizado",
+    return {"message":"usuario Actualizado",
                     "id": disciplina_data.get('id'), 
-                    "nombre disciplina modificado" :disciplina_data.get('nombre')}), 200
+                    "nombre disciplina modificado" :disciplina_data.get('nombre')}, 200
 
 @require_auth(required_roles=['admin'])
 def deleteDisciplina(request, uid=None, role=None):
     #se debe eliminar una disciplina segun el id especificado
-    data = request.json 
+    data = request.get_json(silent=True) or {} 
     
     if not data or 'id' not in data:
-        return jsonify({'error': ' Ingrese el id de la disciplina correspondiente'}), 400 #######
+        return {'error': ' Ingrese el id de la disciplina correspondiente'}, 400 #######
     
     disciplina_ref = db.collection('disciplinas').document(data['id'])
     disciplina_doc = disciplina_ref.get()
@@ -207,8 +214,8 @@ def deleteDisciplina(request, uid=None, role=None):
     
     #control de errores 
     if not disciplina_doc.exists:
-        return jsonify({'error': 'No se encontro la disciplina especificada'}), 404
+        return {'error': 'No se encontro la disciplina especificada'}, 404
     
     #eliminacion de BD firestore
     disciplina_ref.delete()
-    return jsonify({'message':'Disciplina eliminada correctamente'}), 200
+    return {'message':'Disciplina eliminada correctamente'}, 200
