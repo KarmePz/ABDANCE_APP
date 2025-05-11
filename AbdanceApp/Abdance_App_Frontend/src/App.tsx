@@ -1,6 +1,6 @@
 
 import './App.css'
-import {Background, Logo} from './components'
+import {Background, Logo, InputButton, CustomForm} from './components'
 import { useDocumentTitle } from './hooks/useDocumentTitle';
 import { useFavicon } from './hooks/useFavicon';
 
@@ -12,6 +12,8 @@ function App() {
     <>
       <Background />
       <Logo />
+      <InputButton name="Input test"  placeholder='Ingrese su contraseña'/>
+      <CustomForm></CustomForm>
     </>
   )
 }
