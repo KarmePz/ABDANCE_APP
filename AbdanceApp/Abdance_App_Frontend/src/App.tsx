@@ -1,6 +1,6 @@
 
 import './App.css'
-import {Background, Logo, InputButton, CustomForm} from './components'
+import {Background, Logo, LoginForm} from './components'
 import { useDocumentTitle } from './hooks/useDocumentTitle';
 import { useFavicon } from './hooks/useFavicon';
 
@@ -12,8 +12,10 @@ function App() {
     <>
       <Background />
       <Logo />
-      <InputButton name="Input test"  placeholder='Ingrese su contraseña'/>
-      <CustomForm></CustomForm>
+      <LoginForm ></LoginForm>
+
+
+      <h3 className='relative top-40'> ¿Te interesa saber sobre nuestros eventos? <a href='https://www.youtube.com' target='blank'>¡Hace click Aqui!</a></h3>
     </>
   )
 }

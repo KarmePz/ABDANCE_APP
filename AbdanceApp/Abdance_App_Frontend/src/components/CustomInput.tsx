@@ -12,11 +12,15 @@ const InputForm = ({name, control, label, type, error}: Props) =>{
     
     return (
             <div className="form-group ">
-                <label htmlFor={name}>{label}</label>
+                <label htmlFor={name} >{label}</label>
                 <Controller 
                 name={name} 
                 control={control} 
-                render={({field}) => <input id={name} type={type} {...field} className={`form-control ${error ? "is-invalid": ''} `}  /> } 
+                render={({field}) => 
+                <input id={name} type={type} {...field} className={`
+                    p-2 border border-gray-300 rounded w-full bg-gray-800 text-gray-200 
+                    form-control ${error ? "is-invalid": ''}
+                    `} placeholder={label}/> } 
                 />
                 {error && <p className="error text-red-600">{error.message}</p>}
             </div>
