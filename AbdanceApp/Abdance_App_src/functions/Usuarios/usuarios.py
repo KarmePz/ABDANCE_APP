@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+
 import functions_framework
 import firebase_admin
 from firebase_admin import credentials, firestore, auth
@@ -29,7 +29,7 @@ def usuarios(request, uid=None, role=None):
     elif request.method == 'DELETE':
         return deleteUsuarios(request)
     else:
-        return jsonify({'error':'Método no permitido'}), 405   
+        return {'error':'Método no permitido'}, 405   
 
 def parsearFecha(value_date):
     try:
@@ -41,14 +41,15 @@ def parsearFecha(value_date):
 @require_auth(required_roles=['admin', 'profesor']) 
 def getUsuarios(request, uid=None, role=None):
     # Si se pide un dni de esta manera: usuarios?dni= <dni de alguien> se devuelve solo un usuario
-        rol = request.args.get('rol')
-        dni=request.args.get('dni') 
+        params = request.args
+        dni = params.get('dni')
+        rol = params.get('rol')
         
         # Validar si dni o rol vienen vacíos en la URL
         if dni == "":
-            return jsonify({'error': 'El DNI no puede estar vacío'}), 400
+            return {'error': 'El DNI no puede estar vacío'}, 400
         if rol == "":
-            return jsonify({'error': 'El rol no puede estar vacío'}), 400
+            return {'error': 'El rol no puede estar vacío'}, 400
         
         
         if dni:
@@ -56,26 +57,26 @@ def getUsuarios(request, uid=None, role=None):
             usuario_ref = db.collection('usuarios').document(usuario_dni)
             usuario_doc = usuario_ref.get()
             if usuario_doc.exists:
-                return jsonify(usuario_doc.to_dict()), 200
+                return usuario_doc.to_dict(), 200
             else:
-                return jsonify({'error':'Usuario no encontrado'}), 400
+                return {'error':'Usuario no encontrado'}, 400
         elif rol:
             usuario_rol = rol
             usuario_ref = db.collection('usuarios').where('rol', '==', usuario_rol).stream() 
             usuarios = [doc.to_dict() for doc in usuario_ref]
             if usuarios:
-                return jsonify(usuarios), 200
+                return usuarios, 200
             else: 
-                return jsonify({'error':'No hay usuarios encontrados con ese rol'}), 400
+                return {'error':'No hay usuarios encontrados con ese rol'}, 400
         else:
             usuarios = [doc.to_dict() for doc in db.collection('usuarios').stream()]
-            return jsonify(usuarios), 200
+            return usuarios, 200
     
 @require_auth(required_roles=['admin', 'profesor']) 
 def postUsuarios(request, uid=None, role=None):
     
         #Se piden los datos del usuario, para poder registrarlo al igual que con estudiante
-        data = request.json 
+        data = request.get_json(silent=True) or {} 
         
         #se asignan los datos a las variables correspondientes 
         user_dni = data.get("dni")
@@ -126,10 +127,10 @@ def postUsuarios(request, uid=None, role=None):
 @require_auth(required_roles=['admin', 'profesor']) 
 def putUsuarios(request, uid=None, role=None):
     #se tiene que actualizar un usuario segun los nuevos datos que se ingresen
-    data = request.json 
+    data = request.get_json(silent=True) or {}
     
     if not data or 'dni' not in data:
-        return jsonify({'error': ' Ingrese el dni del usuario correspondiente'}), 400 #######
+        return {'error': ' Ingrese el dni del usuario correspondiente'}, 400 #######
     
     
     user_ref = db.collection('usuarios').document(data['dni'])
@@ -138,22 +139,22 @@ def putUsuarios(request, uid=None, role=None):
     
     #control de errores 
     if not user_doc.exists:
-        return jsonify({'error': 'No se encontro el usuario especificado'}), 404
+        return {'error': 'No se encontro el usuario especificado'}, 404
     
     if user_data.get('rol') == 'admin':
-        return jsonify({'error': 'No se puede modificar un usuario administrador'}), 403
+        return {'error': 'No se puede modificar un usuario administrador'}, 403
     
     user_ref.update(data)
-    return jsonify({"message":"usuario Actualizado",
+    return {"message":"usuario Actualizado",
                     "id": user_data.get('user_uid'), 
-                    "nombre usuario modificado" :user_data.get('nombre')}), 200
+                    "nombre usuario modificado" :user_data.get('nombre')}, 200
 
 @require_auth(required_roles=['admin', 'profesor']) 
 def deleteUsuarios(request, uid=None, role=None):
-    data = request.json 
+    data = request.get_json(silent=True) or {}
     
     if not data or 'dni' not in data:
-        return jsonify({'error': ' Ingrese el dni del usuario correspondiente'}), 400 #######
+        return {'error': ' Ingrese el dni del usuario correspondiente'}, 400 #######
     
     
     user_ref = db.collection('usuarios').document(data['dni'])
@@ -161,10 +162,10 @@ def deleteUsuarios(request, uid=None, role=None):
     
     #control de errores 
     if not user_doc.exists:
-        return jsonify({'error': 'No se encontro el usuario especificado'}), 404
+        return {'error': 'No se encontro el usuario especificado'}, 404
     
     if user_doc.to_dict().get('rol') == 'admin':
-        return jsonify({'error': 'No se puede eliminar un usuario administrador'}), 403
+        return {'error': 'No se puede eliminar un usuario administrador'}, 403
     
     #si todo coincide : 
     
@@ -176,8 +177,8 @@ def deleteUsuarios(request, uid=None, role=None):
         try:
             auth.delete_user(user_uid)
         except Exception as e:
-            return jsonify({'error':f'No se pudo eliminar usuario:({str(e)})'}), 500
+            return {'error':f'No se pudo eliminar usuario:({str(e)})'}, 500
     
     #eliminacion de BD firestore
     user_ref.delete()
-    return jsonify({'message':'Usuario eliminado correctamente'}), 200
+    return {'message':'Usuario eliminado correctamente'}, 200
