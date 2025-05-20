@@ -5,12 +5,67 @@ import mercadopago
 import os
 from collections import OrderedDict
 from firebase_admin import credentials, firestore, auth
+import mercadopago.config
+import mercadopago.config.request_options
 from firebase_init import db  # Firebase con base de datos inicializada
 from datetime import datetime, time
 from functions.Usuarios.auth_decorator import require_auth
 from dotenv import load_dotenv
 from zoneinfo import ZoneInfo
 
+
+def efectuar_pago(request):
+    try:
+        #Primero obtiene la cuota a pagar
+        data = request.get_json(silent=True) or {}
+        cuota_id = data.get('cuota_id')
+        dia_recargo = data.get('dia_recargo')
+
+        if not data or 'cuota_id' not in data or 'dia_recargo' not in data:
+            return {'error': 'El dia de recargo (dia_recargo) y el id de la cuota (cuota_id) son requeridos obligatoriamente.'}, 400  
+            
+        cuota_ref = db.collection('cuotas').document(cuota_id)
+        cuota_doc = cuota_ref.get()
+        cuota_data = None
+
+        if cuota_doc.exists: 
+            cuota_data = cuota_doc.to_dict()
+            precio_cuota = get_monto_cuota(cuota_id, dia_recargo)
+
+            cuota_data = ordenar_datos_cuotas(cuota_data, precio_cuota)
+        else:
+            return {'error': "Cuota no encontrada."}, 404
+
+        #Luego, si todo fue bien, obtiene los datos del .env
+        load_dotenv()
+        PROD_ACCESS_TOKEN = os.getenv("MP_ACCESS_TOKEN_TEST")
+
+        mercado_pago_sdk = mercadopago.SDK(str(PROD_ACCESS_TOKEN))
+
+        preference_data = {
+            "items": [
+                {
+                    "title": "Mi producto",
+                    "quantity": 1,
+                    "unit_price": 75.76,
+                    "currency_id": "ARS"
+                }
+            ],
+            "back_urls": {
+                "success": "https://www.nationstates.net/nation=midnight_horrors",
+                "failure": "https://www.youtube.com",
+                "pending": "https://www.google.com",
+            },
+
+        }
+
+        preference_response = mercado_pago_sdk.preference().create(preference_data)
+        preference = preference_response["response"]
+
+        return preference, 200 
+    
+    except Exception as e:
+        return {'error': str(e)}, 500
 
 
 def cuotas(request):
@@ -34,7 +89,7 @@ def cuotas(request):
 #@require_auth(required_roles=['alumno', 'profesor', 'admin'])
 def getCuotas(request):
     try:
-        data = request.get_json(silent=True) or {}
+        data = request.args
         cuota_id = data.get('cuota_id')
 
         #ID de la disciplina asi se pide cuotas especificas de una disciplina
@@ -44,9 +99,9 @@ def getCuotas(request):
         
         #El dia de recargo, asi solo se debe pasar por el front
         #EL DIA DE RECARGO ES REQUERIDO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        recargo_day = int(data.get('dia_recargo'))
         if "dia_recargo" not in data:
-            return {'error': 'El dia de recargo (dia_recargo) es requerido obligatoriamente para evitar errores.'}, 500 
-        recargo_day = data.get('dia_recargo')
+            return {'error': 'El dia de recargo (dia_recargo) es requerido obligatoriamente para evitar errores.'}, 400
 
         if not data or 'cuota_id' not in data:
             cuotas = []
@@ -95,12 +150,12 @@ def get_monto_cuota(cuota_id, recargo_day):
     cuota_data = cuota_doc.to_dict()
     disciplina_id = cuota_data.get("idDisciplina")
     if not disciplina_id:
-        return {'error':'Una de las cuotas no tiene disciplina asignada.'}, 404
+        return {'error':'Una de las cuotas no tiene disciplina asignada.'}, 400
     
     disciplina_ref = db.collection("disciplinas").document(disciplina_id)
     disciplina_doc = disciplina_ref.get()
     if not disciplina_doc.exists:
-        return {'error':'Una de las disciplinas no fue encontrada o no existe.'}, 404
+        return {'error':'Una de las disciplinas no fue encontrada o no existe.'}, 400
     
     precios = disciplina_doc.to_dict().get("precios", {})
     concepto_cuota = cuota_data.get("concepto")
@@ -151,13 +206,3 @@ def ordenar_datos_cuotas(data_cuota, precio_cuota):   # Armamos el diccionario c
     disciplina_data["precio_cuota"] = precio_cuota
         
     return disciplina_data
-
-
-def efectuar_pago(request):
-    #Obtiene los datos del .env
-    load_dotenv()
-    PROD_ACCESS_TOKEN = os.getenv("MP_ACCESS_TOKEN_TEST")
-
-    mercado_pago_sdk = mercadopago.SDK(str(PROD_ACCESS_TOKEN))
-
-    return str(PROD_ACCESS_TOKEN), 200 

@@ -38,7 +38,7 @@ def parsearFecha(value_date):
     except ValueError:
             return {'error': 'Formato de fecha inválido'}, 400 # formato de la fecha = YYYY-mm-ddThh:mm:ss.499588
 
-@require_auth(required_roles=['admin', 'profesor']) 
+#@require_auth(required_roles=['admin', 'profesor']) 
 def getUsuarios(request, uid=None, role=None):
     # Si se pide un dni de esta manera: usuarios?dni= <dni de alguien> se devuelve solo un usuario
         params = request.args
