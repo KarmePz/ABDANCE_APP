@@ -35,6 +35,12 @@ def efectuar_pago(request):
             cuota_data = ordenar_datos_cuotas(cuota_data, precio_cuota)
         else:
             return {'error': "Cuota no encontrada."}, 404
+        
+        disciplina_doc = db.collection("disciplinas").document(cuota_data["idDisciplina"]).get()
+        if not disciplina_doc.exists:
+            return {'error': "Esta cuota no pertenece a ninguna disciplina."}, 500
+        
+        disciplina_data = disciplina_doc.to_dict()
 
         #Luego, si todo fue bien, obtiene los datos del .env
         load_dotenv()
@@ -42,13 +48,15 @@ def efectuar_pago(request):
 
         mercado_pago_sdk = mercadopago.SDK(str(PROD_ACCESS_TOKEN))
 
+        #Creacion de la preferencia
         preference_data = {
             "items": [
                 {
-                    "title": "Mi producto",
+                    "title": f"Cuota {cuota_data["concepto"]}",
                     "quantity": 1,
-                    "unit_price": 75.76,
-                    "currency_id": "ARS"
+                    "unit_price": int(cuota_data["precio_cuota"]),
+                    "currency_id": "ARS",
+                    "description": f"Cuota del mes de {cuota_data["concepto"]}, para alumno con DNI: {cuota_data["dniAlumno"]}, de la disciplina: {disciplina_data["nombre"]}.",
                 }
             ],
             "back_urls": {
@@ -56,7 +64,19 @@ def efectuar_pago(request):
                 "failure": "https://www.youtube.com",
                 "pending": "https://www.google.com",
             },
-
+            "auto_return": "approved",
+            "payment_methods": {
+                "excluded_payment_methods": [
+                {
+                    "id": ""
+                }
+                ],
+                "excluded_payment_types": [
+                {
+                    "id": "ticket"
+                }
+                ]
+            },
         }
 
         preference_response = mercado_pago_sdk.preference().create(preference_data)
@@ -196,13 +216,13 @@ def determinar_monto(concepto_cuota, precios, estado, fecha_pago, recargo_day):
 
 
 def ordenar_datos_cuotas(data_cuota, precio_cuota):   # Armamos el diccionario con orden especifico para hacerlo mas legible
-    disciplina_data = OrderedDict()
-    disciplina_data["cuota_id"] = data_cuota.get("id")
-    disciplina_data["dniAlumno"] = data_cuota.get("dniAlumno")
-    disciplina_data["estado"] = data_cuota.get("estado")
-    disciplina_data["fechaPago"] = data_cuota.get("fechaPago")
-    disciplina_data["idDisciplina"] = data_cuota.get("idDisciplina")
-    disciplina_data["metodoPago"] = data_cuota.get("metodoPago")
-    disciplina_data["precio_cuota"] = precio_cuota
+    cuota_data = OrderedDict()
+    cuota_data["concepto"] = data_cuota.get("concepto")
+    cuota_data["dniAlumno"] = data_cuota.get("dniAlumno")
+    cuota_data["estado"] = data_cuota.get("estado")
+    cuota_data["fechaPago"] = data_cuota.get("fechaPago")
+    cuota_data["idDisciplina"] = data_cuota.get("idDisciplina")
+    cuota_data["metodoPago"] = data_cuota.get("metodoPago")
+    cuota_data["precio_cuota"] = precio_cuota
         
-    return disciplina_data
+    return cuota_data
