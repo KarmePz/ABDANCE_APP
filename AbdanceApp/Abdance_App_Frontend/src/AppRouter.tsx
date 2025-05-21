@@ -1,7 +1,8 @@
 import { ReactNode } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import {  Navigate, Route, Routes } from "react-router-dom";
 import App from "./App";
 import { PrivateGuard } from "./guard/PrivateGuard";
+import Dashboard from "./pages/Dashboard";
 
 interface Props{
     children : ReactNode
@@ -9,14 +10,15 @@ interface Props{
 
 export const AppRouter = ({children}:Props) =>{
     return (
-        <BrowserRouter>
             <Routes>
+                <Route path="/" element={<Navigate to="/login" />} />
                 <Route path="/login" element={<App/>} />
+
                 <Route element={<PrivateGuard />} >
                     {/* RUTA PRIVADA */}
-                    <Route path="/private" element={<App/>} /> 
+                    <Route path="/private" element={<Dashboard/>} /> 
                 </Route>
             </Routes>
-        </BrowserRouter>
+        
     )
 }

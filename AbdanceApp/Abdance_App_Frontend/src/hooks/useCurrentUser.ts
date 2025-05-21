@@ -1,0 +1,1 @@
+//se utiliza para mostrar el usuario que actualmente esta logueado. Tambien es un check para que inicie sesion automaticamente.
