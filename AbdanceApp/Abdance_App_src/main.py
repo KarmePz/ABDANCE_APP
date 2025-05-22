@@ -14,6 +14,7 @@ from functions.Asistencias.asistencias import (
 )
 from functions.Cuotas.cuotas import cuotas
 from functions.Cuotas.cuotas import efectuar_pago
+from functions.Cuotas.cuotas import pagar_cuota
 from functions.Usuarios.auth_users import register_student
 from functions.Usuarios.usuarios import usuarios
 from functions.Eventos.eventos import eventos
@@ -60,6 +61,8 @@ def main(request):
         return cuotas(request)
     elif path == "/efectuar_pago":
         return efectuar_pago(request) 
+    elif path == "/pagar_cuota":
+        return pagar_cuota(request)
     elif path == '/eventos':
         return eventos(request) 
     elif path == '/usuarios/register-student':

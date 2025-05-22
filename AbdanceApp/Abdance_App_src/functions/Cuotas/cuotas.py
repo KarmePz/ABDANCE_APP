@@ -5,87 +5,15 @@ import mercadopago
 import os
 from collections import OrderedDict
 from firebase_admin import credentials, firestore, auth
-import mercadopago.config
-import mercadopago.config.request_options
+import hashlib
+import hmac
 from firebase_init import db  # Firebase con base de datos inicializada
-from datetime import datetime, time
+from datetime import datetime
 from functions.Usuarios.auth_decorator import require_auth
 from dotenv import load_dotenv
 from zoneinfo import ZoneInfo
+from pagos import establecer_pago
 
-
-def efectuar_pago(request):
-    try:
-        #Primero obtiene la cuota a pagar
-        data = request.get_json(silent=True) or {}
-        cuota_id = data.get('cuota_id')
-        dia_recargo = data.get('dia_recargo')
-
-        if not data or 'cuota_id' not in data or 'dia_recargo' not in data:
-            return {'error': 'El dia de recargo (dia_recargo) y el id de la cuota (cuota_id) son requeridos obligatoriamente.'}, 400  
-            
-        cuota_ref = db.collection('cuotas').document(cuota_id)
-        cuota_doc = cuota_ref.get()
-        cuota_data = None
-
-        if cuota_doc.exists: 
-            cuota_data = cuota_doc.to_dict()
-            precio_cuota = get_monto_cuota(cuota_id, dia_recargo)
-
-            cuota_data = ordenar_datos_cuotas(cuota_data, precio_cuota)
-        else:
-            return {'error': "Cuota no encontrada."}, 404
-        
-        disciplina_doc = db.collection("disciplinas").document(cuota_data["idDisciplina"]).get()
-        if not disciplina_doc.exists:
-            return {'error': "Esta cuota no pertenece a ninguna disciplina."}, 500
-        
-        disciplina_data = disciplina_doc.to_dict()
-
-        #Luego, si todo fue bien, obtiene los datos del .env
-        load_dotenv()
-        PROD_ACCESS_TOKEN = os.getenv("MP_ACCESS_TOKEN_TEST")
-
-        mercado_pago_sdk = mercadopago.SDK(str(PROD_ACCESS_TOKEN))
-
-        #Creacion de la preferencia
-        preference_data = {
-            "items": [
-                {
-                    "title": f"Cuota {cuota_data["concepto"]}",
-                    "quantity": 1,
-                    "unit_price": int(cuota_data["precio_cuota"]),
-                    "currency_id": "ARS",
-                    "description": f"Cuota del mes de {cuota_data["concepto"]}, para alumno con DNI: {cuota_data["dniAlumno"]}, de la disciplina: {disciplina_data["nombre"]}.",
-                }
-            ],
-            "back_urls": {
-                "success": "https://www.nationstates.net/nation=midnight_horrors",
-                "failure": "https://www.youtube.com",
-                "pending": "https://www.google.com",
-            },
-            "auto_return": "approved",
-            "payment_methods": {
-                "excluded_payment_methods": [
-                {
-                    "id": ""
-                }
-                ],
-                "excluded_payment_types": [
-                {
-                    "id": "ticket"
-                }
-                ]
-            },
-        }
-
-        preference_response = mercado_pago_sdk.preference().create(preference_data)
-        preference = preference_response["response"]
-
-        return preference, 200 
-    
-    except Exception as e:
-        return {'error': str(e)}, 500
 
 
 def cuotas(request):
@@ -109,6 +37,7 @@ def cuotas(request):
 #@require_auth(required_roles=['alumno', 'profesor', 'admin'])
 def getCuotas(request):
     try:
+        #axiox no permite GETs con datos en JSON, por lo que es necesario usar los args.
         data = request.args
         cuota_id = data.get('cuota_id')
 
@@ -119,9 +48,10 @@ def getCuotas(request):
         
         #El dia de recargo, asi solo se debe pasar por el front
         #EL DIA DE RECARGO ES REQUERIDO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        recargo_day = int(data.get('dia_recargo'))
-        if "dia_recargo" not in data:
+        if 'dia_recargo' not in data:
             return {'error': 'El dia de recargo (dia_recargo) es requerido obligatoriamente para evitar errores.'}, 400
+        
+        recargo_day = int(data.get('dia_recargo'))
 
         if not data or 'cuota_id' not in data:
             cuotas = []
@@ -138,7 +68,7 @@ def getCuotas(request):
                 cuota_data = doc.to_dict()
             
                 precio_cuota = get_monto_cuota(doc.id, recargo_day)
-                cuota_data = ordenar_datos_cuotas(cuota_data, precio_cuota)
+                cuota_data = ordenar_datos_cuotas(cuota_data, precio_cuota, doc.id)
 
                 cuotas.append(cuota_data)
 
@@ -151,7 +81,7 @@ def getCuotas(request):
             cuota_data = cuota_doc.to_dict()
             precio_cuota = get_monto_cuota(cuota_id, recargo_day)
 
-            cuota_data = ordenar_datos_cuotas(cuota_data, precio_cuota)
+            cuota_data = ordenar_datos_cuotas(cuota_data, precio_cuota, cuota_doc.id)
 
             return cuota_data, 200
         else:
@@ -182,7 +112,7 @@ def get_monto_cuota(cuota_id, recargo_day):
     estado_cuota = cuota_data.get("estado", "").lower()
     fecha_pago_cuota = cuota_data.get("fechaPago")
 
-    return determinar_monto(concepto_cuota, precios, estado_cuota, fecha_pago_cuota, recargo_day)
+    return determinar_monto(concepto_cuota, precios, estado_cuota, fecha_pago_cuota, int(recargo_day))
 
 
 def determinar_monto(concepto_cuota, precios, estado, fecha_pago, recargo_day):
@@ -215,8 +145,10 @@ def determinar_monto(concepto_cuota, precios, estado, fecha_pago, recargo_day):
     return precios.get("montoBase")
 
 
-def ordenar_datos_cuotas(data_cuota, precio_cuota):   # Armamos el diccionario con orden especifico para hacerlo mas legible
+def ordenar_datos_cuotas(data_cuota, precio_cuota, cuota_id):   
+    #Se arma el diccionario con orden especifico
     cuota_data = OrderedDict()
+    cuota_data["id"] = cuota_id
     cuota_data["concepto"] = data_cuota.get("concepto")
     cuota_data["dniAlumno"] = data_cuota.get("dniAlumno")
     cuota_data["estado"] = data_cuota.get("estado")
@@ -226,3 +158,53 @@ def ordenar_datos_cuotas(data_cuota, precio_cuota):   # Armamos el diccionario c
     cuota_data["precio_cuota"] = precio_cuota
         
     return cuota_data
+
+
+def pagar_cuota(request):
+    try:
+        #Obtiene el ID de la request y la firma de la notificación.
+        request_id = request.headers.get("X-Request-Id")
+        signature = request.headers.get("X-Signature")
+
+        #Obtiene los datos del body y la query de la notificacion.
+        data = request.get_json(silent=True) or {}
+        parametros_query = request.args
+        data_id = parametros_query.get("data.id")
+
+        #Parte la firma en sus dos partes correspondientes y crea las variables donde se pondrán.
+        partes_signature = signature.split(",")
+        timestamp = None
+        hash_v1 = None
+
+        #Itera sobre cada una para asignar sus valores a cada parte.
+        for parte in partes_signature:
+            key_value = parte.split("=", 1)
+            if len(key_value) == 2:
+                key = key_value[0].strip() 
+                value = key_value[1].strip() 
+
+                if key == "ts":
+                    timestamp = value
+                elif key == "v1":
+                    hash_v1 = value
+
+        load_dotenv()
+        WEBHOOK_KEY = os.getenv("MP_WEBHOOK_KEY")
+        
+        #Creación del manifiesto y codificación de la firma
+        manifiesto = f"id:{data_id};request-id:{request_id};ts:{timestamp};"
+        firma_hmac = hmac.new(WEBHOOK_KEY.encode(), msg=manifiesto.encode(), digestmod=hashlib.sha256)
+        resultado_sha = firma_hmac.hexdigest()
+
+        if resultado_sha == hash_v1:
+            topic = parametros_query.get("type")
+
+            if topic == "payment":
+                establecer_pago(data["data"]["id"])
+
+            return "success", 200
+        else:
+            return "failure", 400
+    
+    except Exception as e:
+        return {'error': str(e)}, 500

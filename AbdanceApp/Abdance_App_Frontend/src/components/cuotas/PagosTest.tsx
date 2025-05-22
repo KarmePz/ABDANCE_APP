@@ -14,7 +14,7 @@ export default function PagosTest() {
     });
 
     /* TODO: PONER ESTO EN EL LOCAL STORAGE, O EN OTRO LUGAR */
-    const id_pago_localStorage = "1CcsWhRmtA8tDckwFtn5"
+    const id_pago_localStorage = "78fGVBDLUo2lizTTzoyO"
 
     const [idPreferencia, setIdPreferencia] = useState(null)
 

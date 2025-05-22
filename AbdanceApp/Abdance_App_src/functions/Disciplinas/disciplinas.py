@@ -110,7 +110,7 @@ def eliminarHorarioDisciplina(disciplina_id, dni_alumno):#metodo para eliminar u
 def getDisciplinas(request, uid=None, role=None):
     try:
         data = request.get_json(silent=True) or {}
-        disciplina_id = data.get('disciplina_id')       
+        disciplina_id = data.get('disciplina_id')
         
         
         if not data or 'disciplina_id' not in data:# si no se especifica un id determinado se ejecuta lo siguiente
