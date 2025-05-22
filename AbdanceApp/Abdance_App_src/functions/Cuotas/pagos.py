@@ -3,8 +3,7 @@ import os
 from firebase_init import db  # Firebase con base de datos inicializada
 from functions.Usuarios.auth_decorator import require_auth
 from dotenv import load_dotenv
-from cuotas import get_monto_cuota, ordenar_datos_cuotas
-
+from functions.Cuotas.utilidades_cuotas import get_monto_cuota, ordenar_datos_cuotas
 
 
 def efectuar_pago(request):
@@ -79,7 +78,7 @@ def efectuar_pago(request):
     
     except Exception as e:
         return {'error': str(e)}, 500
-    
+
 
 def establecer_pago(data_payment):
     PROD_ACCESS_TOKEN = os.getenv("MP_ACCESS_TOKEN_TEST")
