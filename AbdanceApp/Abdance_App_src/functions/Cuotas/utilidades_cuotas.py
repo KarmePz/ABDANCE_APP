@@ -71,5 +71,7 @@ def determinar_monto(concepto_cuota, precios, estado, fecha_pago, recargo_day):
     if (estado != "pagada" and en_recargo(today)) or (pago_dt and en_recargo(pago_dt)):
         return precios.get("montoRecargo")
     
+    #TODO: Retorno de monto de alumno ingresado el 15 o despues
+    
     #Retorno de montoBase
     return precios.get("montoBase")

@@ -20,7 +20,7 @@ export default function PagosTest() {
 
     const crear_preferencia = async () => {
         try {
-            const respuesta = await axios.post("http://127.0.0.1:8080/efectuar_pago", {
+            const respuesta = await axios.post("http://127.0.0.1:8080/crear_preferencia_cuota", {
                 cuota_id: id_pago_localStorage,
                 dia_recargo: 11
             })

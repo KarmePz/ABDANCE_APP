@@ -1,19 +1,14 @@
-import json
-import functions_framework
-import firebase_admin
-import mercadopago
 import os
-from collections import OrderedDict
 from firebase_admin import credentials, firestore, auth
 import hashlib
 import hmac
 from firebase_init import db  # Firebase con base de datos inicializada
-from datetime import datetime
 from functions.Usuarios.auth_decorator import require_auth
 from dotenv import load_dotenv
-from zoneinfo import ZoneInfo
-from functions.Cuotas.utilidades_cuotas import establecer_pago
+from functions.Cuotas.pagos import establecer_pago
 from functions.Cuotas.utilidades_cuotas import get_monto_cuota, ordenar_datos_cuotas
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 
@@ -23,7 +18,6 @@ def cuotas(request):
     
     elif request.method == 'POST':
         return postCuotas(request)
-        
     
     elif request.method == 'PUT':
         return putCuotas(request)
@@ -92,6 +86,116 @@ def getCuotas(request):
         return {'error': str(e)}, 500
 
 
+def postCuotas(request):
+    try:
+        data_cuota = request.get_json(silent=True) or {}
+        #se debe crear una nueva disciplina
+        cuota_concepto = data_cuota.get("concepto")
+        cuota_alumno = data_cuota.get("dniAlumno")
+        cuota_disciplina = data_cuota.get("idDisciplina")
+        
+        if not cuota_concepto or not cuota_alumno or not cuota_disciplina:
+            return {'error': 'Faltan datos para generar la cuota. Revise concepto, DNI del alumno, ID de disciplina.'}, 400
+
+        #si todos los datos existen se añaden a la base de datos
+        cuota_ref = db.collection("cuotas").document()
+        
+        #generar el id aleatorio
+        cuota_id = cuota_ref.id
+        data_cuota['id'] = cuota_id
+
+        #Generar datos pre_establecidos
+        data_cuota['estado'] = "pendiente"
+        data_cuota['fechaPago'] = ""
+        data_cuota['metodoPago'] = ""
+        
+        #guardar documento con el id
+        cuota_ref.set(data_cuota)
+        
+        return {'message': 'Cuota registrada exitosamente'}, 201
+
+    except Exception as e:
+        return {'error': str(e)}, 500
+
+
+def putCuotas(request):
+    try:
+        data = request.get_json(silent=True) or {} 
+    
+        if not data or 'cuota_id' not in data:
+            return {'error': ' Ingrese un id (cuota_id) para poder actualizar la cuota.'}, 400
+        
+        #Verificacion de existencia de disciplina y alumno
+        disciplina_id = data.get("idDisciplina")
+        disciplina_ref = db.collection("disciplinas").document(disciplina_id)
+        disciplina_doc = disciplina_ref.get()
+        if not disciplina_doc.exists and disciplina_id:
+            return {'error':'La disciplina proporcionada no fue encontrada o no existe.'}, 400
+        
+        alumno_dni = data.get("dniAlumno")
+        alumno_ref = db.collection("usuarios").document(alumno_dni)
+        alumno_doc = alumno_ref.get()
+        if not alumno_doc.exists and alumno_dni:
+            return {'error':'El alumno proporcionado no fue encontrado o no existe.'}, 400
+        
+        #Se realiza una comprobación de los campos, para no ingresar campos incorrectos
+        #o que no corresponden.
+        campos_permitidos = {
+            'cuota_id',
+            'concepto',       
+            'estado',    
+            'fechaPago',  
+            'idDisciplina', 
+            'dniAlumno',
+            'metodoPago',
+        }
+
+        campos_data = set(data.keys())
+        campos_extra = campos_data - campos_permitidos
+        if campos_extra:
+            return {
+                'error': 'Campos no permitidos en la petición.',
+                'invalid_fields': list(campos_extra)
+            }, 400
+        
+        cuota_ref = db.collection('cuotas').document(data['cuota_id'])
+        cuota_doc = cuota_ref.get()
+        cuota_data = cuota_doc.to_dict()
+        
+        #control de errores 
+        if not cuota_doc.exists:
+            return {'error': 'No se encontro la cuotaa especificada.'}, 404
+        
+        data.pop("cuota_id")
+        cuota_ref.update(data)
+        return {"message": "Cuota Actualizada", "id": cuota_data.get('id')}, 200
+
+    except Exception as e:
+        return {'error': str(e)}, 500
+
+
+def deleteCuotas(request):
+    try:
+        data = request.get_json(silent=True) or {} 
+    
+        if not data or 'cuota_id' not in data:
+            return {'error': 'Debe ingresar el id de la cuota (cuota_id) para poder eliminarla.'}, 400 
+        
+        cuota_ref = db.collection('cuotas').document(data['cuota_id'])
+        cuota_doc = cuota_ref.get()
+        
+        #control de errores 
+        if not cuota_doc.exists:
+            return {'error': 'No se encontró la cuota especificada.'}, 404
+        
+        #eliminacion de BD firestore
+        cuota_ref.delete()
+        return {'message': 'Cuota eliminada correctamente.'}, 200
+
+    except Exception as e:
+        return {'error': str(e)}, 500
+
+
 def pagar_cuota(request):
     try:
         #Obtiene el ID de la request y la firma de la notificación.
@@ -134,9 +238,38 @@ def pagar_cuota(request):
             if topic == "payment":
                 establecer_pago(data["data"]["id"])
 
-            return "success", 200
+            return {"received": "true"}, 200
         else:
-            return "failure", 400
+            return '', 200
     
+    except Exception as e:
+        return {'error': str(e)}, 500
+
+
+def pagar_cuotas_manualmente(request_cuotas_id):
+    try:
+        data = request_cuotas_id.get_json(silent=True) or {}
+        lista_cuotas_id = data.get("lista_cuotas", [])
+
+        if not isinstance(lista_cuotas_id, list) or not lista_cuotas_id:
+            return {'error': "El campo de \"lista_cuotas\" no es una lista o no está definido."}
+
+        for id_cuota in lista_cuotas_id:
+            cuota_ref = db.collection('cuotas').document(id_cuota)
+            cuota_doc = cuota_ref.get()
+
+            #SE ASUME QUE EL PAGO SE HACE EN EFECTIVO
+            if cuota_doc.exists: 
+                cuota_ref.update({
+                'estado': 'pagada',
+                'fechaPago': datetime.now(ZoneInfo("America/Argentina/Buenos_Aires")),
+                'metodoPago': "cash"
+            })
+            else:
+                return {'error':'Una cuota no fue encontrada.'}, 404
+        
+        return "Cuotas pagadas manualmente con éxito.", 200
+
+
     except Exception as e:
         return {'error': str(e)}, 500

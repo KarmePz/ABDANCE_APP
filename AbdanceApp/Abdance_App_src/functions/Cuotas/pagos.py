@@ -6,13 +6,15 @@ from dotenv import load_dotenv
 from functions.Cuotas.utilidades_cuotas import get_monto_cuota, ordenar_datos_cuotas
 
 
-def efectuar_pago(request):
+
+def crear_preferencia_cuota(request):
     try:
         #Primero obtiene la cuota a pagar
         data = request.get_json(silent=True) or {}
         cuota_id = data.get('cuota_id')
         dia_recargo = data.get('dia_recargo')
 
+        #Verifica que no falten datos importantes.
         if not data or 'cuota_id' not in data or 'dia_recargo' not in data:
             return {'error': 'El dia de recargo (dia_recargo) y el id de la cuota (cuota_id) son requeridos obligatoriamente.'}, 400  
             
@@ -69,7 +71,10 @@ def efectuar_pago(request):
                 }
                 ]
             },
-            "external_reference": f"{cuota_data["id"]}"
+            "external_reference": f"{cuota_data["id"]}",
+            "metadata": {
+                "tipo_objeto_a_pagar": "cuota"
+            }
         }
         preference_response = mercado_pago_sdk.preference().create(preference_data)
         preference = preference_response["response"]
@@ -87,12 +92,23 @@ def establecer_pago(data_payment):
     #Obtiene información del pago
     informacion_pago = mercado_pago_sdk.payment().get(data_payment)
     pago = informacion_pago["response"]
-    id_cuota = pago.get("external_reference")
+    id_objeto = pago.get("external_reference")
+    tipo_objeto = pago.get("metadata", {}).get("tipo_objeto_a_pagar").lower()
     status_pago = pago.get("status")
 
-    if status_pago == "approved" and id_cuota:
-        cuota_ref = db.collection('cuotas').document(id_cuota)
+    if status_pago == "approved" and id_objeto and tipo_objeto == "cuota":
+        cuota_ref = db.collection('cuotas').document(id_objeto)
+
+        if cuota_ref.get().to_dict().get("estado", "").lower() == "pagada":
+            raise LookupError("La cuota buscada ya está pagada.")
+        
         cuota_ref.update({
             'estado': 'pagada',
-            'fechaPago': pago.get('date_approved')
+            'fechaPago': pago.get('date_approved'),
+            'metodoPago': pago.get('payment_type_id')
         })
+    #TODO:Logica para el pago de las entradas de eventos aquí    
+    elif status_pago == "approved" and id_objeto and tipo_objeto == "entrada_evento":
+        return 
+    
+    

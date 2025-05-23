@@ -12,9 +12,8 @@ from functions.Asistencias.asistencias import (
     inasistencias, 
     registrar_inasistencia
 )
-from functions.Cuotas.cuotas import cuotas
-from functions.Cuotas.cuotas import efectuar_pago
-from functions.Cuotas.cuotas import pagar_cuota
+from functions.Cuotas.cuotas import cuotas, pagar_cuota, pagar_cuotas_manualmente
+from functions.Cuotas.pagos import crear_preferencia_cuota
 from functions.Usuarios.auth_users import register_student
 from functions.Usuarios.usuarios import usuarios
 from functions.Eventos.eventos import eventos
@@ -59,10 +58,12 @@ def main(request):
         return 'Hola Main View', 200 
     elif path == '/cuotas':
         return cuotas(request)
-    elif path == "/efectuar_pago":
-        return efectuar_pago(request) 
+    elif path == "/crear_preferencia_cuota":
+        return crear_preferencia_cuota(request) 
     elif path == "/pagar_cuota":
         return pagar_cuota(request)
+    elif path == "/pagar_cuota/manual":
+        return pagar_cuotas_manualmente(request)
     elif path == '/eventos':
         return eventos(request) 
     elif path == '/usuarios/register-student':
