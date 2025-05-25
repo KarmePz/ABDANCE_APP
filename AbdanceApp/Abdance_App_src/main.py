@@ -12,7 +12,11 @@ from functions.Asistencias.asistencias import (
     inasistencias, 
     registrar_inasistencia
 )
-from functions.Cuotas.cuotas import cuotas, pagar_cuota, pagar_cuotas_manualmente
+from functions.Cuotas.cuotas import (
+    cuotas, 
+    pagar_cuota, 
+    pagar_cuotas_manualmente
+)
 from functions.Cuotas.pagos import crear_preferencia_cuota
 from functions.Usuarios.auth_users import register_student
 from functions.Usuarios.usuarios import usuarios

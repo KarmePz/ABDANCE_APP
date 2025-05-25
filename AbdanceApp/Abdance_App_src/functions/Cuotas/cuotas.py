@@ -273,3 +273,38 @@ def pagar_cuotas_manualmente(request_cuotas_id):
 
     except Exception as e:
         return {'error': str(e)}, 500
+
+
+def crear_cuotas_mes(request):
+    """Funcion que crea las cuotas para todos los alumnos de cada una de las disciplinas en las
+    que estén agregados.
+
+    Args:
+        request (Data): Datos de la HTTP Request.
+
+    Returns:
+        HTTPResponse: Responde apropiadamente con error o un 201 dependiendo de si todo salió bien.
+    """
+    try:
+        #TODO: Terminar estas dos funciones.
+        usuario_ref = db.collection('usuarios').where('rol', '==', "alumno").stream()
+
+        for doc_alumno in usuario_ref:
+            doc_alumno.to_dict()
+
+            
+
+        return
+
+
+    except Exception as e:
+        return {'error': str(e)}, 500
+
+
+def eliminar_cuotas_mes(request):
+    try:
+        return
+
+
+    except Exception as e:
+        return {'error': str(e)}, 500

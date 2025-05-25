@@ -7,7 +7,16 @@ from zoneinfo import ZoneInfo
 
 
 def ordenar_datos_cuotas(data_cuota, precio_cuota, cuota_id):   
-    #Se arma el diccionario con orden especifico
+    """Ordena los datos de las cuotas en un formato especifico.
+
+    Args:
+        data_cuota (Dict): Diccionario de datos.
+        precio_cuota (Number): Precio de la cuota.
+        cuota_id (String): ID de la cuota a ordenar.
+
+    Returns:
+        OrderedDict: Datos de la cuota ordenados en formato de Diccionario.
+    """
     cuota_data = OrderedDict()
     cuota_data["id"] = cuota_id
     cuota_data["concepto"] = data_cuota.get("concepto")
@@ -22,6 +31,15 @@ def ordenar_datos_cuotas(data_cuota, precio_cuota, cuota_id):
 
 
 def get_monto_cuota(cuota_id, recargo_day):
+    """Obtiene el precio de una cuota especifica, usando un dia de recargo especifico.
+
+    Args:
+        cuota_id (String): ID de la cuota.
+        recargo_day (Integer): Numero entero del dia de recargo.
+
+    Returns:
+        HTTPError/Number: Retorna el monto de la cuota o lanza un error si algo va mal.
+    """
     cuota_ref = db.collection('cuotas').document(cuota_id)
     cuota_doc = cuota_ref.get()
     if not cuota_doc.exists:
