@@ -10,12 +10,14 @@ function App() {
   useFavicon("/dance.ico")
   return (
     <>
+    
       <Background />
       <Logo />
       <LoginForm ></LoginForm>
 
 
       <h3 className='relative top-40'> ¿Te interesa saber sobre nuestros eventos? <a href='https://www.youtube.com' target='blank'>¡Hace click Aqui!</a></h3>
+    
     </>
   )
 }
