@@ -17,6 +17,10 @@ from functions.Cuotas.cuotas import (
     pagar_cuota, 
     pagar_cuotas_manualmente
 )
+from functions.Estadisticas.estadisticas import (
+    total_pagado_mes,
+    totales_por_mes_anio
+)
 from functions.Cuotas.pagos import crear_preferencia_cuota
 from functions.Usuarios.auth_users import register_student
 from functions.Usuarios.usuarios import usuarios
@@ -68,6 +72,10 @@ def main(request):
         return pagar_cuota(request)
     elif path == "/pagar_cuota/manual":
         return pagar_cuotas_manualmente(request)
+    elif path == "/estadisticas/total-del-mes":
+        return total_pagado_mes(request)
+    elif path == "/estadisticas/totales-por-anio":
+        return totales_por_mes_anio(request)
     elif path == '/eventos':
         return eventos(request) 
     elif path == '/usuarios/register-student':

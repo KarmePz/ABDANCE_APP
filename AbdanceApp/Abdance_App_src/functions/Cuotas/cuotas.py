@@ -108,6 +108,7 @@ def postCuotas(request):
         data_cuota['estado'] = "pendiente"
         data_cuota['fechaPago'] = ""
         data_cuota['metodoPago'] = ""
+        data_cuota['montoPagado'] = 0
         
         #guardar documento con el id
         cuota_ref.set(data_cuota)
@@ -148,6 +149,7 @@ def putCuotas(request):
             'idDisciplina', 
             'dniAlumno',
             'metodoPago',
+            'montoPagado',
         }
 
         campos_data = set(data.keys())
@@ -249,21 +251,28 @@ def pagar_cuota(request):
 def pagar_cuotas_manualmente(request_cuotas_id):
     try:
         data = request_cuotas_id.get_json(silent=True) or {}
+        req_args = request_cuotas_id.args
         lista_cuotas_id = data.get("lista_cuotas", [])
 
         if not isinstance(lista_cuotas_id, list) or not lista_cuotas_id:
             return {'error': "El campo de \"lista_cuotas\" no es una lista o no está definido."}
+        
+        if 'dia_recargo' not in req_args:
+            return {'error': 'El dia de recargo (dia_recargo) es requerido obligatoriamente para evitar errores.'}, 400
+        recargo_day = req_args.get("dia_recargo")
 
         for id_cuota in lista_cuotas_id:
             cuota_ref = db.collection('cuotas').document(id_cuota)
             cuota_doc = cuota_ref.get()
+            monto_pagado = get_monto_cuota(cuota_doc.id, recargo_day)
 
             #SE ASUME QUE EL PAGO SE HACE EN EFECTIVO
             if cuota_doc.exists: 
                 cuota_ref.update({
                 'estado': 'pagada',
                 'fechaPago': datetime.now(ZoneInfo("America/Argentina/Buenos_Aires")),
-                'metodoPago': "cash"
+                'metodoPago': "cash",
+                'montoPagado': monto_pagado
             })
             else:
                 return {'error':'Una cuota no fue encontrada.'}, 404

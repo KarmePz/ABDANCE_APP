@@ -1,9 +1,12 @@
 import mercadopago
 import os
+import datetime
 from firebase_init import db  # Firebase con base de datos inicializada
 from functions.Usuarios.auth_decorator import require_auth
 from dotenv import load_dotenv
 from functions.Cuotas.utilidades_cuotas import get_monto_cuota, ordenar_datos_cuotas
+from dateutil import parser
+from zoneinfo import ZoneInfo
 
 
 
@@ -95,6 +98,7 @@ def establecer_pago(data_payment):
     id_objeto = pago.get("external_reference")
     tipo_objeto = pago.get("metadata", {}).get("tipo_objeto_a_pagar").lower()
     status_pago = pago.get("status")
+    cantidad_transaccion = pago.get("transaction_amount")
 
     if status_pago == "approved" and id_objeto and tipo_objeto == "cuota":
         cuota_ref = db.collection('cuotas').document(id_objeto)
@@ -102,10 +106,15 @@ def establecer_pago(data_payment):
         if cuota_ref.get().to_dict().get("estado", "").lower() == "pagada":
             raise LookupError("La cuota buscada ya está pagada.")
         
+        raw_date = pago.get("date_approved")
+        dt = datetime.fromisoformat(raw_date)                  # crea datetime con tzinfo
+        dt_local = dt.astimezone(ZoneInfo("America/Argentina/Buenos_Aires"))
+        
         cuota_ref.update({
             'estado': 'pagada',
-            'fechaPago': pago.get('date_approved'),
-            'metodoPago': pago.get('payment_type_id')
+            'fechaPago': dt_local,
+            'metodoPago': pago.get('payment_type_id'),
+            'montoPagado': cantidad_transaccion
         })
     #TODO:Logica para el pago de las entradas de eventos aquí    
     elif status_pago == "approved" and id_objeto and tipo_objeto == "entrada_evento":
