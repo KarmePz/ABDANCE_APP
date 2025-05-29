@@ -52,7 +52,7 @@ export const getRole = async(usuarioUid: string):  Promise <string | null> => {
 
         if (!querySnapshot.empty) {
 
-            const userDoc = querySnapshot.docs[0];
+            const userDoc = querySnapshot.docs[0];//se piensa que solo hay un documento
             const data = userDoc.data();
             return data.rol || null;
 

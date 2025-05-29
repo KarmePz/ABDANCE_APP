@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
+    "@iconify/react": "^6.0.0",
     "@tailwindcss/vite": "^4.1.5",
     "firebase": "^11.7.3",
     "react": "^19.0.0",

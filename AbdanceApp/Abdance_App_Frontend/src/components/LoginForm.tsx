@@ -22,26 +22,27 @@ const LoginForm = () => {
     const {control, handleSubmit, formState: {errors}} = useForm<FormValues>({
         resolver: zodResolver(schema)
     });
-const onSubmit: SubmitHandler<FormValues> = async (data) =>{
-    console.log(data);
-    const resultado = await login(data.email, data.password);
-    if (resultado) {
-        const rol = await getRole(resultado.usuario.uid)
-        
-        if (!rol) {
-        // Manejo si no tiene rol
-            console.error("No se encontró el rol del usuario");
-            return null;
+
+    const onSubmit: SubmitHandler<FormValues> = async (data) =>{
+        console.log(data);
+        const resultado = await login(data.email, data.password);
+        if (resultado) {
+            const rol = await getRole(resultado.usuario.uid)
+            
+            if (!rol) {
+            // Manejo si no tiene rol
+                console.error("No se encontró el rol del usuario");
+                return null;
+            }
+            localStorage.setItem("usuario", JSON.stringify({
+                email: resultado.usuario.email,
+                uid: resultado.usuario.uid,
+                rol,
+            }));
+            navigate("/dashboard");
+            //window.location.href = "https://www.youtube.com";
         }
-        localStorage.setItem("usuario", JSON.stringify({
-        email: resultado.usuario.email,
-        uid: resultado.usuario.uid,
-        rol,
-        }));
-        navigate("/private");
-        //window.location.href = "https://www.youtube.com";
     }
-}
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="z-30">
