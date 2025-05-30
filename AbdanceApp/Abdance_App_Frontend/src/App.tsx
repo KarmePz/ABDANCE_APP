@@ -1,9 +1,15 @@
 import { Link } from 'react-router-dom';
-import PagosTest from "./components/cuotas/PagosTest"
+import './App.css'
+import {Background, Logo, LoginForm} from './components'
+import { useDocumentTitle } from './hooks/useDocumentTitle';
+import { useFavicon } from './hooks/useFavicon';
 
 
 
 function App() {
+  useDocumentTitle("Academia ABDANCE");
+  useFavicon("/dance.ico")
+  
   return (
     <>
       
