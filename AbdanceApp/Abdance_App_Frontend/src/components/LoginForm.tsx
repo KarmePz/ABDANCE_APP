@@ -2,7 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {z} from "zod";
 import InputForm from "./CustomInput";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useLogin } from "../hooks/useLogin";
+import { getRole, useLogin } from "../hooks/useLogin";
+import { useNavigate } from "react-router-dom";
 
 
 const schema = z.object({
@@ -14,19 +15,34 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 const LoginForm = () => {
+    const navigate = useNavigate();
 
     const { login, loading, error } = useLogin();
 
     const {control, handleSubmit, formState: {errors}} = useForm<FormValues>({
         resolver: zodResolver(schema)
     });
-const onSubmit: SubmitHandler<FormValues> = async (data) =>{
-    console.log(data);
-    const resultado = await login(data.email, data.password);
-    if (resultado) {
-        window.location.href = "https://www.youtube.com";
+
+    const onSubmit: SubmitHandler<FormValues> = async (data) =>{
+        console.log(data);
+        const resultado = await login(data.email, data.password);
+        if (resultado) {
+            const rol = await getRole(resultado.usuario.uid)
+            
+            if (!rol) {
+            // Manejo si no tiene rol
+                console.error("No se encontró el rol del usuario");
+                return null;
+            }
+            localStorage.setItem("usuario", JSON.stringify({
+                email: resultado.usuario.email,
+                uid: resultado.usuario.uid,
+                rol,
+            }));
+            navigate("/dashboard");
+            //window.location.href = "https://www.youtube.com";
+        }
     }
-}
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="z-30">
