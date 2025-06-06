@@ -10,3 +10,14 @@ export {default as LoginForm} from "./LoginForm";
 // HOME
 export {default as SideBar} from "./SideBar";
 export {default as MainContentDashboard} from "./MainContentDashboard";
+
+
+
+// TABLAS CON FUNCIONALIDADES 
+//
+//
+//Usuarios
+export {UserTable} from "./UserTable";
+//
+//disciplinas
+export {DisciplinaTable} from "./DisciplinaTable";
