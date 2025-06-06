@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import {  Navigate, Route, Routes } from "react-router-dom"; 
 import App from "./App";
 import { PrivateGuard } from "./guard/PrivateGuard";
+import {DisciplinaTable, UserTable} from './components'
 import Dashboard from "./pages/Dashboard";
 
 
@@ -29,11 +30,11 @@ export const AppRouter = ({children}:Props) =>{
                             <Route path="/dashboard/eventos/id_evento" element={<Dashboard/>} />
                             <Route path="/dashboard/eventos/id_evento/comprar" element={<Dashboard/>} />
 
-                            <Route path="usuarios" element={<h1>Usuarios</h1>} />
+                            <Route path="usuarios" element={<UserTable />} />
                             <Route path="/dashboard/usuarios/agregar" element={<Dashboard/>} />
                             <Route path="/dashboard/usuarios/id_usuario" element={<Dashboard/>} />
 
-                            <Route path="/dashboard/disciplinas" element={<h1>Disciplinas</h1>} />
+                            <Route path="/dashboard/disciplinas" element={<DisciplinaTable/>} />
                             <Route path="/dashboard/disciplinas/agregar" element={<Dashboard/>} />
                             <Route path="/dashboard/disciplinas/id_disciplina" element={<Dashboard/>} />
 
