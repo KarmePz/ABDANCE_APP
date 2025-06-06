@@ -1,8 +1,5 @@
-/* TODO: ESTO ES SOLO UN COMPONENTE PARA TESTING 
-SE DEBE INTEGRAR EL COMPONENTE NECESARIO AL CHECKOUT PRO*/
 import axios from "axios";
 import danceImg from "./../../../public/dance.ico"
-import "./Pagos.css"
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 import { useState } from "react";
 
@@ -14,14 +11,14 @@ export default function PagosTest() {
     });
 
     /* TODO: PONER ESTO EN EL LOCAL STORAGE, O EN OTRO LUGAR */
-    const id_pago_localStorage = "78fGVBDLUo2lizTTzoyO"
+    const id_cuota_localStorage = "78fGVBDLUo2lizTTzoyO"
 
     const [idPreferencia, setIdPreferencia] = useState(null)
 
     const crear_preferencia = async () => {
         try {
             const respuesta = await axios.post("http://127.0.0.1:8080/crear_preferencia_cuota", {
-                cuota_id: id_pago_localStorage,
+                cuota_id: id_cuota_localStorage,
                 dia_recargo: 11
             })
             
