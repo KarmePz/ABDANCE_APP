@@ -50,7 +50,7 @@ const LoginForm = () => {
             <InputForm name='password'control={control} label="Password" type="password" error={errors.password} />
 
             <button type="submit" className="m-2" disabled={loading}>{loading ? "Cargando": "Iniciar Sesión"}</button>
-            {error && <p className="text-red-500 bg-amber-100">{error}</p>}
+            {error && <p className="text-red-500 bg-amber-100">{error}</p>} 
         </form>
     )
 }
