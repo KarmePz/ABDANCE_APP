@@ -83,7 +83,7 @@ return (
         <div className="flex justify-between mt-4">
             <button onClick={handleSave} className="bg-green-500 text-white px-3 py-1 rounded">Guardar</button>
             <button onClick={handleDelete} className="bg-red-500 text-white px-3 py-1 rounded">Eliminar</button>
-            <button onClick={onClose} className="bg-gray-300 px-3 py-1 rounded">Cancelar</button>
+            <button onClick={onClose} className="bg-gray-300 text-white px-3 py-1 rounded">Cancelar</button>
         </div>
         </div>
     </div>
