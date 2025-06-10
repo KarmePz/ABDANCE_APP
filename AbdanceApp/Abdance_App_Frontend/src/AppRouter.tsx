@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import {  Navigate, Route, Routes } from "react-router-dom"; 
 import App from "./App";
 import { PrivateGuard } from "./guard/PrivateGuard";
-import {DisciplinaTable, UserTable} from './components'
+import {DisciplinaTable, Loader, UserTable} from './components'
 import { CuotaTable } from "./components/CuotaTable";
 import Dashboard from "./pages/Dashboard";
 
@@ -31,7 +31,7 @@ export const AppRouter = ({children}:Props) =>{
                             <Route path="/dashboard/eventos/id_evento" element={<Dashboard/>} />
                             <Route path="/dashboard/eventos/id_evento/comprar" element={<Dashboard/>} />
 
-                            <Route path="usuarios" element={<UserTable />} />
+                            <Route path="usuarios" element={<UserContentDashboard />} />
                             <Route path="/dashboard/usuarios/agregar" element={<Dashboard/>} />
                             <Route path="/dashboard/usuarios/id_usuario" element={<Dashboard/>} />
 
@@ -43,7 +43,7 @@ export const AppRouter = ({children}:Props) =>{
                             <Route path="/dashboard/asistencias/alumno_dni" element={<Dashboard/>} />
                             
 
-                            <Route path="/dashboard/cuotas" element={<CuotaTable />} />
+                            <Route path="/dashboard/cuotas" element={<div className="flex justify-center align-middle items-center w-full h-full"><Loader /></div>} />
                             <Route path="/dashboard/cuotas/alumno_dni" element={<Dashboard/>} />
                             <Route path="/dashboard/cuotas/alumno_dni/id_cuota" element={<Dashboard/>} />
 
@@ -70,6 +70,7 @@ export const AppRouter = ({children}:Props) =>{
 
 import { Page_404 } from "./pages/Page_404";
 import { Page_403 } from "./pages/Page_403";
+import UserContentDashboard from "./pages/UserContentDashboard";
 interface Props{
     children: ReactNode
 }
