@@ -36,31 +36,36 @@ export function UserTable() {
 
     if (loading) return <p>Cargando...</p>;
     if (error) return <p>Error: {error}</p>;
+    
+    const tableHeaderStyle = "bg-[#fff0] text-[#fff] justify-center";
+    const tableDatacellStyle = "text-blue-500 bg-white rounded-xl m-0.5 p-1";
 
     return (
         <>
-        <table className="min-w-full border">
+        <div className="w-full overflow-x-auto">
+        <div className="min-w-[640px] mx-auto">
+        <table className=" table-fixed min-w-[99%] rounded-xl border-none md:border m-1 bg-transparent md:bg-[#1a0049] border-separate border-spacing-x-1 border-spacing-y-1 w-auto">
             <thead>
-            <tr className="bg-gray-200">
-                <th>DNI</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th>Acciones</th>
+            <tr className="bg-transparent ">
+                <th className={tableHeaderStyle + " w-[100px]"}>DNI</th>
+                <th className={tableHeaderStyle + " w-[120px]"}>Nombre</th>
+                <th className={tableHeaderStyle + " w-[120px]"}>Apellido</th>
+                <th className={tableHeaderStyle + " w-[200px]"}>Email</th>
+                <th className={tableHeaderStyle + " w-[100px]"}>Rol</th>
+                <th className="bg-[#fff0] text-[#fff] w-[80px]">Acciones</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody className="">
             {users?.map((user) => (
                 <tr key={user.dni}>
-                <td>{user.dni}</td>
-                <td>{user.nombre}</td>
-                <td>{user.apellido}</td>
-                <td>{user.email}</td>
-                <td>{user.rol}</td>
-                <td>
-                    <button
-                    className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
+                <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{user.dni}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[120px]`}>{user.nombre}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[120px]`}>{user.apellido}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{user.email}</td>
+                <td className="text-blue-500 bg-white rounded-xl m-0.5 p-1">{user.rol}</td>
+                <td className="w-[80px]">
+                    <button id="action-button"
+                    
                     onClick={() => handleEdit(user)}
                     >
                     Editar
@@ -70,7 +75,8 @@ export function UserTable() {
             ))}
             </tbody>
         </table>
-
+        </div>
+        </div>
         {selectedUser && (
             <UserFormDialog open={open} user={selectedUser} onClose={handleClose} onUserUpdated={handleUserUpdated} />
         )}

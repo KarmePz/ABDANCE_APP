@@ -30,7 +30,7 @@ export const AppRouter = ({children}:Props) =>{
                             <Route path="/dashboard/eventos/id_evento" element={<Dashboard/>} />
                             <Route path="/dashboard/eventos/id_evento/comprar" element={<Dashboard/>} />
 
-                            <Route path="usuarios" element={<UserTable />} />
+                            <Route path="usuarios" element={<UserContentDashboard />} />
                             <Route path="/dashboard/usuarios/agregar" element={<Dashboard/>} />
                             <Route path="/dashboard/usuarios/id_usuario" element={<Dashboard/>} />
 
@@ -69,6 +69,7 @@ export const AppRouter = ({children}:Props) =>{
 
 import { Page_404 } from "./pages/Page_404";
 import { Page_403 } from "./pages/Page_403";
+import UserContentDashboard from "./pages/UserContentDashboard";
 interface Props{
     children: ReactNode
 }

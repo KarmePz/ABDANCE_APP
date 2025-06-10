@@ -43,6 +43,14 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+#action-button{
+  background-color: var(--color-blue-500) ;
+  color: #fff;
+  padding-inline: calc(var(--spacing) * 2);
+  padding-block: calc(var(--spacing) * 1);
+  border-radius: 0.25rem ;
+  margin: calc(var(--spacing) * 1);
+}
 button:hover {
   border-color: #646cff;
 }
@@ -62,4 +70,11 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.truncate-cell {
+  max-width: 120px; /* Ajusta según necesidad */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
