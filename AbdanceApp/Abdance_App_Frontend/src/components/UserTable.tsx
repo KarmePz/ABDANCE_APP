@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import { UserFormDialog } from "./UserFormDialog";
+import {Loader} from '../components'
 
 type User = {
     id:string;
@@ -34,7 +35,7 @@ export function UserTable() {
         setReloadFlag((prev) => prev + 1);
     };
 
-    if (loading) return <p>Cargando...</p>;
+    if (loading) return   <div className="flex justify-center align-middle items-center w-full h-full"><Loader /></div>;
     if (error) return <p>Error: {error}</p>;
     
     const tableHeaderStyle = "bg-[#fff0] text-[#fff] justify-center";

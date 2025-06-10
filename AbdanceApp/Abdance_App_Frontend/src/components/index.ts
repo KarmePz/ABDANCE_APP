@@ -10,6 +10,7 @@ export {default as LoginForm} from "./LoginForm";
 // HOME
 export {default as SideBar} from "./SideBar";
 export {default as MainContentDashboard} from "./MainContentDashboard";
+export {default as Loader} from "./Loader"
 
 
 

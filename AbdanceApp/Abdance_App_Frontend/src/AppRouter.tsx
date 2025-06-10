@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import {  Navigate, Route, Routes } from "react-router-dom"; 
 import App from "./App";
 import { PrivateGuard } from "./guard/PrivateGuard";
-import {DisciplinaTable, UserTable} from './components'
+import {DisciplinaTable, Loader, UserTable} from './components'
 import Dashboard from "./pages/Dashboard";
 
 
@@ -42,7 +42,7 @@ export const AppRouter = ({children}:Props) =>{
                             <Route path="/dashboard/asistencias/alumno_dni" element={<Dashboard/>} />
                             
 
-                            <Route path="/dashboard/cuotas" element={<h1>Cuotas</h1>} />
+                            <Route path="/dashboard/cuotas" element={<div className="flex justify-center align-middle items-center w-full h-full"><Loader /></div>} />
                             <Route path="/dashboard/cuotas/alumno_dni" element={<Dashboard/>} />
                             <Route path="/dashboard/cuotas/alumno_dni/id_cuota" element={<Dashboard/>} />
 
