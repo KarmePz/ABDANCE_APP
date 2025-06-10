@@ -37,7 +37,7 @@ export default function Sidebar() {
 
         {/* Sidebar */}
         <aside
-            className={`fixed rounded-3xl w-50 z-40 top-0 left-0 h-auto transition-transform duration-300 ease-in-out flex justify-center 
+            className={`fixed rounded-3xl w-[200px] z-40 top-0 left-0 h-auto transition-transform duration-300 ease-in-out flex justify-center 
             ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
             md:translate-x-0 md:static md:flex md:w-20 md:bg-[#ebdaff] bg-[#200045]`} //estilos del contenedor
         >
