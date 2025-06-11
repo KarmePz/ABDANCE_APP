@@ -14,6 +14,7 @@ from functions.Asistencias.asistencias import (
 )
 from functions.Cuotas.cuotas import (
     cuotas, 
+    getCuotasDNIAlumno,
     pagar_cuota, 
     pagar_cuotas_manualmente
 )
@@ -66,6 +67,8 @@ def main(request):
         return 'Hola Main View', 200 
     elif path == '/cuotas':
         return cuotas(request)
+    elif path == '/cuotas/alumno':
+        return getCuotasDNIAlumno(request)
     elif path == "/crear_preferencia_cuota":
         return crear_preferencia_cuota(request) 
     elif path == "/pagar_cuota":

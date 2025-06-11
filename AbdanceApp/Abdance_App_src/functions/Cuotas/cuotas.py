@@ -29,8 +29,8 @@ def cuotas(request):
         return 'hola pagos', 200
 
 
-#@require_auth(required_roles=['alumno', 'profesor', 'admin'])
-def getCuotas(request):
+@require_auth(required_roles=['alumno', 'profesor', 'admin'])
+def getCuotas(request, uid=None, role=None):
     try:
         #axiox no permite GETs con datos en JSON, por lo que es necesario usar los args.
         data = request.args
@@ -86,10 +86,11 @@ def getCuotas(request):
         return {'error': str(e)}, 500
 
 
-def postCuotas(request):
+@require_auth(required_roles=['admin'])
+def postCuotas(request, uid=None, role=None):
     try:
         data_cuota = request.get_json(silent=True) or {}
-        #se debe crear una nueva disciplina
+        #se debe crear una nueva cuota
         cuota_concepto = data_cuota.get("concepto")
         cuota_alumno = data_cuota.get("dniAlumno")
         cuota_disciplina = data_cuota.get("idDisciplina")
@@ -119,7 +120,8 @@ def postCuotas(request):
         return {'error': str(e)}, 500
 
 
-def putCuotas(request):
+@require_auth(required_roles=['admin'])
+def putCuotas(request, uid=None, role=None):
     try:
         data = request.get_json(silent=True) or {} 
     
@@ -175,8 +177,8 @@ def putCuotas(request):
     except Exception as e:
         return {'error': str(e)}, 500
 
-
-def deleteCuotas(request):
+@require_auth(required_roles=['admin'])
+def deleteCuotas(request, uid=None, role=None):
     try:
         data = request.get_json(silent=True) or {} 
     
@@ -196,6 +198,58 @@ def deleteCuotas(request):
 
     except Exception as e:
         return {'error': str(e)}, 500
+
+
+@require_auth(required_roles=['alumno', 'admin'])
+def getCuotasDNIAlumno(request, uid=None, role=None):
+    try:
+        #axiox no permite GETs con datos en JSON, por lo que es necesario usar los args.
+        data = request.args
+        cuota_id = data.get('cuota_id')
+
+        #DNI del alumno para pedir las cuotas de este solamente
+        dni_alumno = data.get('dniAlumno')
+        
+        #El dia de recargo, asi solo se debe pasar por el front
+        #EL DIA DE RECARGO ES REQUERIDO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if 'dia_recargo' not in data:
+            return {'error': 'El dia de recargo (dia_recargo) es requerido obligatoriamente para evitar errores.'}, 400
+        if 'dniAlumno' not in data:
+            return {'error': 'El DNI del alumno es requerido.'}, 400
+        
+        recargo_day = int(data.get('dia_recargo'))
+
+        if not data or 'cuota_id' not in data:
+            cuotas = []
+            cuotas_ref = db.collection('cuotas')
+            cuotas_ref = cuotas_ref.where("dniAlumno", "==", dni_alumno)
+
+            for doc in cuotas_ref.stream():
+                cuota_data = doc.to_dict()
+            
+                precio_cuota = get_monto_cuota(doc.id, recargo_day)
+                cuota_data = ordenar_datos_cuotas(cuota_data, precio_cuota, doc.id)
+
+                cuotas.append(cuota_data)
+
+            return cuotas, 200
+
+        cuota_ref = db.collection('cuotas').document(cuota_id)
+        cuota_doc = cuota_ref.get()
+
+        if cuota_doc.exists: 
+            cuota_data = cuota_doc.to_dict()
+            precio_cuota = get_monto_cuota(cuota_id, recargo_day)
+
+            cuota_data = ordenar_datos_cuotas(cuota_data, precio_cuota, cuota_doc.id)
+
+            return cuota_data, 200
+        else:
+            return {'error':'cuota no encontrada'}, 404
+        
+    except Exception as e:
+        return {'error': str(e)}, 500
+
 
 
 def pagar_cuota(request):
@@ -248,7 +302,8 @@ def pagar_cuota(request):
         return {'error': str(e)}, 500
 
 
-def pagar_cuotas_manualmente(request_cuotas_id):
+@require_auth(required_roles=['admin'])
+def pagar_cuotas_manualmente(request_cuotas_id, uid=None, role=None):
     try:
         data = request_cuotas_id.get_json(silent=True) or {}
         req_args = request_cuotas_id.args
