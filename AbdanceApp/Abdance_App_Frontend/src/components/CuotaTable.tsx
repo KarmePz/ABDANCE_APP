@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import { Dialog, DialogTitle } from "@headlessui/react";
+import Loader from "./Loader";
+import generalDateParsing from "../utils/generalDateParsing";
+import { getDNI } from "../hooks/useLogin";
 
 type Cuota = {
     concepto: string;
@@ -74,9 +77,6 @@ export function PagoManualModal({open, onClose, selectedCuotas, onSuccess, }: {
                 <li>Concepto: {c.concepto}</li>
                 <li>Concepto: {c.precio_cuota}</li>
               </ul>
-              {/* <span>{c.concepto}</span>
-              <span>{c.precio_cuota}</span>
-              <span><strong>DNI Alumno: </strong>{c.dniAlumno}</span> */}
             </div>
           ))}
         </div>
@@ -107,11 +107,40 @@ export function PagoManualModal({open, onClose, selectedCuotas, onSuccess, }: {
 export function CuotaTable() {
   const endpointUrl = import.meta.env.VITE_API_URL;
   const [reloadFlag, setReloadFlag] = useState(0);
+  const usuario = JSON.parse(localStorage.getItem('usuario') ?? '{}');
+  const { rol, uid: usuarioUid } = usuario;
+  const [dniAlumno, setDniAlumno] = useState<string | null>(null);
+  const [endpointPath, setEndpointPath] = useState<string>(`/cuotas?dia_recargo=11&reload=${reloadFlag}`);
+
+  useEffect(() => {
+    if (rol === 'alumno' && usuarioUid) {
+      getDNI(usuarioUid)
+        .then(dni => setDniAlumno(dni))
+        .catch(err => console.error('Error obteniendo DNI:', err));
+        console.log(dniAlumno)
+    }
+  }, [rol, usuarioUid]);
+  console.log(dniAlumno)
   /* const { data: cuotas, loading, error } = useAuthFetch<Cuota[]>(
     `${endpointUrl}/cuotas?dia_recargo=11&reload=${reloadFlag}`
   ); */
+
+  //El back-end se encarga de verificar el rol usando token del usuario con el useAuthFetch.
+  //Se actualiza endpointPath cuando cambien rol, dniAlumno o reloadFlag.
+  useEffect(() => {
+    if (rol === 'alumno') {
+      if (dniAlumno) {
+        setEndpointPath(`/cuotas/alumno?dia_recargo=11&dniAlumno=${dniAlumno}&reload=${reloadFlag}`);
+      }
+    } else {
+      setEndpointPath(`/cuotas?dia_recargo=11&reload=${reloadFlag}`);
+    }
+  }, [rol, dniAlumno, reloadFlag]);
+
   const { data: cuotas, loading, error } = useAuthFetch<Cuota[]>(
-    `http://192.168.0.194:8080/cuotas?dia_recargo=11&reload=${reloadFlag}`);
+    `http://192.168.0.194:8080${endpointPath}`
+  );
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [open, setOpen] = useState(false);
 
@@ -134,134 +163,78 @@ export function CuotaTable() {
   const handleClose = () => setOpen(false);
   const handleSuccess = () => setReloadFlag(prev => prev + 1);
 
-  if (loading) return <p>Cargando...</p>;
+  if (loading) return  <div className="flex justify-center align-middle items-center w-full h-full"><Loader /></div>;
   if (error) return <p>Error: {error}</p>;
+
+  const tableHeaderStyle = "bg-[#fff0] text-[#fff] justify-center";
+  const tableDatacellStyle = "text-blue-500 bg-white rounded-xl m-0.5 p-1";
 
   return (
     <>
-      <table className="min-w-full border">
-        <thead>
-          <tr className="bg-gray-200">
-            <th></th>
-            <th>Concepto</th>
-            <th>DNI Alumno</th>
-            <th>Estado</th>
-            <th>Fecha de Pago</th>
-            <th>Disciplina</th>
-            <th>Metodo de Pago</th>
-            <th>Cantidad</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cuotas?.map(c => (
-            <tr key={c.id} className={selectedIds.has(c.id) ? 'bg-yellow-50' : ''}>
-              <td className="p-2">
-                <input
-                  type="checkbox"
-                  checked={selectedIds.has(c.id)}
-                  onChange={() => toggleSelect(c.id)}
-                />
-              </td>
-              <td>{c.concepto}</td>
-              <td>{c.dniAlumno}</td>
-              <td>{c.estado}</td>
-              <td>{c.fechaPago}</td>
-              <td>{c.idDisciplina}</td>
-              <td>{c.metodoPago}</td>
-              <td>{c.precio_cuota}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    {rol === 'alumno' && !dniAlumno ? (
+        <p>Cargando información de usuario...</p>
+      ) : loading ? (
+        <p>Cargando cuotas...</p>
+      ) : error ? (
+        <p>Error: {error}</p>
+      ) : (
+        <>
+        <div className="w-full overflow-x-auto">
+        <div className="min-w-[640px] mx-auto">
+          <table className="table-fixed min-w-[99%] rounded-xl border-none md:border m-1 bg-transparent md:bg-[#1a0049] border-separate border-spacing-x-1 border-spacing-y-1 w-auto">
+            <thead>
+              <tr className="bg-transparent">
+                <th></th>
+                <th className={tableHeaderStyle + " w-[40px]"}>Concepto</th>
+                <th className={tableHeaderStyle + " w-[40px]"}>DNI Alumno</th>
+                <th className={tableHeaderStyle + " w-[75px]"}>Estado</th>
+                <th className={tableHeaderStyle + " w-[200px]"}>Fecha de Pago</th>
+                <th className={tableHeaderStyle + " w-[50px]"}>Disciplina</th>
+                <th className={tableHeaderStyle + " w-[60px]"}>Metodo de Pago</th>
+                <th className={tableHeaderStyle + " w-[50px]"}>Cantidad</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cuotas?.map(c => (
+                <tr key={c.id} >
+                  <td className={selectedIds.has(c.id) ? 'bg-purple-200 rounded-lg md:bg-transparent p-2 min-w-5 w-8' : 'p-2 min-w-5 w-8'}>
+                    <input
+                      className="h-5 w-5 flex rounded-md border border-[#a2a1a833] light:bg-[#e8e8e8] dark:bg-[#212121] peer-checked:bg-[#7152f3] transition cursor-pointer"
+                      type="checkbox"
+                      checked={selectedIds.has(c.id)}
+                      onChange={() => toggleSelect(c.id)}
+                    />
+                  </td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[100px] capitalize`}>{c.concepto}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.dniAlumno}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[110px] capitalize`}>{c.estado}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{generalDateParsing(c.fechaPago)}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.idDisciplina}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.metodoPago}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[50px]`}>{c.precio_cuota}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          </div>
+          </div>
 
-      <button
-        onClick={openModal}
-        disabled={selectedIds.size === 0}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
-      >
-        Pagar Seleccionadas
-      </button>
+          <button
+            onClick={openModal}
+            disabled={selectedIds.size === 0}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+          >
+            Pagar Seleccionadas
+          </button>
 
-      <PagoManualModal
-        open={open}
-        onClose={handleClose}
-        selectedCuotas={selectedCuotas}
-        onSuccess={handleSuccess}
-      />
+          <PagoManualModal
+            open={open}
+            onClose={handleClose}
+            selectedCuotas={selectedCuotas}
+            onSuccess={handleSuccess}
+          />
+        </>
+      )}
     </>
   );
 }
-
-
-
-
-/* export function CuotaTable() {
-    const endpointUrl =  import.meta.env.VITE_API_URL
-    const [reloadFlag, setReloadFlag] = useState(0); //controla los cambios de la tabla
-
-    const { data: users, loading, error } = useAuthFetch<Cuota[]>(`${endpointUrl}/cuotas?dia_recargo=28&reload=${reloadFlag}`);
-    const [selectedCuota, setSelectedCuota] = useState<Cuota | null>(null);
-    const [open, setOpen] = useState(false);
-
-    const handleEdit = (cuota: Cuota) => {
-        setSelectedCuota(cuota);
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-        setSelectedCuota(null);
-    };
-    
-    // Esta función se pasa para forzar recarga
-    const handleCuotaUpdated = () => {
-        setReloadFlag((prev) => prev + 1);
-    };
-
-    if (loading) return <p>Cargando...</p>;
-    if (error) return <p>Error: {error}</p>;
-
-    return (
-        <>
-        <table className="min-w-full border">
-            <thead>
-            <tr className="bg-gray-200">
-                <th>Concepto</th>
-                <th>DNI Alumno</th>
-                <th>Estado</th>
-                <th>Fecha de Pago</th>
-                <th>Disciplina</th>
-                <th>Metodo de Pago</th>
-                <th>Cantidad a Pagar/Pagada</th>
-                <th>Acciones</th>
-            </tr>
-            </thead>
-            <tbody>
-            {users?.map((cuota) => (
-                <tr key={cuota.concepto}>
-                <td>{cuota.dniAlumno}</td>
-                <td>{cuota.estado}</td>
-                <td>{cuota.fechaPago}</td>
-                <td>{cuota.idDisciplina}</td>
-                <td>{cuota.metodoPago}</td>
-                <td>{cuota.precioCuota}</td>
-                <td>
-                    <button
-                    className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
-                    onClick={() => handleEdit(cuota)}
-                    >
-                    Pagar
-                    </button>
-                </td>
-                </tr>
-            ))}
-            </tbody>
-        </table>
-
-         {selectedCuota && (
-            <PagoManualForm open={open} cuota={selectedCuota} onClose={handleClose} onCuotaUpdated={handleCuotaUpdated} />
-        )} 
-        </>
-    );
-} 
-*/

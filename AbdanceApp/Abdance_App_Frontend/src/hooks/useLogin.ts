@@ -65,3 +65,27 @@ export const getRole = async(usuarioUid: string):  Promise <string | null> => {
         return null;
     }
 };
+
+
+export const getDNI = async(usuarioUid: string):  Promise <string | null> => {
+    try {
+        const usersRef = collection(db, "usuarios");
+        const q = query(usersRef, where("user_uid", "==", usuarioUid));
+        const querySnapshot = await getDocs(q);
+
+
+        if (!querySnapshot.empty) {
+
+            const userDoc = querySnapshot.docs[0];//se piensa que solo hay un documento
+            const data = userDoc.data();
+            return data.dni ?? null;
+
+        } else {
+        console.warn("No existe el documento del usuario");
+        return null;
+        }
+    } catch (error) {
+        console.error("Error obteniendo el DNI:", error);
+        return null;
+    }
+};

@@ -9,7 +9,7 @@ from dateutil import parser
 from zoneinfo import ZoneInfo
 
 
-
+@require_auth(required_roles=['alumno', 'admin'])
 def crear_preferencia_cuota(request):
     try:
         #Primero obtiene la cuota a pagar
