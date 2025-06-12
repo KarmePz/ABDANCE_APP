@@ -1,6 +1,6 @@
 import functions_framework 
 ##from flask import Flask, jsonify, request
-
+from util.cors import apply_cors
 
 
 import functions_framework
@@ -42,7 +42,7 @@ def main(request):
     # Configuración básica de CORS para peticiones OPTIONS
     if request.method == 'OPTIONS':
         headers = {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': 'http://localhost:5173',
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         }
@@ -56,12 +56,12 @@ def main(request):
     if path == '/' and method == 'GET':
         return 'Hola Main View', 200 
     elif path == '/cuotas':
-        return cuotas(request) 
+        return cuotas(request)
     elif path == '/eventos':
         return eventos(request) 
     elif path == '/usuarios/register-student':
         return register_student(request) 
-    elif path == '/usuarios' and method == 'GET':
+    elif path == '/usuarios':
         return usuarios(request)
     elif path == '/inasistencias':
         return inasistencias(request) 

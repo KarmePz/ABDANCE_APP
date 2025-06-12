@@ -15,6 +15,7 @@ from firebase_admin import firestore
 from datetime import datetime
 from collections import OrderedDict
 from functions.Usuarios.auth_decorator import require_auth
+from util.cors import apply_cors
 #TODOS ESTOS METODOS DEBEN SER PROTEGIDOS MEDIANTE EL USO DE VERIFICACION DE TOKENS QUE SE ASIGNEN DESDE EL FRONTEND
 #
 #De otra manera cualquiera puede acceder a estos datos
@@ -26,18 +27,18 @@ from functions.Usuarios.auth_decorator import require_auth
 #CRUD DE DISCIPLINAS 
 def disciplinas(request):
     if request.method == 'GET':
-        return getDisciplinas(request)
+        return apply_cors(getDisciplinas(request))
         #SE DEBE TRABAJAR TAMBIEN EN EL TEMA DE ALUMNOS DE LAS DISCIPLINAS 
             
     elif request.method == 'POST':
-        return postDisciplinas(request)
+        return apply_cors(postDisciplinas(request))
         
     
     elif request.method == 'PUT':
-        return putDisciplinas(request)
+        return apply_cors(putDisciplinas(request))
     
     elif request.method == 'DELETE':
-        return deleteDisciplina(request)
+        return apply_cors(deleteDisciplina(request))
     
     else:
         return {'error':'Método no permitido'}, 405   
