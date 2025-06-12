@@ -43,7 +43,7 @@ export const AppRouter = ({children}:Props) =>{
                             <Route path="/dashboard/asistencias/alumno_dni" element={<Dashboard/>} />
                             
 
-                            <Route path="/dashboard/cuotas" element={<CuotaContentDashboard/>} />
+                            <Route path="/dashboard/cuotas" element={<CuotaContentDashboard />} />
                             <Route path="/dashboard/cuotas/alumno_dni" element={<Dashboard/>} />
                             <Route path="/dashboard/cuotas/alumno_dni/id_cuota" element={<Dashboard/>} />
 
@@ -71,6 +71,7 @@ export const AppRouter = ({children}:Props) =>{
 import { Page_404 } from "./pages/Page_404";
 import { Page_403 } from "./pages/Page_403";
 import UserContentDashboard from "./pages/UserContentDashboard";
+import PagosTest from "./components/cuotas/PagosTest";
 interface Props{
     children: ReactNode
 }

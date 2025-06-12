@@ -1,16 +1,17 @@
 import { ReactNode } from 'react';
-import { CuotaTable } from '../CuotaTable';
+import { CuotaAdminTable, CuotaAlumnoTable } from '../CuotaTable';
 
 interface Props{
     children?: ReactNode;
 }
 
-export const CuotaContentDashboard = ({children}: Props) =>{
-    return (
-        <>
-            <h1 className='tracking-wide text-4xl font-black text-gray-300 md:dark:text-gray-900'>CUOTAS</h1>
-            <CuotaTable />
-        </>
-    )
+export function CuotaContentDashboard() {
+  const usuario = JSON.parse(localStorage.getItem('usuario')|| '{}');
+  return (
+    <>
+      <h1 className="tracking-wide text-4xl font-black text-gray-300 md:dark:text-gray-900">CUOTAS</h1>
+      {usuario.rol === 'alumno' ? <CuotaAlumnoTable /> : <CuotaAdminTable />}
+    </>
+  );
 }
 export default CuotaContentDashboard;
