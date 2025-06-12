@@ -4,6 +4,8 @@ import { Dialog, DialogTitle } from "@headlessui/react";
 import Loader from "./Loader";
 import generalDateParsing from "../utils/generalDateParsing";
 import { getDNI } from "../hooks/useLogin";
+import axios from "axios";
+import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 
 type Cuota = {
     concepto: string;
@@ -75,7 +77,7 @@ export function PagoManualModal({open, onClose, selectedCuotas, onSuccess, }: {
               <ul className="list-inside list-disc"><em><strong>ID de Cuota: </strong></em>{c.id}
                 <li><b>DNI Alumno: </b>{c.dniAlumno}</li>
                 <li>Concepto: {c.concepto}</li>
-                <li>Concepto: {c.precio_cuota}</li>
+                <li>Precio de la Cuota: {c.precio_cuota}</li>
               </ul>
             </div>
           ))}
@@ -102,8 +104,226 @@ export function PagoManualModal({open, onClose, selectedCuotas, onSuccess, }: {
   );
 }
 
+// Tabla de cuotas para Alumno
+export function CuotaAlumnoTable() {
+  const baseUrl = import.meta.env.VITE_API_URL;
+  const usuario = JSON.parse(localStorage.getItem('usuario') ?? '{}');
+  const dniAlumno = usuario.dni ?? ""
+  const [reload, setReload] = useState(0);
+  const [selectedCuota, setSelectedCuota] = useState<Cuota | null>(null);
+  const [openModal, setOpenModal] = useState(false);
+  
+  const endpoint = dniAlumno
+    ? `http://192.168.0.194:8080/cuotas/alumno?dia_recargo=11&dniAlumno=${dniAlumno}&reload=${reload}`
+    : null;
+  const { data: cuotas, loading, error } = useAuthFetch<Cuota[]>(endpoint ?? '');
+  const tableHeaderStyle = "bg-[#fff0] text-[#fff] justify-center";
+  const tableDatacellStyle = "text-blue-500 bg-white rounded-xl m-0.5 p-1";
 
-//Componente de la tabla de cuotas
+  const handleRowClick = (c: Cuota) => {
+    if (c.estado.toLowerCase() === 'pagada') return; // no seleccionable
+    setSelectedCuota(c);
+    setOpenModal(true);
+  };
+
+  const closeModal = () => {
+    setOpenModal(false);
+    setSelectedCuota(null);
+  };
+
+  if (loading) return  <div className="flex justify-center align-middle items-center w-full h-full"><Loader /></div>;
+  if (error) return <p>Error: {error}</p>;
+
+  return (
+    <>
+      <>
+      <div className="w-full overflow-x-auto">
+      <div className="min-w-[640px] mx-auto">
+        <table className="table-fixed min-w-[99%] rounded-xl border-none md:border m-1 bg-transparent md:bg-[#1a0049] border-separate border-spacing-x-1 border-spacing-y-1 w-auto">
+          <thead>
+            <tr className="bg-transparent">
+              <th className={tableHeaderStyle + " w-[40px]"}>Concepto</th>
+              <th className={tableHeaderStyle + " w-[40px]"}>DNI Alumno</th>
+              <th className={tableHeaderStyle + " w-[75px]"}>Estado</th>
+              <th className={tableHeaderStyle + " w-[200px]"}>Fecha de Pago</th>
+              <th className={tableHeaderStyle + " w-[50px]"}>Disciplina</th>
+              <th className={tableHeaderStyle + " w-[60px]"}>Metodo de Pago</th>
+              <th className={tableHeaderStyle + " w-[50px]"}>Cantidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cuotas?.map(c => (
+              <tr
+                key={c.id}
+                onClick={() => handleRowClick(c)}
+                className={`${c.estado.toLowerCase()==='pagada'? 'opacity-50 cursor-not-allowed':'cursor-pointer hover:bg-gray-100'}`}
+              >
+                <td className={`${tableDatacellStyle} truncate max-w-[100px] capitalize`}>{c.concepto}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.dniAlumno}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[110px] capitalize`}>{c.estado}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{generalDateParsing(c.fechaPago)}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.idDisciplina}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.metodoPago}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[50px]`}>{c.precio_cuota}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        </div>
+        </div>
+
+        {/* Modal de confirmación e integración MercadoPago */}
+        {selectedCuota && (
+          <Dialog open={openModal} onClose={closeModal} className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="bg-indigo-200 p-6 rounded-lg shadow-lg max-w-md w-full text-black">
+              <DialogTitle className="text-xl font-extrabold mb-4 text-center">Confirmar Pago</DialogTitle>
+              <div className="space-y-2 mb-4">
+                <p><strong>ID de Cuota: </strong>{selectedCuota.id}</p>
+                <p><strong>DNI Alumno: </strong>{selectedCuota.dniAlumno}</p>
+                <p><strong>Concepto: </strong>{selectedCuota.concepto}</p>
+                <p><strong>Precio: </strong>{selectedCuota.precio_cuota}</p>
+              </div>
+              <p className="text-sm italic mb-6 text-center">La fecha de pago se registrará con la fecha y hora actual.</p>
+              <div className="flex justify-end space-x-2 mb-4">
+                <button onClick={closeModal} className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Cancelar</button>
+              </div>
+              <PagosTest cuotaId={selectedCuota.id} onCompleted={() => { closeModal(); setReload(r=>r+1); }} />
+            </div>
+          </Dialog>
+        )}
+      </>
+    </>
+  );
+}
+
+
+// Tabla de cuotas para Admin
+export function CuotaAdminTable() {
+  const baseUrl = import.meta.env.VITE_API_URL;
+  const [reloadFlag, setReloadFlag] = useState(0);
+  const endpoint = `http://192.168.0.194:8080/cuotas?dia_recargo=11&reload=${reloadFlag}`;
+  const { data: cuotas, loading, error } = useAuthFetch<Cuota[]>(endpoint);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [open, setOpen] = useState(false);
+
+  const selectedCuotas = cuotas?.filter(c => selectedIds.has(c.id)) || [];
+  const toggleSelect = (id: string) => setSelectedIds(prev => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
+
+  const openModal = () => {
+    if (selectedIds.size === 0) return;
+    setOpen(true);
+  };
+
+  const handleClose = () => setOpen(false);
+  const handleSuccess = () => setReloadFlag(f => f + 1);
+
+  const tableHeaderStyle = "bg-[#fff0] text-[#fff] justify-center";
+  const tableDatacellStyle = "text-blue-500 bg-white rounded-xl m-0.5 p-1";
+
+  if (loading) return  <div className="flex justify-center align-middle items-center w-full h-full"><Loader /></div>;
+  if (error) return <p>Error: {error}</p>;
+
+  return (
+    <>
+      <>
+      <div className="w-full overflow-x-auto">
+      <div className="min-w-[640px] mx-auto">
+        <table className="table-fixed min-w-[99%] rounded-xl border-none md:border m-1 bg-transparent md:bg-[#1a0049] border-separate border-spacing-x-1 border-spacing-y-1 w-auto">
+          <thead>
+            <tr className="bg-transparent">
+              <th></th>
+              <th className={tableHeaderStyle + " w-[40px]"}>Concepto</th>
+              <th className={tableHeaderStyle + " w-[40px]"}>DNI Alumno</th>
+              <th className={tableHeaderStyle + " w-[75px]"}>Estado</th>
+              <th className={tableHeaderStyle + " w-[200px]"}>Fecha de Pago</th>
+              <th className={tableHeaderStyle + " w-[50px]"}>Disciplina</th>
+              <th className={tableHeaderStyle + " w-[60px]"}>Metodo de Pago</th>
+              <th className={tableHeaderStyle + " w-[50px]"}>Cantidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cuotas?.map(c => (
+              <tr key={c.id} >
+                <td className={selectedIds.has(c.id) ? 'bg-purple-200 rounded-lg md:bg-transparent p-2 min-w-5 w-8' : 'p-2 min-w-5 w-8'}>
+                  <input
+                    className="h-5 w-5 flex rounded-md border border-[#a2a1a833] light:bg-[#e8e8e8] dark:bg-[#212121] peer-checked:bg-[#7152f3] transition cursor-pointer"
+                    type="checkbox"
+                    checked={selectedIds.has(c.id)}
+                    onChange={() => toggleSelect(c.id)}
+                  />
+                </td>
+                <td className={`${tableDatacellStyle} truncate max-w-[100px] capitalize`}>{c.concepto}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.dniAlumno}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[110px] capitalize`}>{c.estado}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{generalDateParsing(c.fechaPago)}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.idDisciplina}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.metodoPago}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[50px]`}>{c.precio_cuota}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        </div>
+        </div>
+
+        <button
+          onClick={openModal}
+          disabled={selectedIds.size === 0}
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+        >
+          Pagar Seleccionadas
+        </button>
+
+        <PagoManualModal
+          open={open}
+          onClose={handleClose}
+          selectedCuotas={selectedCuotas}
+          onSuccess={handleSuccess}
+        />
+      </>
+    </>
+  );
+}
+
+// Componente test de Mercado Pago, recibe cuotaId y callback
+interface PagosTestProps { cuotaId: string; onCompleted: () => void; }
+export function PagosTest({ cuotaId, onCompleted }: PagosTestProps) {
+  //const publicKey = import.meta.env.MERCADO_PAGO_KEY;
+  const publicKey = "APP_USR-5f823e37-e3e9-4c4c-9d9d-ff696f47ba7d"
+  console.log(publicKey)
+  initMercadoPago(publicKey, { locale: 'es-AR' });
+  const [idPreferencia, setPreferenceId] = useState<string | null>(null);
+  const token = localStorage.getItem('token');
+
+  const crearPreferencia = async () => {
+    try {
+      const res = await axios.post(
+        `http://127.0.0.1:8080/crear_preferencia_cuota`,
+        { cuota_id: cuotaId, dia_recargo: 11 },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setPreferenceId(res.data.id);
+    } catch (e) { console.error(e); }
+  };
+
+  useEffect(() => { crearPreferencia(); }, [cuotaId]);
+
+  if (!idPreferencia) return <p>Generando preferencia...</p>;
+  return (
+  <div>
+    {idPreferencia && <Wallet initialization={{ preferenceId: idPreferencia }} />}
+  </div>);
+}
+
+
+
+
+
+/* //Componente de la tabla de cuotas
 export function CuotaTable() {
   const endpointUrl = import.meta.env.VITE_API_URL;
   const [reloadFlag, setReloadFlag] = useState(0);
@@ -127,7 +347,7 @@ export function CuotaTable() {
 
   //El back-end se encarga de verificar el rol usando token del usuario con el useAuthFetch.
   //Se actualiza endpointPath cuando cambien rol, dniAlumno o reloadFlag.
-  useEffect(() => {
+  /* useEffect(() => {
     if (rol === 'alumno') {
       if (dniAlumno) {
         setEndpointPath(`/cuotas/alumno?dia_recargo=11&dniAlumno=${dniAlumno}&reload=${reloadFlag}`);
@@ -237,4 +457,4 @@ export function CuotaTable() {
       )}
     </>
   );
-}
+} */

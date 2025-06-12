@@ -199,7 +199,7 @@ def deleteCuotas(request, uid=None, role=None):
     except Exception as e:
         return {'error': str(e)}, 500
 
-
+#TODO: Agregar que se necesite el UID del usuario tambien aparte del DNI.
 @require_auth(required_roles=['alumno', 'admin'])
 def getCuotasDNIAlumno(request, uid=None, role=None):
     try:
@@ -299,6 +299,7 @@ def pagar_cuota(request):
             return '', 200
     
     except Exception as e:
+        print(e)
         return {'error': str(e)}, 500
 
 

@@ -1,6 +1,6 @@
 import mercadopago
 import os
-import datetime
+from datetime import datetime
 from firebase_init import db  # Firebase con base de datos inicializada
 from functions.Usuarios.auth_decorator import require_auth
 from dotenv import load_dotenv
@@ -10,7 +10,7 @@ from zoneinfo import ZoneInfo
 
 
 @require_auth(required_roles=['alumno', 'admin'])
-def crear_preferencia_cuota(request):
+def crear_preferencia_cuota(request, uid=None, role=None):
     try:
         #Primero obtiene la cuota a pagar
         data = request.get_json(silent=True) or {}

@@ -1,27 +1,35 @@
 import axios from "axios";
-import danceImg from "./../../../public/dance.ico"
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 import { useState } from "react";
 
 export default function PagosTest() {
-    /* TODO: GET THIS THING OUT OF HERE */
-    const publicKey = "APP_USR-5f823e37-e3e9-4c4c-9d9d-ff696f47ba7d" 
+    const publicKey = import.meta.env.MERCADO_PAGO_KEY
     initMercadoPago(publicKey, {
         locale: "es-AR"
     });
 
-    /* TODO: PONER ESTO EN EL LOCAL STORAGE, O EN OTRO LUGAR */
-    const id_cuota_localStorage = "78fGVBDLUo2lizTTzoyO"
+    /* Esto se obtendrá de la cuota seleccionada */
+    const id_cuota_localStorage = ""
 
     const [idPreferencia, setIdPreferencia] = useState(null)
+    const token = localStorage.getItem("token");
 
     const crear_preferencia = async () => {
         try {
-            const respuesta = await axios.post("http://127.0.0.1:8080/crear_preferencia_cuota", {
-                cuota_id: id_cuota_localStorage,
-                dia_recargo: 11
-            })
-            
+            const respuesta = await axios.post(
+                "http://127.0.0.1:8080/crear_preferencia_cuota",
+                {
+                    cuota_id: id_cuota_localStorage,
+                    dia_recargo: 11
+                },
+                {
+                    headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    }
+                }
+                );
+
             const id = respuesta.data.id
             return id;
             
@@ -41,21 +49,11 @@ export default function PagosTest() {
     }
 
     return (
-        <div className="card-product-container">
-            <div className="card-product">
-                <div className="card">
-                    <img src={danceImg} alt="Checkout Pro representation"></img>
-                    <h3>Checkout Pro Testing Integration</h3>
-                    <p className="price">100$</p>
-                    <button onClick={return_id_pago}>Pagar</button>
-                    <div>
-                        {idPreferencia && <Wallet initialization={{ preferenceId: idPreferencia }} />}
-                    </div>
-                </div>
+        <div>
+            <button onClick={return_id_pago}>Pagar</button>
+            <div>
+                {idPreferencia && <Wallet initialization={{ preferenceId: idPreferencia }} />}
             </div>
         </div>
     )
-
-    /*
-    */ 
 }
