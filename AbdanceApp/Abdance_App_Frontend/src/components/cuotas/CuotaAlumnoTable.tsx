@@ -1,0 +1,188 @@
+import Loader from "../Loader";
+import generalDateParsing from "../../utils/generalDateParsing";
+import axios from "axios";
+import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
+import { useEffect, useState } from "react";
+import { useAuthFetch } from "../../hooks/useAuthFetch";
+import { Dialog, DialogTitle } from "@headlessui/react";
+import icon from '../../../public/dance.ico'
+
+
+type Cuota = {
+    concepto: string;
+    dniAlumno: string;
+    estado: string;
+    fechaPago: string;
+    id: string;
+    idDisciplina: string;
+    metodoPago: string;
+    precio_cuota: string;
+};
+
+
+// Tabla de cuotas para Alumno
+export function CuotaAlumnoTable() {
+  const baseUrl = import.meta.env.VITE_API_URL;
+  const usuario = JSON.parse(localStorage.getItem('usuario') ?? '{}');
+  const dniAlumno = usuario.dni ?? ""
+  const [reload, setReload] = useState(0);
+  const [selectedCuota, setSelectedCuota] = useState<Cuota | null>(null);
+  const [openModal, setOpenModal] = useState(false);
+  
+  const endpoint = dniAlumno
+    ? `http://192.168.0.194:8080/cuotas/alumno?dia_recargo=11&dniAlumno=${dniAlumno}&reload=${reload}`
+    : null;
+  const { data: cuotas, loading, error } = useAuthFetch<Cuota[]>(endpoint ?? '');
+  const tableHeaderStyle = "bg-[#fff0] text-[#fff] justify-center";
+  const tableDatacellStyle = "text-blue-500 bg-white rounded-xl m-0.5 p-1";
+
+  const handleRowClick = (c: Cuota) => {
+    if (c.estado.toLowerCase() === 'pagada') return; // no seleccionable
+    setSelectedCuota(c);
+    setOpenModal(true);
+  };
+
+  const closeModal = () => {
+    setOpenModal(false);
+    setSelectedCuota(null);
+  };
+
+  if (loading) return  <div className="flex justify-center align-middle items-center w-full h-full"><Loader /></div>;
+  if (error) return <p>Error: {error}</p>;
+
+  return (
+    <>
+      <>
+      <div className="w-full overflow-x-auto hidden md:block">
+      <div className="min-w-[640px] mx-auto">
+        <table className="table-fixed min-w-[99%] rounded-xl border-none md:border m-1 bg-transparent md:bg-[#1a0049] border-separate border-spacing-x-1 border-spacing-y-1 w-auto">
+          <thead>
+            <tr className="bg-transparent">
+              <th className={tableHeaderStyle + " w-[40px]"}>Concepto</th>
+              <th className={tableHeaderStyle + " w-[40px]"}>DNI Alumno</th>
+              <th className={tableHeaderStyle + " w-[75px]"}>Estado</th>
+              <th className={tableHeaderStyle + " w-[200px]"}>Fecha de Pago</th>
+              <th className={tableHeaderStyle + " w-[50px]"}>Disciplina</th>
+              <th className={tableHeaderStyle + " w-[60px]"}>Metodo de Pago</th>
+              <th className={tableHeaderStyle + " w-[50px]"}>Cantidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cuotas?.map(c => (
+              <tr
+                key={c.id}
+                onClick={() => handleRowClick(c)}
+                className={`${c.estado.toLowerCase()==='pagada'? 'opacity-50 cursor-not-allowed':'cursor-pointer hover:bg-gray-100'}`}
+              >
+                <td className={`${tableDatacellStyle} truncate max-w-[100px] capitalize`}>{c.concepto}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.dniAlumno}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[110px] capitalize`}>{c.estado}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{generalDateParsing(c.fechaPago)}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.idDisciplina}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.metodoPago}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[50px]`}>{c.precio_cuota}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        </div>
+        </div>
+
+        <div className="block md:hidden flex flex-wrap mt-10 justify-between">
+            {cuotas?.map(c => (
+                <div key={c.id} className="relative flex w-50 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md">
+                    <div className="p-6">
+                        <h5 className="mb-2 block font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
+                        {c.concepto}
+                        </h5>
+                        <p className="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
+                        <strong>A pagar:</strong> {c.precio_cuota}
+                        </p>
+                        <p className="capitalize block font-sans text-base font-light leading-relaxed text-inherit antialiased">
+                        <strong>Estado:</strong> {c.estado}
+                        </p>
+                    </div>
+                    <div className="p-6 pt-0">
+                        <button onClick={() => handleRowClick(c)} data-ripple-light="true" type="button" disabled={c.estado.toLowerCase()==='pagada'}
+                        className='rounded-lg bg-violet-500 text-center align-middle text-xs font-bold uppercase text-white shadow-md shadow-violet-500/20 transition-all hover:shadow-lg hover:shadow-violet-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none'>
+                        Pagar cuota
+                        </button>
+                    </div>
+                </div>
+            ))}
+        </div>
+
+        {/* Modal de confirmación e integración de MercadoPago */}
+        {selectedCuota && (
+          <Dialog open={openModal} onClose={closeModal} className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="bg-indigo-200 p-6 rounded-lg shadow-lg max-w-md w-full text-black">
+              <DialogTitle className="text-xl font-extrabold mb-4 text-center">Confirmar Pago de Cuota</DialogTitle>
+                <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm mx-auto mb-5">
+                    <div className="relative">
+                        <img className="w-16 h-16 mx-auto text-indigo-600" alt="dance icon" src={icon}></img>
+                    </div>
+                    <div className="mt-4 text-center">
+                        <div className="text-2xl font-semibold text-gray-900 font-mono">
+                          {selectedCuota.concepto}
+                        </div>
+                        <div className="mt-2 text-gray-600 mb-5">
+                          <p><strong>DNI Alumno: </strong>{selectedCuota.dniAlumno}</p>
+                          <p><strong>Precio: </strong>${selectedCuota.precio_cuota}</p>
+                        </div>
+                        <p className="mt-2 text-sm text-gray-500 italic my-5">Se guardará la fecha de pago como el dia y hora actuales.</p>
+                        <div className="flex space-x-2 mb-4 justify-center">
+                          <button onClick={closeModal} className="text-center text-4xl px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 w-full">Cancelar</button>
+                        </div>
+                        <CrearPreferencia cuotaId={selectedCuota.id} onCompleted={() => { closeModal(); setReload(r=>r+1); }} />
+                        <h2
+                          className="text-base font-medium tracking-tighter text-gray-600 lg:text-3xl mt-5"
+                        >
+                          Pagarás mediante Mercado Pago, podrás usar tarjetas de debito y credito además de tu dinero de cuenta.
+                        </h2>
+                    </div>
+                </div>
+            </div>
+          </Dialog>
+        )}
+      </>
+    </>
+  );
+}
+
+
+//Creacion de la preferencia de pago de Mercado Pago, recibe ID de la cuota a pagar
+//y un callback
+interface CrearPreferenciaProps { cuotaId: string; onCompleted: () => void; }
+export function CrearPreferencia({ cuotaId, onCompleted }: Readonly<CrearPreferenciaProps>) {
+  //const publicKey = import.meta.env.MERCADO_PAGO_KEY;
+  const publicKey = "APP_USR-5f823e37-e3e9-4c4c-9d9d-ff696f47ba7d"
+  initMercadoPago(publicKey, { locale: 'es-AR' });
+  const [idPreferencia, setIdPreferencia] = useState<string | null>(null);
+  const token = localStorage.getItem('token');
+
+  const crearPreferencia = async () => {
+    try {
+      const res = await axios.post(
+        `http://127.0.0.1:8080/crear_preferencia_cuota`,
+        { cuota_id: cuotaId, dia_recargo: 11 },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setIdPreferencia(res.data.id);
+    } catch (e) { console.error(e); }
+  };
+
+  useEffect(() => {
+    if (!idPreferencia) {
+      crearPreferencia();
+    }
+  }, [cuotaId, idPreferencia]);
+
+  if (!idPreferencia) return <p>Generando preferencia...</p>;
+  return (
+  <div>
+    {idPreferencia && <Wallet customization={{
+      theme: 'dark',
+      valueProp: "security_details"
+  }} initialization={{ preferenceId: idPreferencia }} />}
+  </div>);
+}

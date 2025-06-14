@@ -4,8 +4,7 @@ from datetime import datetime
 from firebase_init import db  # Firebase con base de datos inicializada
 from functions.Usuarios.auth_decorator import require_auth
 from dotenv import load_dotenv
-from functions.Cuotas.utilidades_cuotas import get_monto_cuota, ordenar_datos_cuotas
-from dateutil import parser
+from functions.Cuotas.utilidades_cuotas import get_monto_cuota, ordenar_datos_cuotas, METODOS_PAGO
 from zoneinfo import ZoneInfo
 
 
@@ -109,11 +108,15 @@ def establecer_pago(data_payment):
         raw_date = pago.get("date_approved")
         dt = datetime.fromisoformat(raw_date)                  # crea datetime con tzinfo
         dt_local = dt.astimezone(ZoneInfo("America/Argentina/Buenos_Aires"))
+
+        #Traducción y formateo del Metodo de Pago (para que se pueda entender)
+        metodo_pago: str = pago.get('payment_type_id')
+        metodo_pago_traducido = METODOS_PAGO.get(metodo_pago) if metodo_pago in METODOS_PAGO else metodo_pago
         
         cuota_ref.update({
             'estado': 'pagada',
             'fechaPago': dt_local,
-            'metodoPago': pago.get('payment_type_id'),
+            'metodoPago': metodo_pago_traducido,
             'montoPagado': cantidad_transaccion
         })
     #TODO:Logica para el pago de las entradas de eventos aquí    
