@@ -9,7 +9,14 @@ from functions.Otros.utilidades_datetime import (
     MESES
 )
 
-
+METODOS_PAGO = {
+    "account_money": "Dinero de cuenta",
+    "ticket": "Ticket",
+    "bank_transfer": "Transferencia",
+    "credit_card": "Tarjet. Credito",
+    "debit_card": "Tarjet. Debito",
+    "prepaid_card": "Tarjet. Prepaga"
+}
 
 def ordenar_datos_cuotas(data_cuota, precio_cuota, cuota_id):   
     """Ordena los datos de las cuotas en un formato especifico.

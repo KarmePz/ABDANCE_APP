@@ -327,7 +327,7 @@ def pagar_cuotas_manualmente(request_cuotas_id, uid=None, role=None):
                 cuota_ref.update({
                 'estado': 'pagada',
                 'fechaPago': datetime.now(ZoneInfo("America/Argentina/Buenos_Aires")),
-                'metodoPago': "cash",
+                'metodoPago': "Efectivo",
                 'montoPagado': monto_pagado
             })
             else:
