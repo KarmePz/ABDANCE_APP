@@ -1,4 +1,4 @@
-import { useAuthFetch } from "../hooks/useAuthFetch";
+import { useAuthFetch } from "../../hooks/useAuthFetch";
 
 type User = {
     id: string;

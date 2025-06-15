@@ -1,4 +1,4 @@
-import { useAuthFetch } from "../hooks/useAuthFetch";
+import { useAuthFetch } from "../../hooks/useAuthFetch";
 
 type Disciplina = {
     disciplina_id: string;

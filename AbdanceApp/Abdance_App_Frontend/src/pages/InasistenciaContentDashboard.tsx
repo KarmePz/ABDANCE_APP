@@ -1,6 +1,7 @@
 import { ReactNode, useState } from 'react';
 import {UserTable} from '../components'
 import { CreateUserForm } from '../components/UserComponents/CreateUserForm';
+import { DisciplineStudentsTable } from '../components/InasistenciaComponents/DisciplineStudentsTable';
 
 
 
@@ -8,23 +9,15 @@ interface Props{
     children?: ReactNode;
 }
 
-export const UserContentDashboard = ({children}: Props) =>{
-    // return (
-    //     <>
-    //         <h1>USUARIOS</h1>
-    //         <UserTable />
+export const InasistenciaContentDashboard = ({children}: Props) =>{
+    const [reloadFlag, setReloadFlag] = useState(0); // Para actualizar studentTable
+    // const [openCreate] = useState(false); // Controla modal creación
 
-
-    //     </>
-        // )
-    const [reloadFlag, setReloadFlag] = useState(0); // Para actualizar UserTable
-    const [openCreate, setOpenCreate] = useState(false); // Controla modal creación
-
-    const handleUserCreated = () => {
-        // Fuerza reload en UserTable
-        handleUserUpdated();
-        setOpenCreate(false); // Cierra modal
-    };
+    // const handleUserCreated = () => {
+    //     // Fuerza reload en UserTable
+    //     handleUserUpdated();
+    //     setOpenCreate(false); // Cierra modal
+    // };
 
     const handleUserUpdated = () => {
         setReloadFlag((prev) => prev + 1); // Fuerza recarga
@@ -35,10 +28,10 @@ export const UserContentDashboard = ({children}: Props) =>{
         <h1 className="text-2xl font-bold mb-4">USUARIOS</h1>
 
         {/* Pasamos reloadFlag a UserTable como prop */}
-        <UserTable reloadFlag={reloadFlag} onUserUpdated={handleUserUpdated} />
+        <DisciplineStudentsTable reloadFlag={reloadFlag} onUserUpdated={handleUserUpdated} disciplinaId='AXNhrGdDDZ7vFbDaSKiT' />
 
         {/* Modal para crear usuario */}
-        <button
+        {/* <button
         onClick={() => setOpenCreate(true)}
         className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
@@ -55,12 +48,12 @@ export const UserContentDashboard = ({children}: Props) =>{
                 ✕
                 </button>
                 <h2 className="text-xl font-bold mb-4">Crear nuevo usuario</h2>
-                <CreateUserForm onUserCreated={handleUserCreated} />
+                <CreateUserForm onUserCreated={handleUserCreated} /> */}
+            {/* </div>
             </div>
-            </div>
-        )}
+        )} */}
         </>
     );
 }
-export default UserContentDashboard;
+export default InasistenciaContentDashboard;
 
