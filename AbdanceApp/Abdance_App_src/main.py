@@ -16,7 +16,7 @@ from functions.Cuotas.pagos import cuotas
 from functions.Usuarios.auth_users import register_student
 from functions.Usuarios.usuarios import usuarios
 from functions.Eventos.eventos import eventos
-from functions.Disciplinas.disciplinas import disciplinas
+from functions.Disciplinas.disciplinas import disciplinas, gestionarAlumnosDisciplina
 
 
 # #funciones 
@@ -66,10 +66,11 @@ def main(request):
     elif path == '/inasistencias':
         return inasistencias(request) 
     elif path == '/asistencias/registrar':
-        return registrar_inasistencia(request)
+        return apply_cors(registrar_inasistencia(request))
     elif path == '/disciplinas':
         return disciplinas(request)
     elif path == '/disciplinas/alumno':
+        return gestionarAlumnosDisciplina(request)
         return ('Endpoint en construcción', 501)#se debe agregar, modificar, eliminar,y ver datos de un alumno de una disciplina segun su dni
     elif path == '/disciplinas/horario':
         return ('Endpoint en construcción', 501)#se debe agregar, modificar, eliminar,y ver datos de un horarios de una disciplina segun su id
