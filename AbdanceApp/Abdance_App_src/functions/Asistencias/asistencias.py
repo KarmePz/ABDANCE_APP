@@ -23,8 +23,8 @@ def inasistencias(request, uid=None, role=None):
         #mostrar todas las asistencias de un alumno 
         #se debe pedir id  del usuario
         
-        inasistencia_user_dni = data.get("dni_usuario")
-        
+        ##inasistencia_user_dni = data.get("dni_usuario")
+        inasistencia_user_dni = request.args.get("dni")
         if not inasistencia_user_dni: 
             return {'error':'Ingrese un dni de usuario para ver sus inasistencias'}, 400
         

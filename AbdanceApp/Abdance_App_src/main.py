@@ -64,7 +64,7 @@ def main(request):
     elif path == '/usuarios':
         return usuarios(request)
     elif path == '/inasistencias':
-        return inasistencias(request) 
+        return apply_cors(inasistencias(request)) 
     elif path == '/asistencias/registrar':
         return apply_cors(registrar_inasistencia(request))
     elif path == '/disciplinas':
