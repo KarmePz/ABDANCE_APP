@@ -2,6 +2,9 @@ import { ReactNode, useState } from 'react';
 import {UserTable} from '../components'
 import { CreateUserForm } from '../components/UserComponents/CreateUserForm';
 import { DisciplineStudentsTable } from '../components/InasistenciaComponents/DisciplineStudentsTable';
+import { InasistenciasTable } from '../components/InasistenciaComponents/InasistenciaUserTable';
+import { StudentsInasistenciasTable } from '../components/InasistenciaComponents/StudentsInasistenciasTable';
+import { useAuth } from '../hooks/useAuth';
 
 
 
@@ -10,50 +13,92 @@ interface Props{
 }
 
 export const InasistenciaContentDashboard = ({children}: Props) =>{
-    const [reloadFlag, setReloadFlag] = useState(0); // Para actualizar studentTable
-    // const [openCreate] = useState(false); // Controla modal creación
+    // const [reloadFlag, setReloadFlag] = useState(0); // Para actualizar studentTable
+    // // const [openCreate] = useState(false); // Controla modal creación
 
-    // const handleUserCreated = () => {
-    //     // Fuerza reload en UserTable
-    //     handleUserUpdated();
-    //     setOpenCreate(false); // Cierra modal
+    // // const handleUserCreated = () => {
+    // //     // Fuerza reload en UserTable
+    // //     handleUserUpdated();
+    // //     setOpenCreate(false); // Cierra modal
+    // // };
+
+    // const handleUserUpdated = () => {
+    //     setReloadFlag((prev) => prev + 1); // Fuerza recarga
     // };
 
-    const handleUserUpdated = () => {
-        setReloadFlag((prev) => prev + 1); // Fuerza recarga
-    };
+    // return (
+    //     <>
+    //     <h1 className="text-2xl font-bold mb-4">USUARIOS</h1>
 
+    //     {/* Pasamos reloadFlag a UserTable como prop */}
+    //     <DisciplineStudentsTable reloadFlag={reloadFlag} onUserUpdated={handleUserUpdated} disciplinaId='AXNhrGdDDZ7vFbDaSKiT' />
+
+    //     </>
+    // );
+    const { user } = useAuth(); // <-- este hook debe retornar el usuario logueado con su rol
+    const [reloadFlag, setReloadFlag] = useState(0);
+    const [mostrarTomaAsistencia, setMostrarTomaAsistencia] = useState(false);
+
+    const handleUserUpdated = () => {
+        setReloadFlag((prev) => prev + 1);
+    };
+      console.log("usuario en inasistencia table:", user);  // <--- aquí, dentro de la función
+    if (!user) return <p>Cargando usuario...</p>;
+
+    // Para alumnos, mostrar solo su tabla de inasistencias
+    if (user.rol === "alumno") {
+        return (
+        <>
+            <h1 className="text-2xl font-bold mb-4">MIS FALTAS</h1>
+            <InasistenciasTable
+            dni={user.dni}
+            nombre={user.nombre}
+            apellido={user.apellido}
+            rol = {user.rol}
+            onClose={() => {}}
+            />
+        </>
+        );
+    }
+
+    // Para admin o profesor, mostrar listado de alumnos y opción de tomar asistencia
     return (
         <>
-        <h1 className="text-2xl font-bold mb-4">USUARIOS</h1>
+        <h1 className="text-2xl font-bold mb-4">ALUMNOS</h1>
 
-        {/* Pasamos reloadFlag a UserTable como prop */}
-        <DisciplineStudentsTable reloadFlag={reloadFlag} onUserUpdated={handleUserUpdated} disciplinaId='AXNhrGdDDZ7vFbDaSKiT' />
-
-        {/* Modal para crear usuario */}
-        {/* <button
-        onClick={() => setOpenCreate(true)}
-        className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-            Crear Usuario
-        </button>
-
-        {openCreate && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full relative">
+        {!mostrarTomaAsistencia ? (
+            <>
+            <StudentsInasistenciasTable reloadFlag={reloadFlag} />
+            <div className="mt-4 text-right">
                 <button
-                onClick={() => setOpenCreate(false)}
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                onClick={() => setMostrarTomaAsistencia(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
                 >
-                ✕
+                TOMAR ASISTENCIA
                 </button>
-                <h2 className="text-xl font-bold mb-4">Crear nuevo usuario</h2>
-                <CreateUserForm onUserCreated={handleUserCreated} /> */}
-            {/* </div>
             </div>
-        )} */}
+            </>
+        ) : (
+            <>
+            <h2 className="text-xl font-semibold mb-2">Tomar asistencia</h2>
+            <DisciplineStudentsTable
+                reloadFlag={reloadFlag}
+                onUserUpdated={handleUserUpdated}
+                disciplinaId="AXNhrGdDDZ7vFbDaSKiT"
+            />
+            <div className="mt-4 text-right">
+                <button
+                onClick={() => setMostrarTomaAsistencia(false)}
+                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition"
+                >
+                Volver a alumnos
+                </button>
+            </div>
+            </>
+        )}
         </>
     );
-}
+};
+
 export default InasistenciaContentDashboard;
 

@@ -1,17 +1,13 @@
 import { useEffect, useState } from "react";
 import { useAuthFetch } from "../../hooks/useAuthFetch";
 import { Loader } from "..";
+import { useDisciplinaList } from "../../hooks/useDisciplinaList";
+import { useDisciplinaStudents } from "../../hooks/useDisciplinaStudents";
 
-type Student = {
-    dni: string;
-    nombre: string;
-    apellido: string;
-    email: string;
-    rol: string;
-};
+
 
 export function DisciplineStudentsTable({
-    disciplinaId,
+    // disciplinaId,
     reloadFlag,
     onUserUpdated,
 }: {
@@ -20,35 +16,33 @@ export function DisciplineStudentsTable({
     onUserUpdated: () => void;
 }) {
     const endpointUrl = import.meta.env.VITE_API_URL;
-    const [students, setStudents] = useState<Student[]>([]);
+    
+     //  // Cargar lista de disciplinas
+    const { disciplinas, loading: loadingDisciplinas } = useDisciplinaList(endpointUrl);
+
+    const [selectedDisciplinaId, setSelectedDisciplinaId] = useState<string>("");
+
+    //lista de estudiantes escritos en esa disciplina
+    const { students, nombreDisciplina, loading: loadingStudents } = useDisciplinaStudents(
+    endpointUrl,
+    selectedDisciplinaId,
+    reloadFlag
+  );
+    // const [students, setStudents] = useState<Student[]>([]);
     const [loading, setLoading] = useState(true);
-    const [nombreDisciplina, setNombreDisciplina] = useState("");
+    // const [nombreDisciplina, setNombreDisciplina] = useState("");
 
+    
+
+    // Seleccionar la primera disciplina cuando estén cargadas
     useEffect(() => {
-        const fetchStudents = async () => {
-        try {
-            setLoading(true);
-            const res = await fetch(`${endpointUrl}/disciplinas?disciplina_id=${disciplinaId}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            // body: JSON.stringify({ disciplina_id: disciplinaId }),
-            });
-
-            const data = await res.json();
-            setStudents(data.alumnos_inscriptos);
-            setNombreDisciplina(data.nombre);
-        } catch (error) {
-            console.error("Error cargando alumnos:", error);
-        } finally {
-            setLoading(false);
+        if (disciplinas.length > 0 && !selectedDisciplinaId) {
+        setSelectedDisciplinaId(disciplinas[0].disciplina_id);
         }
-        };
+    }, [disciplinas, selectedDisciplinaId]);
 
-        fetchStudents();
-    }, [disciplinaId, reloadFlag]);
+    console.log("disciplina seleccionada + "+ selectedDisciplinaId);
+
 
     const registrarInasistencia = async (dni: string) => {
         const confirm = window.confirm(`¿Registrar inasistencia para DNI ${dni}?`);
@@ -75,7 +69,7 @@ export function DisciplineStudentsTable({
         }
     };
 
-    if (loading)
+    if (loadingDisciplinas || loadingStudents)
         return (
         <div className="flex justify-center items-center w-full h-full">
             <Loader />
@@ -87,7 +81,24 @@ export function DisciplineStudentsTable({
 
     return (
         <div className="w-full overflow-x-auto">
-            <h1>Disciplina: {nombreDisciplina}</h1>
+                <div className="mb-4 flex flex-col items-center">
+                <label className="text-white mb-1" htmlFor="disciplina-select">
+                    Seleccionar Disciplina:
+                </label>
+                <select
+                    id="disciplina-select"
+                    value={selectedDisciplinaId}
+                    onChange={(e) => setSelectedDisciplinaId(e.target.value)}
+                    className="p-2 rounded bg-white text-blue-800 shadow"
+                >
+                    {disciplinas.map((disc) => (
+                        <option key={disc.disciplina_id} value={disc.disciplina_id}>
+                            {disc.nombre}
+                        </option>
+                    ))}
+                </select>
+                <h1 className="text-white mt-2">Disciplina: {nombreDisciplina}</h1>
+            </div>
         <div className="min-w-[640px] mx-auto">
             <table className="table-fixed min-w-[99%] border-spacing-2 border-separate border bg-[#1a0049] rounded-xl">
             <thead>
@@ -99,7 +110,7 @@ export function DisciplineStudentsTable({
                 </tr>
             </thead>
             <tbody>
-                {students.map((student) => (
+                {students?.map((student) => (
                 <tr key={student.dni}>
                     <td className={tableCellStyle}>{student.dni}</td>
                     <td className={tableCellStyle}>{student.nombre}</td>
