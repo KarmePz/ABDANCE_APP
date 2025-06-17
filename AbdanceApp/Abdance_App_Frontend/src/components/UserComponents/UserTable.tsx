@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useAuthFetch } from "../hooks/useAuthFetch";
+import { useAuthFetch } from "../../hooks/useAuthFetch";
 import { UserFormDialog } from "./UserFormDialog";
-import {Loader} from '../components'
+import {Loader} from '..'
 
 type User = {
     id:string;
@@ -12,9 +12,9 @@ type User = {
     rol: string;
 };
 
-export function UserTable() {
+export function UserTable({ reloadFlag, onUserUpdated }: { reloadFlag: number; onUserUpdated: () => void;}, ) {
     const endpointUrl =  import.meta.env.VITE_API_URL
-    const [reloadFlag, setReloadFlag] = useState(0); //controla los cambios de la tabla
+    // const [reloadFlag, setReloadFlag] = useState(0); //controla los cambios de la tabla
 
     const { data: users, loading, error } = useAuthFetch<User[]>(`${endpointUrl}/usuarios?reload=${reloadFlag}`);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -30,10 +30,6 @@ export function UserTable() {
         setSelectedUser(null);
     };
     
-  // Esta función se pasa para forzar recarga
-    const handleUserUpdated = () => {
-        setReloadFlag((prev) => prev + 1);
-    };
 
     if (loading) return   <div className="flex justify-center align-middle items-center w-full h-full"><Loader /></div>;
     if (error) return <p>Error: {error}</p>;
@@ -69,7 +65,7 @@ export function UserTable() {
                     
                     onClick={() => handleEdit(user)}
                     >
-                    Editar
+                    Ver
                     </button>
                 </td>
                 </tr>
@@ -79,7 +75,8 @@ export function UserTable() {
         </div>
         </div>
         {selectedUser && (
-            <UserFormDialog open={open} user={selectedUser} onClose={handleClose} onUserUpdated={handleUserUpdated} />
+            //se pasan eventos de cerrado, al actualizar usuario, y  el usuario seleccionado 
+            <UserFormDialog open={open} user={selectedUser} onClose={handleClose} onUserUpdated={onUserUpdated} /> 
         )}
         </>
     );

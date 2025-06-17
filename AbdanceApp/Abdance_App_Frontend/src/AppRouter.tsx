@@ -39,7 +39,7 @@ export const AppRouter = ({children}:Props) =>{
                             <Route path="/dashboard/disciplinas/agregar" element={<Dashboard/>} />
                             <Route path="/dashboard/disciplinas/id_disciplina" element={<Dashboard/>} />
 
-                            <Route path="/dashboard/asistencias" element={<h1>Asistencias</h1>} />
+                            <Route path="/dashboard/asistencias" element={<InasistenciaContentDashboard />} />
                             <Route path="/dashboard/asistencias/alumno_dni" element={<Dashboard/>} />
                             
 
@@ -71,7 +71,8 @@ export const AppRouter = ({children}:Props) =>{
 import { Page_404 } from "./pages/Page_404";
 import { Page_403 } from "./pages/Page_403";
 import UserContentDashboard from "./pages/UserContentDashboard";
-import PagosTest from "./components/cuotas/PagosTest";
+import { DisciplineStudentsTable } from "./components/InasistenciaComponents/DisciplineStudentsTable";
+import InasistenciaContentDashboard from "./pages/InasistenciaContentDashboard";
 interface Props{
     children: ReactNode
 }

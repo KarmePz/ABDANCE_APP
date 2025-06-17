@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {z} from "zod";
-import InputForm from "./CustomInput";
+import InputForm from "../CustomInput";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 

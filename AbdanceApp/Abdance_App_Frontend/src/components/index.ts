@@ -2,7 +2,7 @@ export {default as Background} from "./Background";
 export {default as Logo} from "./Logo";
 export {default as InputButton} from "./InputButton";
 export * from "./CustomInput";
-export {default as CustomForm} from "./CustomForm";
+export {default as CustomForm} from "./GeneralComponents/CustomForm";
 export {default as LoginForm} from "./LoginForm";
 
 
@@ -18,7 +18,7 @@ export {default as Loader} from "./Loader"
 //
 //
 //Usuarios
-export {UserTable} from "./UserTable";
+export {UserTable} from "./UserComponents/UserTable";
 //
 //disciplinas
-export {DisciplinaTable} from "./DisciplinaTable";
+export {DisciplinaTable} from "./InasistenciaComponents/DisciplinaTable";

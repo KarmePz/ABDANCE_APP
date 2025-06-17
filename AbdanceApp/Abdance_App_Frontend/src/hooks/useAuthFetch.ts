@@ -20,6 +20,8 @@ export function useAuthFetch<T = any>(url: string): UseAuthFetchResult<T> {
 
             const token = localStorage.getItem("token");//Se pide el token guardado en el local storage
 
+            console.log("Token usado en fetch:", token)
+            
             if (!token){
                 setError("No se encontro el token.") //si no se encuentra el token se termina la ejecucion
                 setLoading(false);
