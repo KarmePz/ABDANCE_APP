@@ -29,6 +29,7 @@ from functions.Usuarios.auth_users import register_student
 from functions.Usuarios.usuarios import usuarios
 from functions.Eventos.eventos import eventos
 from functions.Disciplinas.disciplinas import disciplinas, gestionarAlumnosDisciplina
+from functions.Eventos.entradas import entradas
 
 
 # #funciones 
@@ -86,7 +87,9 @@ def main(request):
     elif path == "/estadisticas/totales-por-anio":
         return totales_por_mes_anio(request)
     elif path == '/eventos':
-        return eventos(request) 
+        return eventos(request)
+    elif path == '/entradas':
+        return entradas(request)
     elif path == '/usuarios/register-student':
         return register_student(request) 
     elif path == '/usuarios':
@@ -107,4 +110,25 @@ def main(request):
     else:
         return 'Method not allowed', 405
     
+
+if __name__ == '__main__':
+    from flask import Flask, request
+    from werkzeug.serving import run_simple
+
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+
+    flask_app = Flask(__name__)
+
+    @flask_app.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+    @flask_app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+    def catch_all(path):
+        try:
+            return main(request)
+        except Exception as e:
+            # Esto imprime el error en la consola
+            flask_app.logger.error(f"Error interno: {e}", exc_info=True)
+            return "Error interno en el servidor", 500
+
+    run_simple('127.0.0.1', 5000, flask_app, use_debugger=True, use_reloader=True)
 
