@@ -1,12 +1,14 @@
-
+import { Link } from 'react-router-dom';
 import './App.css'
 import {Background, Logo, LoginForm} from './components'
 import { useDocumentTitle } from './hooks/useDocumentTitle';
 import { useFavicon } from './hooks/useFavicon';
 import { useNavigate } from "react-router-dom";
+import PagosTest from './components/cuotas/PagosTest';
+
+
 
 function App() {
-
   useDocumentTitle("Academia ABDANCE");
   useFavicon("/dance.ico")
   
@@ -18,19 +20,21 @@ function App() {
 
   return (
     <>
-    
-      <Background />
-      <Logo />
-      <LoginForm ></LoginForm>
+        {/* <PagosTest></PagosTest> */}
+        <Background />
+        <Logo /> 
+        <div className="min-h-screen flex flex-col items-center justify-center px-4">
+          <LoginForm ></LoginForm>
+          
 
-
-      <h3 className='relative top-40'>
-        ¿Te interesa saber sobre nuestros eventos?{" "}
-        <button onClick={irAEventos} className='text-blue-400 underline hover:text-blue-600'>
-          ¡Hace click Aquí!
-        </button>
-      </h3>
-    
+          <h3 className='relative top-40'>
+            ¿Te interesa saber sobre nuestros eventos?{" "}
+            <button onClick={irAEventos} className='text-blue-400 underline hover:text-blue-600'>
+              ¡Hace click Aquí!
+            </button>
+          </h3>
+        
+        </div>
     </>
   )
 }

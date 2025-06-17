@@ -1,0 +1,5 @@
+gcloud functions deploy main \
+  --runtime python310 \
+  --trigger-http \
+  --allow-unauthenticated \
+  --region southamerica-east1

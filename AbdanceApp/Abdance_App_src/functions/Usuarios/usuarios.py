@@ -5,7 +5,7 @@ from firebase_admin import credentials, firestore, auth
 from firebase_init import db  # Firebase con base de datos inicializada
 from datetime import datetime
 from .auth_decorator import require_auth
-
+from util.cors import apply_cors
 #TODOS ESTOS METODOS DEBEN SER PROTEGIDOS MEDIANTE EL USO DE VERIFICACION DE TOKENS QUE SE ASIGNEN DESDE EL FRONTEND
 #
 #De otra manera cualquiera puede acceder a estos datos
@@ -14,20 +14,22 @@ from .auth_decorator import require_auth
 #
 
 
-
+@functions_framework.http
 def usuarios(request, uid=None, role=None):
+    if request.method == 'OPTIONS':
+        return apply_cors(({'message': 'CORS preflight'}, 204))
     
     if request.method == 'GET':
-        return getUsuarios(request)
+        return apply_cors(getUsuarios(request))
     
     elif request.method == 'POST':
-        return postUsuarios(request)
+        return apply_cors(postUsuarios(request))
     
     elif request.method == 'PUT':
-        return putUsuarios(request)
+        return apply_cors(putUsuarios(request))
     
     elif request.method == 'DELETE':
-        return deleteUsuarios(request)
+        return apply_cors(deleteUsuarios(request))
     else:
         return {'error':'Método no permitido'}, 405   
 
@@ -38,7 +40,7 @@ def parsearFecha(value_date):
     except ValueError:
             return {'error': 'Formato de fecha inválido'}, 400 # formato de la fecha = YYYY-mm-ddThh:mm:ss.499588
 
-@require_auth(required_roles=['admin', 'profesor']) 
+#@require_auth(required_roles=['admin', 'profesor']) 
 def getUsuarios(request, uid=None, role=None):
     # Si se pide un dni de esta manera: usuarios?dni= <dni de alguien> se devuelve solo un usuario
         params = request.args

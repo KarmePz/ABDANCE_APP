@@ -9,10 +9,14 @@ export const PrivateGuard = ({ RolesPermitidos }: { RolesPermitidos?: string[] }
     if (!token || !usuario) {
         return <Navigate to="/login" replace />;
     }
-     // Si allowedRoles viene y el rol no está permitido, redirige (por ej a un "403" o login)
+     // Si RolesPermitidos viene y el rol no está permitido, redirige (por ej a un "403" o login)
     if (RolesPermitidos && !RolesPermitidos.includes(rol)) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/dashboard"  />; //AQUI TIENE QUE REDIRIGIRSE AL /403.
     }
+    
+
+    //SE TIENE QUE VERIFICAR LA VALIDEZ DEL TOKEN AL ENTRAR A LA PARTE PRIVADA, DE LO CONTRARIO,SERA ACCESIBLE PARA CUALQUIERA
+
 
     // Si todo ok, muestra la ruta protegida
     return <Outlet />;

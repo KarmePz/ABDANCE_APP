@@ -15,6 +15,7 @@ from firebase_admin import firestore
 from datetime import datetime
 from collections import OrderedDict
 from functions.Usuarios.auth_decorator import require_auth
+from util.cors import apply_cors
 #TODOS ESTOS METODOS DEBEN SER PROTEGIDOS MEDIANTE EL USO DE VERIFICACION DE TOKENS QUE SE ASIGNEN DESDE EL FRONTEND
 #
 #De otra manera cualquiera puede acceder a estos datos
@@ -26,18 +27,18 @@ from functions.Usuarios.auth_decorator import require_auth
 #CRUD DE DISCIPLINAS 
 def disciplinas(request):
     if request.method == 'GET':
-        return getDisciplinas(request)
+        return apply_cors(getDisciplinas(request))
         #SE DEBE TRABAJAR TAMBIEN EN EL TEMA DE ALUMNOS DE LAS DISCIPLINAS 
             
     elif request.method == 'POST':
-        return postDisciplinas(request)
+        return apply_cors(postDisciplinas(request))
         
     
     elif request.method == 'PUT':
-        return putDisciplinas(request)
+        return apply_cors(putDisciplinas(request))
     
     elif request.method == 'DELETE':
-        return deleteDisciplina(request)
+        return apply_cors(deleteDisciplina(request))
     
     else:
         return {'error':'Método no permitido'}, 405   
@@ -65,16 +66,48 @@ def ordenar_datos_disciplina(data_disciplina, alumnos_inscriptos=None):   # Arma
 
 def getAlumnosPorDisciplina(disciplina_id): #get de todos los alumnos anotados a determinada disciplina
     alumnos_ref = db.collection('disciplinas').document(disciplina_id).collection('alumnos')
-    alumnos = [doc.to_dict() for doc in alumnos_ref.stream()]
-    return alumnos
+    alumnos_data = []
+    
+    for doc in alumnos_ref.stream():
+        alumno_dni = doc.id
+        user_ref = db.collection('usuarios').document(alumno_dni)
+        user_doc = user_ref.get()
+        if user_doc.exists:
+            alumnos_data.append(user_doc.to_dict())
+    return alumnos_data
     #return jsonify({"nombre_disciplina": disciplina_name,
     #               "alumnos_inscriptos":alumnos}), 200
 
 def añadirAlumnoDisciplina(disciplina_id, dni_alumno): #metodo para añadir un dni de un alumno a una disciplina particular
+    try:
+        alumno_ref = db.collection('usuarios').document(dni_alumno)
+        alumno_doc = alumno_ref.get()
+
+        if not alumno_doc.exists:
+            return {'error': 'Alumno no encontrado'}, 404
+
+        alumno_data = alumno_doc.to_dict()
+        db.collection('disciplinas').document(disciplina_id).collection('alumnos').document(dni_alumno).set(alumno_data)
+        return {'message': 'Alumno agregado a la disciplina exitosamente'}, 200
+
+    except Exception as e:
+        return {'error': str(e)}, 500
     return
 
 
 def eliminarAlumnoDisciplina(disciplina_id, dni_alumno):#metodo para eliminar un dni de un alumno de una disciplina particular
+    try:
+        alumno_ref = db.collection('disciplinas').document(disciplina_id).collection('alumnos').document(dni_alumno)
+        alumno_doc = alumno_ref.get()
+
+        if not alumno_doc.exists:
+            return {'error': 'Alumno no está inscrito en la disciplina'}, 404
+
+        alumno_ref.delete()
+        return {'message': 'Alumno eliminado de la disciplina exitosamente'}, 200
+
+    except Exception as e:
+        return {'error': str(e)}, 500
     return
 
 
@@ -106,14 +139,19 @@ def añadirHorarioDisciplina(disciplina_id, dni_alumno): #metodo para añadir un
 def eliminarHorarioDisciplina(disciplina_id, dni_alumno):#metodo para eliminar un horario de una disciplina particular
     return
 
-@require_auth(required_roles=['alumno', 'profesor', 'admin'])
+##@require_auth(required_roles=['alumno', 'profesor', 'admin'])
 def getDisciplinas(request, uid=None, role=None):
-    try:
-        data = request.get_json(silent=True) or {}
-        disciplina_id = data.get('disciplina_id')
+    try: 
+        if request.method == 'POST':
+            data = request.get_json(silent=True) or {}
+            disciplina_id = data.get('disciplina_id')
+        else:
+            # Para GET, tomamos el parámetro de la URL
+            disciplina_id = request.args.get('disciplina_id')
         
         
-        if not data or 'disciplina_id' not in data:# si no se especifica un id determinado se ejecuta lo siguiente
+        
+        if not disciplina_id:# si no se especifica un id determinado se ejecuta lo siguiente
             #se deben devolver todas las disciplinas
             disciplinas = []
             disciplinas_ref = db.collection('disciplinas')
@@ -219,3 +257,24 @@ def deleteDisciplina(request, uid=None, role=None):
     #eliminacion de BD firestore
     disciplina_ref.delete()
     return {'message':'Disciplina eliminada correctamente'}, 200
+
+
+@require_auth(required_roles=['admin'])
+def gestionarAlumnosDisciplina(request, uid=None, role=None):
+    try:
+        data = request.get_json(silent=True) or {}
+        disciplina_id = data.get('disciplina_id')
+        dni_alumno = data.get('dni')
+
+        if not disciplina_id or not dni_alumno:
+            return {'error': 'Faltan datos: disciplina_id y dni'}, 400
+
+        if request.method == 'POST':
+            return añadirAlumnoDisciplina(disciplina_id, dni_alumno)
+        elif request.method == 'DELETE':
+            return eliminarAlumnoDisciplina(disciplina_id, dni_alumno)
+        else:
+            return {'error': 'Método no permitido'}, 405
+
+    except Exception as e:
+        return {'error': str(e)}, 500
