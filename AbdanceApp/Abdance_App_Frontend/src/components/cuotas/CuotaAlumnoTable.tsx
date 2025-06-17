@@ -33,6 +33,7 @@ export function CuotaAlumnoTable() {
     ? `http://192.168.0.194:8080/cuotas/alumno?dia_recargo=11&dniAlumno=${dniAlumno}&reload=${reload}`
     : null;
   const { data: cuotas, loading, error } = useAuthFetch<Cuota[]>(endpoint ?? '');
+
   const tableHeaderStyle = "bg-[#fff0] text-[#fff] justify-center";
   const tableDatacellStyle = "text-blue-500 bg-white rounded-xl m-0.5 p-1";
 
@@ -77,9 +78,9 @@ export function CuotaAlumnoTable() {
                 <td className={`${tableDatacellStyle} truncate max-w-[100px] capitalize`}>{c.concepto}</td>
                 <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.dniAlumno}</td>
                 <td className={`${tableDatacellStyle} truncate max-w-[110px] capitalize`}>{c.estado}</td>
-                <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{generalDateParsing(c.fechaPago)}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{c.fechaPago?.trim() == "" ? "-" : generalDateParsing(c.fechaPago)}</td>
                 <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.idDisciplina}</td>
-                <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.metodoPago}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.metodoPago?.trim() == "" ? "-" : c.metodoPago}</td>
                 <td className={`${tableDatacellStyle} truncate max-w-[50px]`}>{c.precio_cuota}</td>
               </tr>
             ))}
@@ -177,7 +178,7 @@ export function CrearPreferencia({ cuotaId, onCompleted }: Readonly<CrearPrefere
     }
   }, [cuotaId, idPreferencia]);
 
-  if (!idPreferencia) return <p>Generando preferencia...</p>;
+  if (!idPreferencia) return <p>Por favor espere...</p>;
   return (
   <div>
     {idPreferencia && <Wallet customization={{

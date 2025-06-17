@@ -1,7 +1,7 @@
-import Loader from "./Loader";
-import generalDateParsing from "../utils/generalDateParsing";
-import { useEffect, useState } from "react";
-import { useAuthFetch } from "../hooks/useAuthFetch";
+import Loader from "../Loader";
+import generalDateParsing from "../../utils/generalDateParsing";
+import { useState } from "react";
+import { useAuthFetch } from "../../hooks/useAuthFetch";
 import { Dialog, DialogTitle } from "@headlessui/react";
 
 
@@ -18,12 +18,12 @@ type Cuota = {
 };
 
 //Ventada de tipo modal para pagar las cuotas seleccionadas.
-export function PagoManualModal({open, onClose, selectedCuotas, onSuccess, }: {
+export function PagoManualModal({open, onClose, selectedCuotas, onSuccess, }: Readonly<{
     open: boolean;
     onClose: () => void;
     selectedCuotas: Cuota[];
     onSuccess: () => void;
-    }) {
+    }>) {
   const [loading, setLoading] = useState(false);
 
   //Endpoint para pagar las cuotas seleccionadas
@@ -166,9 +166,9 @@ export function CuotaAdminTable() {
                 <td className={`${tableDatacellStyle} truncate max-w-[100px] capitalize`}>{c.concepto}</td>
                 <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.dniAlumno}</td>
                 <td className={`${tableDatacellStyle} truncate max-w-[110px] capitalize`}>{c.estado}</td>
-                <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{generalDateParsing(c.fechaPago)}</td>
-                <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.idDisciplina}</td>
-                <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.metodoPago}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{c.fechaPago?.trim() == "" ? "-" : generalDateParsing(c.fechaPago)}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[100px] capitalize`}>{c.idDisciplina}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.metodoPago?.trim() == "" ? "-" : c.metodoPago}</td>
                 <td className={`${tableDatacellStyle} truncate max-w-[50px]`}>{c.precio_cuota}</td>
               </tr>
             ))}
