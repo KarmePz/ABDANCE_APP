@@ -36,11 +36,11 @@ def fetch_pagadas():
 
 
 @require_auth(required_roles=['admin'])
-def total_pagado_mes(request):
+def total_pagado_mes(request, uid=None, role=None):
     data = request.get_json(silent=True) or {}
 
     if not data or ('year' and 'month') not in data:
-        return {'error': "Se debe especificar un mes y año."}, 400
+        return {'error': "Se debe especificar un mes (month) y año (year)."}, 400
     
     anio_filtro = data.get('year')
     mes_filtro = data.get('month')
@@ -80,7 +80,7 @@ def total_pagado_mes(request):
 
 
 @require_auth(required_roles=['admin'])
-def totales_por_mes_anio(request):
+def totales_por_mes_anio(request, uid=None, role=None):
     try:
         data = request.get_json(silent=True) or {}
 

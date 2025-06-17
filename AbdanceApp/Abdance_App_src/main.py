@@ -16,7 +16,9 @@ from functions.Cuotas.cuotas import (
     cuotas, 
     getCuotasDNIAlumno,
     pagar_cuota, 
-    pagar_cuotas_manualmente
+    pagar_cuotas_manualmente,
+    crear_cuotas_mes,
+    eliminar_cuotas_mes
 )
 from functions.Estadisticas.estadisticas import (
     total_pagado_mes,
@@ -75,6 +77,10 @@ def main(request):
         return pagar_cuota(request)
     elif path == "/pagar_cuota/manual":
         return pagar_cuotas_manualmente(request)
+    elif path == "/crear-cuotas-mes":
+        return crear_cuotas_mes(request)
+    elif path == "/eliminar-cuotas-mes":
+        return eliminar_cuotas_mes(request)
     elif path == "/estadisticas/total-del-mes":
         return total_pagado_mes(request)
     elif path == "/estadisticas/totales-por-anio":
