@@ -3,9 +3,9 @@ import '../App.css'
 function Logo() {
     
     return (
-        <div className="fixed top-20 left-0 right-[10%] flex justify-center no-copy" >
+        <div className="fixed top-10 left-1/2 transform -translate-x-1/2 z-50 no-copy" >
 
-            <img src="/Logo.png" className="relative -top-10 mx-auto" alt="Logo"  >
+            <img src="/Logo.png" className="mx-auto max-w-[300px] md:max-w-[730px]" alt="Logo"  >
             </img>
         
         </div>

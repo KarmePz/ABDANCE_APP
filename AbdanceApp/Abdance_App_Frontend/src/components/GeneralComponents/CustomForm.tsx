@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {z} from "zod";
-import InputForm from "./CustomInput";
+import InputForm from "../CustomInput";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 
@@ -22,9 +22,9 @@ const CustomForm = () => {
     const {control, handleSubmit, formState: {errors}} = useForm<FormValues>({
         resolver: zodResolver(schema)
     });
-const onSubmit: SubmitHandler<FormValues> = (data) =>{
-    console.log(data);
-}
+    const onSubmit: SubmitHandler<FormValues> = (data) =>{
+        console.log(data);
+    }
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
