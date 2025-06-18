@@ -91,13 +91,13 @@ export function CuotaAlumnoTable() {
 
         <div className="block md:hidden flex flex-wrap mt-10 justify-between">
             {cuotas?.map(c => (
-                <div key={c.id} className="relative flex w-50 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md">
+                <div key={c.id} className="relative flex w-50 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md mt-3 mx-1">
                     <div className="p-6">
                         <h5 className="mb-2 block font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
                         {c.concepto}
                         </h5>
                         <p className="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
-                        <strong>A pagar:</strong> {c.precio_cuota}
+                        <strong>A pagar:</strong> ${c.precio_cuota}
                         </p>
                         <p className="capitalize block font-sans text-base font-light leading-relaxed text-inherit antialiased">
                         <strong>Estado:</strong> {c.estado}
