@@ -30,6 +30,7 @@ from functions.Usuarios.usuarios import usuarios
 from functions.Eventos.eventos import eventos
 from functions.Disciplinas.disciplinas import disciplinas, gestionarAlumnosDisciplina
 from functions.Eventos.entradas import entradas
+from functions.Eventos.crear_preferencia import crear_preferencia
 
 
 # #funciones 
@@ -90,6 +91,8 @@ def main(request):
         return eventos(request)
     elif path == '/entradas':
         return entradas(request)
+    elif path == '/crear_preferencia':
+        return crear_preferencia(request)
     elif path == '/usuarios/register-student':
         return register_student(request) 
     elif path == '/usuarios':
@@ -114,12 +117,14 @@ def main(request):
 if __name__ == '__main__':
     from flask import Flask, request
     from werkzeug.serving import run_simple
+    from flask_cors import CORS
 
     import logging
     logging.basicConfig(level=logging.DEBUG)
 
     flask_app = Flask(__name__)
-
+    CORS(flask_app) 
+    
     @flask_app.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
     @flask_app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
     def catch_all(path):
