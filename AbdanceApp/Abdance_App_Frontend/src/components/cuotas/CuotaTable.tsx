@@ -106,9 +106,9 @@ export function PagoManualModal({open, onClose, selectedCuotas, onSuccess, }: Re
 
 // Tabla de cuotas para Admin
 export function CuotaAdminTable() {
-  const baseUrl = import.meta.env.VITE_API_URL;
+  const endpointUrl = import.meta.env.VITE_API_URL;
   const [reloadFlag, setReloadFlag] = useState(0);
-  const endpoint = `http://192.168.0.194:8080/cuotas?dia_recargo=11&reload=${reloadFlag}`;
+  const endpoint = `${endpointUrl}/cuotas?dia_recargo=11&reload=${reloadFlag}`;
   const { data: cuotas, loading, error } = useAuthFetch<Cuota[]>(endpoint);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [open, setOpen] = useState(false);
