@@ -111,8 +111,8 @@ def postCuotas(request, uid=None, role=None):
 
         #Generar datos pre_establecidos
         data_cuota['estado'] = "pendiente"
-        data_cuota['fechaPago'] = "No pagada"
-        data_cuota['metodoPago'] = "No pagada"
+        data_cuota['fechaPago'] = ""
+        data_cuota['metodoPago'] = ""
         data_cuota['montoPagado'] = 0
         
         #guardar documento con el id
@@ -420,12 +420,14 @@ def crear_cuotas_mes(request):
 
         for disciplina in disciplinas_list:
             alumnos_inscriptos = disciplina.get("alumnos_inscriptos")
+            print(alumnos_inscriptos)
             #Evita que se cree mas de una cuota para un unico DNI
             cuotas_creadas_dnis = []
 
             for alumno in alumnos_inscriptos:
                 #Solo se saltea la creacion
-                dni_alumno = alumno.get("dniAlumno")
+                print(alumno)
+                dni_alumno = alumno.get("dni")
                 if dni_alumno in cuotas_creadas_dnis:
                     continue
 
@@ -441,8 +443,8 @@ def crear_cuotas_mes(request):
                 data_cuota['dniAlumno'] = dni_alumno
                 data_cuota['idDisciplina'] = disciplina.get("disciplina_id")
                 data_cuota['estado'] = "pendiente"
-                data_cuota['fechaPago'] = "No pagada"
-                data_cuota['metodoPago'] = "No pagada"
+                data_cuota['fechaPago'] = ""
+                data_cuota['metodoPago'] = ""
                 data_cuota['montoPagado'] = 0
 
                 if es_matricula:
