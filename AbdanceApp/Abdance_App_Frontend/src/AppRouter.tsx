@@ -4,6 +4,10 @@ import App from "./App";
 import { PrivateGuard } from "./guard/PrivateGuard";
 import {DisciplinaTable, Loader, UserTable} from './components'
 import Dashboard from "./pages/Dashboard";
+import Eventos from "./pages/Eventos";
+import EventoDetalle from "./pages/EventoDetalle"; 
+import FormularioEntradasPage from './pages/FormularioEntradasPage';
+import PagoExitoso from "./pages/PagoExitosoPage";
 import CuotaContentDashboard from "./components/cuotas/CuotaContentDashboard";
 
 
@@ -13,13 +17,17 @@ interface Props{
 
 export const AppRouter = ({children}:Props) =>{
     return (
-                <RoutesWithNoFound>
+            <RoutesWithNoFound>
+                
+                <Route path="/eventos" element={<Eventos />} />
+                <Route path="/" element={<Eventos />} />
+                <Route path="/evento/:id" element={<EventoDetalle />} />
+                <Route path="/formulario-entradas" element={<FormularioEntradasPage />} />
+                <Route path="/pago-exitoso" element={<PagoExitoso />} />
+                
                     <Route path="/" element={<Navigate to="/login" replace/>} />
                     <Route path="/login" element={<App/>} />
-                    <Route path="/eventos" element={<h1>Esta es la pestaña de eventos</h1>} />
-                    <Route path="/eventos/evento_id" element={<h1>Esta es la pestaña de un evento Id particular</h1>} />
-                    <Route path="/eventos/evento_id/compra" element={<h1>Esta es la pestaña de compra de un evento particular</h1>} />
-                
+                    
 
                 <Route element={<PrivateGuard   />} >
 
