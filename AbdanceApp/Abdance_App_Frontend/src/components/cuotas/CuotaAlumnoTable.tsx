@@ -22,7 +22,7 @@ type Cuota = {
 
 // Tabla de cuotas para Alumno
 export function CuotaAlumnoTable() {
-  const baseUrl = import.meta.env.VITE_API_URL;
+  const endpointUrl = import.meta.env.VITE_API_URL;
   const usuario = JSON.parse(localStorage.getItem('usuario') ?? '{}');
   const dniAlumno = usuario.dni ?? ""
   const [reload, setReload] = useState(0);
@@ -30,7 +30,7 @@ export function CuotaAlumnoTable() {
   const [openModal, setOpenModal] = useState(false);
   
   const endpoint = dniAlumno
-    ? `http://192.168.0.194:8080/cuotas/alumno?dia_recargo=11&dniAlumno=${dniAlumno}&reload=${reload}`
+    ? `${endpointUrl}/cuotas/alumno?dia_recargo=11&dniAlumno=${dniAlumno}&reload=${reload}`
     : null;
   const { data: cuotas, loading, error } = useAuthFetch<Cuota[]>(endpoint ?? '');
 
