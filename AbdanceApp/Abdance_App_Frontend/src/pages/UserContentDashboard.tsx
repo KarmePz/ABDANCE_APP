@@ -1,6 +1,9 @@
 import { ReactNode, useState } from 'react';
 import {UserTable} from '../components'
 import { CreateUserForm } from '../components/UserComponents/CreateUserForm';
+import { useAuth } from '../hooks/useAuth';
+import { replace, useNavigate } from 'react-router-dom';
+import { Component_403 } from './Page_403';
 
 
 
@@ -13,7 +16,7 @@ export const UserContentDashboard = ({children}: Props) =>{
     //     <>
     //         <h1>USUARIOS</h1>
     //         <UserTable />
-
+    const { user } = useAuth(); 
 
     //     </>
         // )
@@ -29,6 +32,22 @@ export const UserContentDashboard = ({children}: Props) =>{
     const handleUserUpdated = () => {
         setReloadFlag((prev) => prev + 1); // Fuerza recarga
     };
+
+    const navigate = useNavigate();
+
+        // ⚠️ Verificamos rol
+    if (user?.rol !== "alumno" && user?.rol !== "profesor") {
+        return <>
+            <Component_403 />
+            <button
+            onClick={() => navigate("/dashboard")}
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+                Volver
+            </button>
+        </>
+        
+    }
 
     return (
         <>
