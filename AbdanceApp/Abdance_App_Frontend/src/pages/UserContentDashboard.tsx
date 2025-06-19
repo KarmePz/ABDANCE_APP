@@ -46,7 +46,8 @@ export const UserContentDashboard = ({children}: Props) =>{
         </button>
 
         {openCreate && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="fixed inset-0 z-50 overflow-y-auto bg-[#00000060] bg-opacity-50">
+            <div className="flex justify-center items-start min-h-screen pt-10 pb-10">
             <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full relative">
                 <button
                 onClick={() => setOpenCreate(false)}
@@ -54,10 +55,10 @@ export const UserContentDashboard = ({children}: Props) =>{
                 >
                 ✕
                 </button>
-                <h2 className="text-xl font-bold mb-4">Crear nuevo usuario</h2>
                 <CreateUserForm onUserCreated={handleUserCreated} />
             </div>
             </div>
+        </div>
         )}
         </>
     );
