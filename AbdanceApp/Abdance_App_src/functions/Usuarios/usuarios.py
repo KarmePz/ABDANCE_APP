@@ -184,3 +184,28 @@ def deleteUsuarios(request, uid=None, role=None):
     #eliminacion de BD firestore
     user_ref.delete()
     return {'message':'Usuario eliminado correctamente'}, 200
+
+@require_auth(required_roles=['admin'])
+def eliminar_usuario_con_inscripciones(request, uid=None, role=None):
+    data = request.get_json(silent=True) or {}
+    dni_usuario = data.get('dni')
+
+    if not dni_usuario:
+        return {'error': 'DNI requerido'}, 400
+
+    # Paso 1: Eliminar el usuario
+    user_ref = db.collection('usuarios').document(dni_usuario)
+    if not user_ref.get().exists:
+        return {'error': 'Usuario no encontrado'}, 404
+
+    user_ref.delete()
+
+    # Paso 2: Buscar todas las disciplinas y eliminar al usuario de cada una
+    disciplinas = db.collection('disciplinas').stream()
+
+    for disciplina in disciplinas:
+        alumnos_ref = disciplina.reference.collection('alumnos').document(dni_usuario)
+        if alumnos_ref.get().exists:
+            alumnos_ref.delete()
+
+    return {'message': f'Usuario {dni_usuario} y sus inscripciones fueron eliminados'}, 200
