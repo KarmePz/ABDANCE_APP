@@ -42,24 +42,47 @@ const handleSave = async () => {
 };
 
 const handleDelete = async () => {
-    const token = localStorage.getItem("token");
-    const res = await fetch("https://<your-endpoint>/usuarios", {
-    method: "DELETE",
-    headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ dni: user.dni }),
-    });
+    // const token = localStorage.getItem("token");
+    // const res = await fetch("https://<your-endpoint>/usuarios", {
+    // method: "DELETE",
+    // headers: {
+    //     Authorization: `Bearer ${token}`,
+    //     "Content-Type": "application/json",
+    // },
+    // body: JSON.stringify({ dni: user.dni }),
+    // });
 
-    if (!res.ok) {
-    alert("Error al eliminar el usuario");
-    } else {
-    alert("Usuario eliminado");
-    onUserUpdated();
-    onClose();
+    // if (!res.ok) {
+    // alert("Error al eliminar el usuario");
+    // } else {
+    // alert("Usuario eliminado");
+    // onUserUpdated();
+    // onClose();
+    // }
+    const token = localStorage.getItem("token");
+    const endpointUrl =  import.meta.env.VITE_API_URL_DEV
+    const confirm = window.confirm(`¿Eliminar al usuario con DNI ${user.dni} y todas sus inscripciones?`);
+    if (!confirm) return;
+
+    try {
+        const res = await fetch(`${endpointUrl}/usuarios/eliminar`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ dni : user.dni }),
+        });
+
+        const result = await res.json();
+        alert(result.message || "Usuario eliminado exitosamente.");
+        onUserUpdated(); // o la función que recargue la 
+        onClose();//cierra el dialog
+    } catch (error) {
+        alert("Error al eliminar el usuario.");
     }
 };
+
 
 if (!open) return null;
 

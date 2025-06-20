@@ -101,6 +101,14 @@ def postUsuarios(request, uid=None, role=None):
         except ValueError:
             return {'error': 'Formato de fecha inválido'}, 400 # formato de la fecha = YYYY-mm-ddThh:mm:ss.499588
         
+        # Validaciones de fecha
+        if birthdate and registration_date:
+            if birthdate == registration_date:
+                return {'error': 'La fecha de nacimiento no puede ser igual a la fecha de inscripción'}, 400
+            if birthdate > registration_date:
+                return {'error': 'La fecha de nacimiento no puede ser posterior a la fecha de inscripción'}, 400
+        
+        
         try:
             #se crea el usuario usando su email como email de ingreso y su dni como su contraseña
             usuario = auth.create_user(email=user_email, password=str(user_dni))
@@ -184,3 +192,42 @@ def deleteUsuarios(request, uid=None, role=None):
     #eliminacion de BD firestore
     user_ref.delete()
     return {'message':'Usuario eliminado correctamente'}, 200
+
+@require_auth(required_roles=['admin'])
+def eliminar_usuario_con_inscripciones(request, uid=None, role=None):
+    data = request.get_json(silent=True) or {}
+    dni_usuario = data.get('dni')
+
+    if not dni_usuario:
+        return {'error': 'DNI requerido'}, 400
+
+    # Paso 1: Eliminar el usuario
+    user_ref = db.collection('usuarios').document(dni_usuario)
+    user_doc = user_ref.get()
+    
+    if not user_ref.get().exists:
+        return {'error': 'Usuario no encontrado'}, 404
+    
+    user_data = user_doc.to_dict()
+    user_uid = user_data.get('user_uid')  # Aquí obtienes el UID para Auth
+    
+    #eliminacion de usuario
+    user_ref.delete()
+
+    # Paso 2: Buscar todas las disciplinas y eliminar al usuario de cada una
+    disciplinas = db.collection('disciplinas').stream()
+
+    for disciplina in disciplinas:
+        alumnos_ref = disciplina.reference.collection('alumnos').document(dni_usuario)
+        if alumnos_ref.get().exists:
+            alumnos_ref.delete()
+    
+    
+    #Eliminar usuario de Firebase Authentication
+    if user_uid:
+        try:
+            auth.delete_user(user_uid)
+        except auth.AuthError as e:
+            return {'error': f'Error al eliminar usuario de autenticación: {str(e)}'}, 500
+
+    return {'message': f'Usuario {dni_usuario} y sus inscripciones fueron eliminados'}, 200

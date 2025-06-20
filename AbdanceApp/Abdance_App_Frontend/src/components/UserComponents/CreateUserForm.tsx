@@ -12,6 +12,16 @@ const userSchema = z.object({
     fechaNacimiento: z.string().nonempty("Fecha de nacimiento requerida"),
     nombreAcceso: z.string().min(3, "Nombre de acceso es requerido"),
     rol: z.enum(["admin", "profesor", "alumno"])
+}).superRefine((data, ctx) => {
+    const birthdate = new Date(data.fechaNacimiento);
+    const registrationDate = new Date(data.fechaInscripcion);
+    if (birthdate >= registrationDate || birthdate.getTime() === registrationDate.getTime()) {
+        ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "La fecha de nacimiento debe ser anterior y distinta a la fecha de inscripción",
+        path: ["fechaNacimiento"],
+        });
+    }
 });
 
 type UserFormData = z.infer<typeof userSchema>;
@@ -53,6 +63,7 @@ const onSubmit = async (data: UserFormData) => {
 };
 
 return (
+    
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-md mx-auto p-6 bg-white rounded shadow-md">
     <h2 className="text-xl font-bold mb-4">Crear nuevo usuario</h2>
 
