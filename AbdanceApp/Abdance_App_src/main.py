@@ -31,6 +31,7 @@ from functions.Eventos.eventos import eventos
 from functions.Disciplinas.disciplinas import disciplinas, gestionarAlumnosDisciplina
 from functions.Eventos.entradas import entradas
 from functions.Eventos.crear_preferencia import crear_preferencia
+from functions.Eventos.entradas import guardarFormularioTemporal
 
 
 # #funciones 
@@ -93,6 +94,11 @@ def main(request):
         return entradas(request)
     elif path == '/crear_preferencia':
         return crear_preferencia(request)
+    elif path == '/api/registrar_entradas':
+        return entradas(request)
+    elif path == '/formularios-temporales':
+        return guardarFormularioTemporal(request)
+
     elif path == '/usuarios/register-student':
         return register_student(request) 
     elif path == '/usuarios':
@@ -113,7 +119,6 @@ def main(request):
     else:
         return 'Method not allowed', 405
     
-
 if __name__ == '__main__':
     from flask import Flask, request
     from werkzeug.serving import run_simple
@@ -136,4 +141,3 @@ if __name__ == '__main__':
             return "Error interno en el servidor", 500
 
     run_simple('127.0.0.1', 5000, flask_app, use_debugger=True, use_reloader=True)
-

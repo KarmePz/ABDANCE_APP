@@ -2,6 +2,9 @@ import os
 from dotenv import load_dotenv
 import mercadopago
 from flask import jsonify
+from firebase_init import db
+from datetime import datetime
+import uuid
 
 # Cargar variables de entorno
 load_dotenv()
@@ -18,62 +21,64 @@ sdk = mercadopago.SDK(ACCESS_TOKEN)
 def crear_preferencia(request):
     try:
         data = request.get_json()
-        print("📦 Datos recibidos del frontend:")
-        print(data)
 
         evento_id = data.get("evento_id")
         entradas = data.get("entradas")
+        form_id = data.get("form_id")  # ✅ Ahora lo tomás del frontend
         nombre_evento = data.get("nombreEvento")
         lugar = data.get("lugar")
         fecha = data.get("fecha")
         imagen = data.get("imagen")
 
-        if not evento_id or not entradas:
+        if not evento_id or not entradas or not form_id:
             return jsonify({"error": "Faltan datos requeridos"}), 400
 
-        print("🟢 Entradas recibidas:", entradas)
-        print(f"📍 Evento ID: {evento_id}")
-        print(f"📅 Evento: {nombre_evento} | Lugar: {lugar} | Fecha: {fecha} | Imagen: {imagen}")
+        # 🔒 Obtener datos del evento desde Firestore
+        evento_ref = db.collection("eventos").document(evento_id)
+        evento_doc = evento_ref.get()
 
-        # Crear ítems para MercadoPago
+        if not evento_doc.exists:
+            return jsonify({"error": "Evento no encontrado"}), 404
+
+        evento_data = evento_doc.to_dict()
+        entradas_disponibles = evento_data.get("entradas", [])
+
+        # 🔍 Lookup de precios por tipo
+        precios = {entrada["tipo"]: entrada["precio"] for entrada in entradas_disponibles}
+
+        # 🔄 Armar ítems con precios
         items = []
         for entrada in entradas:
             tipo = entrada.get("tipo")
             cantidad = entrada.get("cantidad")
-            precio = entrada.get("precio")
 
-            if not tipo or not cantidad or not precio:
+            if not tipo or not cantidad:
                 return jsonify({"error": "Faltan campos en una entrada"}), 400
 
-            item = {
-                "title": f"Entrada {tipo} - Evento {evento_id}",
+            precio = precios.get(tipo)
+            if precio is None:
+                return jsonify({"error": f"Tipo de entrada '{tipo}' no válido"}), 400
+
+            items.append({
+                "title": f"Entrada {tipo} - Evento {nombre_evento}",
                 "quantity": int(cantidad),
                 "unit_price": float(precio),
                 "currency_id": "ARS"
-            }
-            items.append(item)
+            })
 
-        print("🧾 Ítems para MercadoPago:")
-        for item in items:
-            print(item)
-
-        # Crear preferencia
+        # 📤 Crear preferencia de pago
         preference_data = {
             "items": items,
-            "external_reference": evento_id,
+            "external_reference": f"{evento_id}__{form_id}",
             "back_urls": {
-                "success": f"http://localhost:5173/pago-exitoso?eventoId={evento_id}",
-                "failure": "https://www.youtube.com/",
-                "pending": "https://www.instagram.com/?hl=es-la"
+                "success": f"https://45b8-190-183-84-54.ngrok-free.app/pago-exitoso?eventoId={evento_id}&formId={form_id}",
+                "failure": "https://tusitio.com/pago-error",
+                "pending": "https://tusitio.com/pago-pendiente"
             },
-            #"auto_return": "approved"
+            "auto_return": "approved"
         }
 
-        print("📤 Enviando a MercadoPago:")
-        print(preference_data)
-
         preference_response = sdk.preference().create(preference_data)
-        print("🟡 RESPONSE COMPLETO:", preference_response)  # DEBUG EN CONSOLA
 
         if "response" not in preference_response:
             return jsonify({
@@ -90,7 +95,10 @@ def crear_preferencia(request):
 
         print("✅ init_point generado:", init_point)
 
-        return jsonify({"init_point": init_point}), 200
+        return jsonify({
+            "init_point": init_point,
+            "formId": form_id
+        }), 200
 
     except Exception as e:
         import traceback

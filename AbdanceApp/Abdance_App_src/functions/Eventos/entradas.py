@@ -9,59 +9,116 @@ import base64
 from io import BytesIO
 from email.message import EmailMessage
 import smtplib
+from flask import request
 
 # Cargar variables de entorno
 load_dotenv()
 
-def entradas(request, uid=None, role=None):
-    if request.method == 'GET':
-        return getEntradas(request)
+def entradas(req, uid=None, role=None):
+    if req.method == 'GET':
+        if req.path.endswith('/formulario_temporal'):
+            return getFormularioTemporal(req)
+        return getEntradas(req)
 
-    elif request.method == 'POST':
+    elif req.method == 'POST':
+        if req.path.endswith('/guardar_formulario_temporal'):
+            return guardarFormularioTemporal(req)
+
         try:
-            data = request.get_json()
+            data = req.get_json()
             if 'formularios' in data:
-                return postEntradasMultiples(request)
+                return postEntradasMultiples(req)
             else:
-                return postEntrada(request)
+                return postEntrada(req)
         except Exception as e:
             return {'error': str(e)}, 500
 
-    elif request.method == 'PUT':
-        return putEntrada(request)
+    elif req.method == 'PUT':
+        return putEntrada(req)
 
-    elif request.method == 'DELETE':
-        return {"Este metodo no esta disponible"}  # deleteEntrada(request)
+    elif req.method == 'DELETE':
+        return {"Este metodo no esta disponible"}
 
     else:
         return {'error': 'Método no permitido'}, 405
 
+# ----------------------------------------------------------------------
+# GET Entradas
+# ----------------------------------------------------------------------
 
-# GET
-def getEntradas(request):
-    evento_id = request.args.get('evento_id')
-    entrada_id = request.args.get('entrada_id')
+def getEntradas(req):
+    evento_codigo = req.args.get('evento_id')  # sigue usando evento_id como query param
 
-    if not evento_id:
+    if not evento_codigo:
         return {'error': 'Se requiere evento_id'}, 400
 
-    ref = db.collection('eventos').document(evento_id).collection('entradas')
+    # Buscar el evento por código
+    eventos_ref = db.collection('eventos')
+    query = eventos_ref.where('codigo', '==', evento_codigo).stream()
+    evento_docs = list(query)
 
-    if entrada_id:
-        doc = ref.document(entrada_id).get()
-        if doc.exists:
-            return doc.to_dict(), 200
-        else:
-            return {'error': 'Entrada no encontrada'}, 404
+    if not evento_docs:
+        return {'error': 'Evento no encontrado'}, 404
+
+    evento_doc = evento_docs[0]
+    ref_entradas = eventos_ref.document(evento_doc.id).collection('entradas')
+    docs = ref_entradas.stream()
+    entradas = [doc.to_dict() for doc in docs]
+    return entradas, 200
+
+
+# ----------------------------------------------------------------------
+# POST: Guardar Formulario Temporal (antes del pago)
+# ----------------------------------------------------------------------
+
+def guardarFormularioTemporal(req):
+    try:
+        data = req.get_json()
+        evento_id = data.get('evento_id')
+        formularios = data.get('formularios')
+        entradas = data.get('entradas')
+
+        if not evento_id or not formularios or not entradas:
+            return {'error': 'Faltan datos'}, 400
+
+        doc_ref = db.collection('formularios_temporales').document()
+        doc_data = {
+            'id': doc_ref.id,
+            'evento_id': evento_id,
+            'formularios': formularios,
+            'entradas': entradas,
+            'estado': 'pendiente',
+            'created_at': datetime.now().isoformat()
+        }
+        doc_ref.set(doc_data)
+
+        return {'formId': doc_ref.id}, 200
+    except Exception as e:
+        return {'error': str(e)}, 500
+
+# ----------------------------------------------------------------------
+# GET: Obtener Formulario Temporal por ID
+# ----------------------------------------------------------------------
+
+def getFormularioTemporal(req):
+    form_id = req.args.get('form_id')
+
+    if not form_id:
+        return {'error': 'Se requiere form_id'}, 400
+
+    doc_ref = db.collection('formularios_temporales').document(form_id)
+    doc = doc_ref.get()
+    if doc.exists:
+        return doc.to_dict(), 200
     else:
-        docs = ref.stream()
-        entradas = [doc.to_dict() for doc in docs]
-        return entradas, 200
+        return {'error': 'Formulario no encontrado'}, 404
 
+# ----------------------------------------------------------------------
+# POST: Entrada individual
+# ----------------------------------------------------------------------
 
-# POST simple
-def postEntrada(request):
-    data = request.get_json()
+def postEntrada(req):
+    data = req.get_json()
     evento_id = data.get('evento_id')
 
     if not evento_id:
@@ -92,10 +149,12 @@ def postEntrada(request):
 
     return {'mensaje': 'Entrada creada correctamente', 'entrada': entrada_data}, 201
 
+# ----------------------------------------------------------------------
+# PUT: Actualizar estado
+# ----------------------------------------------------------------------
 
-# PUT para cambiar estado
-def putEntrada(request):
-    data = request.get_json()
+def putEntrada(req):
+    data = req.get_json()
     evento_id = data.get('evento_id')
     entrada_id = data.get('entrada_id')
     nuevo_estado = data.get('estado')
@@ -107,10 +166,12 @@ def putEntrada(request):
     ref.update({'estado': nuevo_estado})
     return {'mensaje': 'Estado de entrada actualizado'}, 200
 
+# ----------------------------------------------------------------------
+# POST múltiple con envío de mails
+# ----------------------------------------------------------------------
 
-# POST múltiple con envío de mail usando variables de entorno
-def postEntradasMultiples(request):
-    data = request.get_json()
+def postEntradasMultiples(req):
+    data = req.get_json()
     evento_id = data.get("evento_id")
     formularios = data.get("formularios")
 

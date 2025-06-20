@@ -12,7 +12,6 @@ export default function FormularioEntradasPage() {
   const navigate = useNavigate();
   const { entradasSeleccionadas, eventoId, evento } = location.state || {};
 
-
   const entradas: { tipo: string; cantidad: number }[] = entradasSeleccionadas || [];
 
   const formularios: { tipo: string }[] = entradas.flatMap((entrada) =>
@@ -23,8 +22,6 @@ export default function FormularioEntradasPage() {
   const [mostrarAdvertencia, setMostrarAdvertencia] = useState(false);
   const [errores, setErrores] = useState<{ [campo: string]: boolean }>({});
 
-
-  // Cargar desde localStorage o iniciar en blanco
   const [datos, setDatos] = useState<DatosFormulario[]>(() => {
     const guardado = localStorage.getItem(STORAGE_KEY);
     if (guardado) return JSON.parse(guardado);
@@ -38,7 +35,6 @@ export default function FormularioEntradasPage() {
     }));
   });
 
-  // Guardar datos en localStorage cuando cambian
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
   }, [datos]);
@@ -60,24 +56,20 @@ export default function FormularioEntradasPage() {
     nuevosErrores.telefono = !/^\d{10,15}$/.test(datosActuales.telefono);
 
     setErrores(nuevosErrores);
-
-    const hayErrores = Object.values(nuevosErrores).some((error) => error === true);
-
-    return !hayErrores;
+    return !Object.values(nuevosErrores).some(Boolean);
   };
 
   const avanzar = async () => {
     if (!validarFormulario()) return;
 
-
     if (formIndex < formularios.length - 1) {
       setFormIndex(formIndex + 1);
     } else {
       if (!mostrarAdvertencia) {
-        setMostrarAdvertencia(true); 
+        setMostrarAdvertencia(true);
       } else {
-        localStorage.removeItem(STORAGE_KEY); 
-        await crearPreferenciaPago(); 
+        await crearPreferenciaPago();
+        localStorage.removeItem(STORAGE_KEY);
       }
     }
   };
@@ -86,18 +78,13 @@ export default function FormularioEntradasPage() {
     if (formIndex > 0) {
       setFormIndex(formIndex - 1);
     } else {
-      localStorage.removeItem(STORAGE_KEY); 
+      localStorage.removeItem(STORAGE_KEY);
       navigate(`/evento/${eventoId}`);
     }
   };
 
-  if (!datos[formIndex]) {
-    return <div className="text-white text-center mt-20">Cargando formulario...</div>;
-  }
-
   const crearPreferenciaPago = async () => {
     try {
-      // 1. Obtener el evento completo por código
       if (!evento || !evento.entradas) {
         throw new Error("No se encontraron precios para este evento.");
       }
@@ -107,15 +94,35 @@ export default function FormularioEntradasPage() {
         return acc;
       }, {});
 
-
-      // 2. Crear lista de entradas con precios reales
       const entradasConPrecio = entradas.map((entrada) => ({
         tipo: entrada.tipo,
         cantidad: entrada.cantidad,
-        precio: precios[entrada.tipo] || 0, // fallback si no hay precio
+        precio: precios[entrada.tipo] || 0,
       }));
 
-      // 3. Enviar a crear la preferencia
+      // 💾 1. Guardar formularios temporales en backend
+      const guardarRes = await fetch("http://localhost:5000/formularios-temporales", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          evento_id: eventoId,
+          formularios: datos,
+          entradas: entradasConPrecio,
+        }),
+      });
+
+      const guardarData = await guardarRes.json();
+      if (!guardarRes.ok || !guardarData.formId) {
+        throw new Error("No se pudo guardar los formularios.");
+      }
+
+      const formId = guardarData.formId;
+      console.log("📦 Enviando a backend:", {
+        evento_id: eventoId,
+        datos,
+      });
+
+      // 📤 2. Crear preferencia de pago
       const response = await fetch("http://localhost:5000/crear_preferencia", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -126,9 +133,9 @@ export default function FormularioEntradasPage() {
           fecha: evento?.fecha || "",
           imagen: evento?.imagen || "",
           entradas: entradasConPrecio,
+          form_id: formId, // 🔁 ¡importante! se usa en el retorno
         }),
       });
-
 
       const data = await response.json();
       if (data.init_point) {
@@ -142,12 +149,13 @@ export default function FormularioEntradasPage() {
     }
   };
 
+  if (!datos[formIndex]) {
+    return <div className="text-white text-center mt-20">Cargando formulario...</div>;
+  }
 
   return (
     <div className="min-h-screen text-white p-6 flex flex-col items-center justify-center">
       <h1 className="text-2xl text-center font-bold mb-4">Detalles Comprador</h1>
-
-
 
       <FormularioEntrada
         index={formIndex}
@@ -157,7 +165,6 @@ export default function FormularioEntradasPage() {
         errores={errores}
       />
 
-      
       {mostrarAdvertencia && (
         <MensajeAlerta
           tipo="advertencia"
@@ -171,8 +178,8 @@ export default function FormularioEntradasPage() {
           {formIndex < formularios.length - 1
             ? "Siguiente"
             : mostrarAdvertencia
-              ? "Confirmar"
-              : "Siguiente"}
+            ? "Confirmar"
+            : "Siguiente"}
         </NeonButton>
       </div>
     </div>

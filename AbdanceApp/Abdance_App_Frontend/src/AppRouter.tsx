@@ -7,8 +7,10 @@ import Dashboard from "./pages/Dashboard";
 import Eventos from "./pages/Eventos";
 import EventoDetalle from "./pages/EventoDetalle"; 
 import FormularioEntradasPage from './pages/FormularioEntradasPage';
-import PagoExitoso from "./pages/PagoExitosoPage";
+import PagoExitoso from "./pages/PagoExitoso";
 import CuotaContentDashboard from "./components/cuotas/CuotaContentDashboard";
+import EntradasDashboard from "./pages/EntradasDashboard";
+import EscanearEntrada from "./pages/EscanearEntrada";
 
 
 interface Props{
@@ -19,15 +21,13 @@ export const AppRouter = ({children}:Props) =>{
     return (
             <RoutesWithNoFound>
                 
+                <Route path="/" element={<Navigate to="/login" replace/>} />
+                <Route path="/login" element={<App/>} />
                 <Route path="/eventos" element={<Eventos />} />
-                <Route path="/" element={<Eventos />} />
                 <Route path="/evento/:id" element={<EventoDetalle />} />
                 <Route path="/formulario-entradas" element={<FormularioEntradasPage />} />
                 <Route path="/pago-exitoso" element={<PagoExitoso />} />
                 
-                    <Route path="/" element={<Navigate to="/login" replace/>} />
-                    <Route path="/login" element={<App/>} />
-                    
 
                 <Route element={<PrivateGuard   />} >
 
@@ -55,7 +55,10 @@ export const AppRouter = ({children}:Props) =>{
                             <Route path="/dashboard/cuotas/alumno_dni" element={<Dashboard/>} />
                             <Route path="/dashboard/cuotas/alumno_dni/id_cuota" element={<Dashboard/>} />
 
-                            <Route path="/dashboard/entradas" element={<h1>ENTRADAS</h1>} />
+                            <Route path="/dashboard/entradas" element={<EntradasDashboard />} />
+                            <Route path="/dashboard/escanear" element={<EscanearEntrada />} />
+                            
+
                             <Route path="/dashboard/estadisticas" element={<h1>ESTADISTICAS</h1>} />
                         </Route>
                 </Route>
