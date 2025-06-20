@@ -24,7 +24,6 @@ export default function PagoExitosoPage() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true"
       },
       body: JSON.stringify({
         evento_id: eventoId,

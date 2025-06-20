@@ -21,6 +21,7 @@ sdk = mercadopago.SDK(ACCESS_TOKEN)
 def crear_preferencia(request):
     try:
         data = request.get_json()
+        
 
         evento_id = data.get("evento_id")
         entradas = data.get("entradas")
@@ -71,9 +72,9 @@ def crear_preferencia(request):
             "items": items,
             "external_reference": f"{evento_id}__{form_id}",
             "back_urls": {
-                "success": f"https://abdance-app-frontend-83p6ivyci-camilos-projects-fd28538a.vercel.app/pago-exitoso?eventoId={evento_id}&formId={form_id}",
-                "failure": "https://abdance-app-frontend-83p6ivyci-camilos-projects-fd28538a.vercel.app",
-                "pending": "https://abdance-app-frontend-83p6ivyci-camilos-projects-fd28538a.vercel.app"
+                "success": f"https://abdance-app-frontend-37vdurqtt-camilos-projects-fd28538a.vercel.app/pago-exitoso?eventoId={evento_id}&formId={form_id}",
+                "failure": "https://abdance-app-frontend-37vdurqtt-camilos-projects-fd28538a.vercel.app",
+                "pending": "https://abdance-app-frontend-37vdurqtt-camilos-projects-fd28538a.vercel.app"
             },
             "auto_return": "approved"
         }

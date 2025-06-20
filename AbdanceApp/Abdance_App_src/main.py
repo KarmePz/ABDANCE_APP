@@ -57,7 +57,7 @@ def main(request):
     # Configuración básica de CORS para peticiones OPTIONS
     if request.method == 'OPTIONS':
         headers = {
-            'Access-Control-Allow-Origin': 'https://abdance-app-frontend-83p6ivyci-camilos-projects-fd28538a.vercel.app',
+            'Access-Control-Allow-Origin': 'https://abdance-app-frontend-37vdurqtt-camilos-projects-fd28538a.vercel.app',
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         }

@@ -21,7 +21,7 @@ def entradas(req, uid=None, role=None):
         return getEntradas(req)
 
     elif req.method == 'POST':
-        if req.path.endswith('/guardar_formulario_temporal'):
+        if req.path.endswith('/formulario-temporal'):
             return guardarFormularioTemporal(req)
 
         try:
