@@ -25,6 +25,7 @@ const links: NavLink[] = [
 
 export default function Sidebar() {
     const [isOpen, setIsOpen] = useState<boolean>(false);
+    const usuario = JSON.parse(localStorage.getItem('usuario') ?? '{}');
 
     return (
         <div className="flex">
@@ -52,7 +53,8 @@ export default function Sidebar() {
                 {({ isActive }) => ( //si el boton esta activo en su ruta correspondiente se muestra en celeste
                 <div
                     className={`flex flex-row justify-center items-center cursor-pointer md:flex-col 
-                    ${isActive ? 'text-cyan-400' : 'text-[#ebdaff] md:text-[#200045]'} 
+                    ${isActive ? 'text-cyan-400' : 'text-[#ebdaff] md:text-[#200045]'}
+                    ${(usuario.rol === 'alumno' && link.name === 'Estadísticas') ? 'hidden' : ''}
                     hover:text-cyan-300 transition-colors duration-200`}
                 >
                 

@@ -15,6 +15,7 @@ type Cuota = {
     idDisciplina: string;
     metodoPago: string;
     precio_cuota: string;
+    nombreDisciplina: string;
 };
 
 //Ventada de tipo modal para pagar las cuotas seleccionadas.
@@ -34,19 +35,8 @@ export function PagoManualModal({open, onClose, selectedCuotas, onSuccess, }: Re
     const listaIds = selectedCuotas.map(c => c.id);
 
     try {
-      /* const res = await fetch(
-        `${endpointUrl}/pagar_cuota/manual?dia_recargo=11`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ lista_cuotas: listaIds }),
-        }
-      ); */
       const res = await fetch(
-        `http://192.168.0.194:8080/pagar_cuota/manual?dia_recargo=11`,
+        `${endpointUrl}/pagar_cuota/manual?dia_recargo=11`,
         {
           method: "POST",
           headers: {
@@ -106,12 +96,31 @@ export function PagoManualModal({open, onClose, selectedCuotas, onSuccess, }: Re
 
 // Tabla de cuotas para Admin
 export function CuotaAdminTable() {
-  const baseUrl = import.meta.env.VITE_API_URL;
+  const endpointUrl = import.meta.env.VITE_API_URL;
   const [reloadFlag, setReloadFlag] = useState(0);
-  const endpoint = `http://192.168.0.194:8080/cuotas?dia_recargo=11&reload=${reloadFlag}`;
+  const endpoint = `${endpointUrl}/cuotas?dia_recargo=11&reload=${reloadFlag}`;
   const { data: cuotas, loading, error } = useAuthFetch<Cuota[]>(endpoint);
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [open, setOpen] = useState(false);
+
+  // --- FILTROS ---
+  const [estadoFilter, setEstadoFilter] = useState<string>('');
+  const [disciplinaFilter, setDisciplinaFilter] = useState<string>('');
+  const [dniFilter, setDniFilter] = useState<string>('');
+
+  // Extraer valores únicos para selects
+  const estados = Array.from(new Set(cuotas?.map(c => c.estado))).sort((a, b) => a.localeCompare(b));
+  const disciplinas = Array.from(new Set(cuotas?.map(c => c.nombreDisciplina))).sort((a, b) => a.localeCompare(b));
+
+  // Filtrar datos
+  const filteredCuotas = cuotas?.filter(c => {
+    return (
+      (!estadoFilter || c.estado === estadoFilter) &&
+      (!disciplinaFilter || c.nombreDisciplina === disciplinaFilter) &&
+      (!dniFilter || c.dniAlumno.includes(dniFilter))
+    );
+  });
 
   const selectedCuotas = cuotas?.filter(c => selectedIds.has(c.id)) || [];
   const toggleSelect = (id: string) => setSelectedIds(prev => {
@@ -137,6 +146,41 @@ export function CuotaAdminTable() {
   return (
     <>
       <>
+      <div className="flex flex-wrap gap-4 gap-x-6 mb-4 mx-4 justify-center md:justify-around">
+        <div>
+          <p className="block text-lg font-medium">Estado:</p>
+          <select
+            className="text-gray-900 mt-1 block w-full rounded border-gray-300 bg-pink-300 p-2 cursor-pointer"
+            value={estadoFilter}
+            onChange={e => setEstadoFilter(e.target.value)}
+          >
+            <option value="">Todos</option>
+            {estados.map(e => <option key={e} value={e}>{e}</option>)}
+          </select>
+        </div>
+        <div>
+          <p className="block text-lg font-medium">Disciplina:</p>
+          <select
+            className="text-gray-900 mt-1 block w-full rounded border-gray-300 bg-pink-300 p-2 cursor-pointer"
+            value={disciplinaFilter}
+            onChange={e => setDisciplinaFilter(e.target.value)}
+          >
+            <option value="">Todas</option>
+            {disciplinas.map(d => <option className="capitalize" key={d} value={d}>{d}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-col items-center">
+          <p className="block text-lg font-medium">DNI Alumno:</p>
+          <input
+            type="text"
+            className="text-gray-900 mt-1 block w-full rounded border-gray-300 bg-pink-300 p-2 min-w-[150px] max-w-[150px]"
+            placeholder="Buscar DNI..."
+            value={dniFilter}
+            onChange={e => setDniFilter(e.target.value)}
+          />
+        </div>
+      </div>
+
       <div className="w-full overflow-x-auto">
       <div className="min-w-[640px] mx-auto">
         <table className="table-fixed min-w-[99%] rounded-xl border-none md:border m-1 bg-transparent md:bg-[#1a0049] border-separate border-spacing-x-1 border-spacing-y-1 w-auto">
@@ -153,7 +197,7 @@ export function CuotaAdminTable() {
             </tr>
           </thead>
           <tbody>
-            {cuotas?.map(c => (
+            {filteredCuotas?.map(c => (
               <tr key={c.id} >
                 <td className={selectedIds.has(c.id) ? 'bg-purple-200 rounded-lg md:bg-transparent p-2 min-w-5 w-8' : 'p-2 min-w-5 w-8'}>
                   <input
@@ -163,11 +207,11 @@ export function CuotaAdminTable() {
                     onChange={() => toggleSelect(c.id)}
                   />
                 </td>
-                <td className={`${tableDatacellStyle} truncate max-w-[100px] capitalize`}>{c.concepto}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[150px] capitalize`}>{c.concepto}</td>
                 <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.dniAlumno}</td>
                 <td className={`${tableDatacellStyle} truncate max-w-[110px] capitalize`}>{c.estado}</td>
                 <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{c.fechaPago?.trim() == "" ? "-" : generalDateParsing(c.fechaPago)}</td>
-                <td className={`${tableDatacellStyle} truncate max-w-[100px] capitalize`}>{c.idDisciplina}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.nombreDisciplina}</td>
                 <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.metodoPago?.trim() == "" ? "-" : c.metodoPago}</td>
                 <td className={`${tableDatacellStyle} truncate max-w-[50px]`}>{c.precio_cuota}</td>
               </tr>

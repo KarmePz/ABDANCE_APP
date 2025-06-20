@@ -71,23 +71,23 @@ def main(request):
     if path == '/' and method == 'GET':
         return 'Hola Main View', 200 
     elif path == '/cuotas':
-        return cuotas(request)
+        return apply_cors(cuotas(request))
     elif path == '/cuotas/alumno':
-        return getCuotasDNIAlumno(request)
+        return apply_cors(getCuotasDNIAlumno(request))
     elif path == "/crear_preferencia_cuota":
-        return crear_preferencia_cuota(request) 
+        return apply_cors(crear_preferencia_cuota(request) )
     elif path == "/pagar_cuota":
-        return pagar_cuota(request)
+        return apply_cors(pagar_cuota(request))
     elif path == "/pagar_cuota/manual":
-        return pagar_cuotas_manualmente(request)
+        return apply_cors(pagar_cuotas_manualmente(request))
     elif path == "/crear-cuotas-mes":
-        return crear_cuotas_mes(request)
+        return apply_cors(crear_cuotas_mes(request))
     elif path == "/eliminar-cuotas-mes":
-        return eliminar_cuotas_mes(request)
+        return apply_cors(eliminar_cuotas_mes(request))
     elif path == "/estadisticas/total-del-mes":
-        return total_pagado_mes(request)
+        return apply_cors(total_pagado_mes(request))
     elif path == "/estadisticas/totales-por-anio":
-        return totales_por_mes_anio(request)
+        return apply_cors(totales_por_mes_anio(request))
     elif path == '/eventos':
         return eventos(request)
     elif path == '/entradas':
@@ -121,7 +121,8 @@ def main(request):
     else:
         return 'Method not allowed', 405
     
-if __name__ == '__main__':
+
+""" if __name__ == '__main__':
     from flask import Flask, request
     from werkzeug.serving import run_simple
     from flask_cors import CORS
@@ -142,4 +143,5 @@ if __name__ == '__main__':
             flask_app.logger.error(f"Error interno: {e}", exc_info=True)
             return "Error interno en el servidor", 500
 
-    run_simple('127.0.0.1', 5000, flask_app, use_debugger=True, use_reloader=True)
+    run_simple('127.0.0.1', 5000, flask_app, use_debugger=True, use_reloader=True) """
+

@@ -13,7 +13,7 @@ load_dotenv()
 ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN")
 
 if not ACCESS_TOKEN:
-    raise ValueError("Falta MERCADOPAGO_ACCESS_TOKEN en el archivo .env")
+    raise ValueError("Falta el token MERCADOPAGO_ACCESS_TOKEN.")
 
 # Inicializar el SDK de Mercado Pago
 sdk = mercadopago.SDK(ACCESS_TOKEN)

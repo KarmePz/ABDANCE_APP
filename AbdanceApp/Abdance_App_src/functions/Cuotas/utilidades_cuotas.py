@@ -4,6 +4,7 @@ from collections import OrderedDict
 from firebase_init import db  # Firebase con base de datos inicializada
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from google.cloud.firestore_v1.base_query import FieldFilter
 from functions.Otros.utilidades_datetime import (
     TIME_ZONE,
     MESES
@@ -18,7 +19,7 @@ METODOS_PAGO = {
     "prepaid_card": "Tarjet. Prepaga"
 }
 
-def ordenar_datos_cuotas(data_cuota, precio_cuota, cuota_id):   
+def ordenar_datos_cuotas(data_cuota, precio_cuota, cuota_id, disciplina_id=None):   
     """Ordena los datos de las cuotas en un formato especifico.
 
     Args:
@@ -38,6 +39,10 @@ def ordenar_datos_cuotas(data_cuota, precio_cuota, cuota_id):
     cuota_data["idDisciplina"] = data_cuota.get("idDisciplina")
     cuota_data["metodoPago"] = data_cuota.get("metodoPago")
     cuota_data["precio_cuota"] = precio_cuota
+    
+    id_disciplina = disciplina_id if disciplina_id is not None else data_cuota.get("idDisciplina")
+    disciplina = db.collection('disciplinas').document(id_disciplina).get().to_dict()
+    cuota_data["nombreDisciplina"] = disciplina.get("nombre")
         
     return cuota_data
 

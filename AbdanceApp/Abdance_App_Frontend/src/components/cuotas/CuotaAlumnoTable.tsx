@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useAuthFetch } from "../../hooks/useAuthFetch";
 import { Dialog, DialogTitle } from "@headlessui/react";
 import icon from '../../../public/dance.ico'
+import MensajeAlerta from "../MensajeAlerta";
 
 
 type Cuota = {
@@ -17,12 +18,13 @@ type Cuota = {
     idDisciplina: string;
     metodoPago: string;
     precio_cuota: string;
+    nombreDisciplina: string;
 };
 
 
 // Tabla de cuotas para Alumno
 export function CuotaAlumnoTable() {
-  const baseUrl = import.meta.env.VITE_API_URL;
+  const endpointUrl = import.meta.env.VITE_API_URL;
   const usuario = JSON.parse(localStorage.getItem('usuario') ?? '{}');
   const dniAlumno = usuario.dni ?? ""
   const [reload, setReload] = useState(0);
@@ -30,9 +32,18 @@ export function CuotaAlumnoTable() {
   const [openModal, setOpenModal] = useState(false);
   
   const endpoint = dniAlumno
-    ? `http://192.168.0.194:8080/cuotas/alumno?dia_recargo=11&dniAlumno=${dniAlumno}&reload=${reload}`
+    ? `${endpointUrl}/cuotas/alumno?dia_recargo=11&dniAlumno=${dniAlumno}&reload=${reload}`
     : null;
   const { data: cuotas, loading, error } = useAuthFetch<Cuota[]>(endpoint ?? '');
+
+  const [disciplinaFilter, setDisciplinaFilter] = useState<string>('');
+  const disciplinas = Array.from(new Set(cuotas?.map(c => c.nombreDisciplina))).sort((a, b) => a.localeCompare(b));
+
+  const filteredCuotas = cuotas?.filter(c => {
+    return (
+      (!disciplinaFilter || c.nombreDisciplina === disciplinaFilter)
+    );
+  });
 
   const tableHeaderStyle = "bg-[#fff0] text-[#fff] justify-center";
   const tableDatacellStyle = "text-blue-500 bg-white rounded-xl m-0.5 p-1";
@@ -49,55 +60,70 @@ export function CuotaAlumnoTable() {
   };
 
   if (loading) return  <div className="flex justify-center align-middle items-center w-full h-full"><Loader /></div>;
-  if (error) return <p>Error: {error}</p>;
+  if (error) return <MensajeAlerta tipo="error" mensaje={`Error: ${error}`}></MensajeAlerta>;
 
   return (
     <>
       <>
-      <div className="w-full overflow-x-auto hidden md:block">
-      <div className="min-w-[640px] mx-auto">
-        <table className="table-fixed min-w-[99%] rounded-xl border-none md:border m-1 bg-transparent md:bg-[#1a0049] border-separate border-spacing-x-1 border-spacing-y-1 w-auto">
-          <thead>
-            <tr className="bg-transparent">
-              <th className={tableHeaderStyle + " w-[40px]"}>Concepto</th>
-              <th className={tableHeaderStyle + " w-[40px]"}>DNI Alumno</th>
-              <th className={tableHeaderStyle + " w-[75px]"}>Estado</th>
-              <th className={tableHeaderStyle + " w-[200px]"}>Fecha de Pago</th>
-              <th className={tableHeaderStyle + " w-[50px]"}>Disciplina</th>
-              <th className={tableHeaderStyle + " w-[60px]"}>Metodo de Pago</th>
-              <th className={tableHeaderStyle + " w-[50px]"}>Cantidad</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cuotas?.map(c => (
-              <tr
-                key={c.id}
-                onClick={() => handleRowClick(c)}
-                className={`${c.estado.toLowerCase()==='pagada'? 'opacity-50 cursor-not-allowed':'cursor-pointer hover:bg-gray-100'}`}
-              >
-                <td className={`${tableDatacellStyle} truncate max-w-[100px] capitalize`}>{c.concepto}</td>
-                <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.dniAlumno}</td>
-                <td className={`${tableDatacellStyle} truncate max-w-[110px] capitalize`}>{c.estado}</td>
-                <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{c.fechaPago?.trim() == "" ? "-" : generalDateParsing(c.fechaPago)}</td>
-                <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.idDisciplina}</td>
-                <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.metodoPago?.trim() == "" ? "-" : c.metodoPago}</td>
-                <td className={`${tableDatacellStyle} truncate max-w-[50px]`}>{c.precio_cuota}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="flex flex-wrap gap-4 gap-x-6 mb-4 mx-4 justify-center md:justify-around"></div>
+        <div>
+          <p className="block text-lg font-medium">Disciplina:</p>
+          <select
+            className="text-gray-900 mt-1 block w-full rounded border-gray-300 bg-pink-300 p-2 cursor-pointer"
+            value={disciplinaFilter}
+            onChange={e => setDisciplinaFilter(e.target.value)}
+          >
+            <option value="">Todas</option>
+            {disciplinas.map(d => <option className="capitalize" key={d} value={d}>{d}</option>)}
+          </select>
         </div>
+      <div className="w-full overflow-x-auto hidden md:block">
+        <p className={`${cuotas?.length=== 0 ? 'bg-[#fff0] text-grey-700 text-2xl justify-center' : 'hidden'}`}>
+          ¡Usted aún no tiene ninguna cuota registrada!
+        </p>
+        <div className={`${cuotas?.length=== 0 ? 'hidden' : ''} min-w-[640px] mx-auto`}>
+          <table className="table-fixed min-w-[99%] rounded-xl border-none md:border m-1 bg-transparent md:bg-[#1a0049] border-separate border-spacing-x-1 border-spacing-y-1 w-auto">
+            <thead>
+              <tr className="bg-transparent">
+                <th className={tableHeaderStyle + " w-[40px]"}>Concepto</th>
+                <th className={tableHeaderStyle + " w-[40px]"}>DNI Alumno</th>
+                <th className={tableHeaderStyle + " w-[75px]"}>Estado</th>
+                <th className={tableHeaderStyle + " w-[200px]"}>Fecha de Pago</th>
+                <th className={tableHeaderStyle + " w-[50px]"}>Disciplina</th>
+                <th className={tableHeaderStyle + " w-[60px]"}>Metodo de Pago</th>
+                <th className={tableHeaderStyle + " w-[50px]"}>Cantidad</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCuotas?.map(c => (
+                <tr
+                  key={c.id}
+                  onClick={() => handleRowClick(c)}
+                  className={`${c.estado.toLowerCase()==='pagada'? 'opacity-50 cursor-not-allowed':'cursor-pointer hover:bg-gray-100'}`}
+                >
+                  <td className={`${tableDatacellStyle} truncate max-w-[100px] capitalize`}>{c.concepto}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.dniAlumno}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[110px] capitalize`}>{c.estado}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{c.fechaPago?.trim() == "" ? "-" : generalDateParsing(c.fechaPago)}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.nombreDisciplina}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.metodoPago?.trim() == "" ? "-" : c.metodoPago}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[50px]`}>{c.precio_cuota}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          </div>
         </div>
 
         <div className="block md:hidden flex flex-wrap mt-10 justify-between">
             {cuotas?.map(c => (
-                <div key={c.id} className="relative flex w-50 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md">
+                <div key={c.id} className="relative flex w-50 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md mt-3 mx-1">
                     <div className="p-6">
                         <h5 className="mb-2 block font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
                         {c.concepto}
                         </h5>
                         <p className="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
-                        <strong>A pagar:</strong> {c.precio_cuota}
+                        <strong>A pagar:</strong> ${c.precio_cuota}
                         </p>
                         <p className="capitalize block font-sans text-base font-light leading-relaxed text-inherit antialiased">
                         <strong>Estado:</strong> {c.estado}
@@ -160,11 +186,13 @@ export function CrearPreferencia({ cuotaId, onCompleted }: Readonly<CrearPrefere
   initMercadoPago(publicKey, { locale: 'es-AR' });
   const [idPreferencia, setIdPreferencia] = useState<string | null>(null);
   const token = localStorage.getItem('token');
+  const endpointUrl = import.meta.env.VITE_API_URL;
+
 
   const crearPreferencia = async () => {
     try {
       const res = await axios.post(
-        `http://127.0.0.1:8080/crear_preferencia_cuota`,
+        `${endpointUrl}/crear_preferencia_cuota`,
         { cuota_id: cuotaId, dia_recargo: 11 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -180,10 +208,10 @@ export function CrearPreferencia({ cuotaId, onCompleted }: Readonly<CrearPrefere
 
   if (!idPreferencia) return <p>Por favor espere...</p>;
   return (
-  <div>
-    {idPreferencia && <Wallet customization={{
-      theme: 'dark',
-      valueProp: "security_details"
-  }} initialization={{ preferenceId: idPreferencia }} />}
-  </div>);
+    <div>
+      {idPreferencia && <Wallet customization={{
+        theme: 'dark',
+        valueProp: "security_details"
+    }} initialization={{ preferenceId: idPreferencia }} />}
+    </div>);
 }
