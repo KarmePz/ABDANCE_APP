@@ -34,7 +34,7 @@ export const AppRouter = ({children}:Props) =>{
                     {/* RUTA PRIVADA */}
                         <Route path="/dashboard" element={<Dashboard/>} > 
                             <Route path="" element={<h1>Inicio</h1>}/>
-                            <Route path="eventos" element={<h1>Eventos</h1>} />
+                            <Route path="eventos" element={<Eventos/>} />
                             <Route path="eventos/agregar" element={<Dashboard/>} />
                             <Route path="/dashboard/eventos/id_evento" element={<Dashboard/>} />
                             <Route path="/dashboard/eventos/id_evento/comprar" element={<Dashboard/>} />
@@ -50,7 +50,7 @@ export const AppRouter = ({children}:Props) =>{
                             <Route path="/dashboard/asistencias" element={<InasistenciaContentDashboard />} />
                             <Route path="/dashboard/asistencias/alumno_dni" element={<Dashboard/>} />
                             
-
+                            
                             <Route path="/dashboard/cuotas" element={<CuotaContentDashboard />} />
                             <Route path="/dashboard/cuotas/alumno_dni" element={<Dashboard/>} />
                             <Route path="/dashboard/cuotas/alumno_dni/id_cuota" element={<Dashboard/>} />
