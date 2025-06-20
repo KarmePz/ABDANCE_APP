@@ -106,7 +106,9 @@ def main(request):
     elif path == "/usuarios/eliminar" and method == "DELETE":
         return apply_cors(eliminar_usuario_con_inscripciones(request))
     elif path == '/inasistencias':
-        return apply_cors(inasistencias(request)) 
+        return apply_cors(inasistencias(request))
+    elif path =='/disciplinas/gestionar-alumnos':
+        return apply_cors(gestionarAlumnosDisciplina(request)) 
     elif path == '/asistencias/registrar':
         return apply_cors(registrar_inasistencia(request))
     elif path == '/disciplinas':

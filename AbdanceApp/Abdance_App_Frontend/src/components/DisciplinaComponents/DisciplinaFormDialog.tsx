@@ -47,7 +47,7 @@ export function DisciplinaFormDialog({ open, disciplina, onClose, onDisciplinaUp
 
     const handleSave = async () => {
         const token = localStorage.getItem("token");
-        const endpointUrl = import.meta.env.VITE_API_URL_DEV; //modo dev
+        const endpointUrl = import.meta.env.VITE_API_URL; //modo dev
         
         try {
             // Preparamos los datos en el formato que espera el backend
@@ -86,7 +86,7 @@ export function DisciplinaFormDialog({ open, disciplina, onClose, onDisciplinaUp
 
     const handleDelete = async () => {
         const token = localStorage.getItem("token");
-        const endpointUrl = import.meta.env.VITE_API_URL_DEV;
+        const endpointUrl = import.meta.env.VITE_API_URL;
         const confirm = window.confirm(`¿Eliminar la disciplina "${disciplina.nombre}" y todos sus datos asociados?`);
         
         if (!confirm) return;

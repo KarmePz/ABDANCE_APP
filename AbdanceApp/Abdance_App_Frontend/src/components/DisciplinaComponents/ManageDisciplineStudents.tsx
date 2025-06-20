@@ -21,7 +21,7 @@ export function ManageDisciplineStudents({
     reloadFlag: number;
     onStudentsUpdated: () => void;
 }) {
-    const endpointUrl = import.meta.env.VITE_API_URL_DEV;
+    const endpointUrl = import.meta.env.VITE_API_URL;
     // const { user } = useAuth();
     
     // // Cargar lista de disciplinas
