@@ -1,6 +1,4 @@
 import { ReactNode, useState } from 'react';
-import {UserTable} from '../components'
-import { CreateUserForm } from '../components/UserComponents/CreateUserForm';
 import { DisciplineStudentsTable } from '../components/InasistenciaComponents/DisciplineStudentsTable';
 import { InasistenciasTable } from '../components/InasistenciaComponents/InasistenciaUserTable';
 import { StudentsInasistenciasTable } from '../components/InasistenciaComponents/StudentsInasistenciasTable';
@@ -12,7 +10,7 @@ interface Props{
     children?: ReactNode;
 }
 
-export const InasistenciaContentDashboard = ({children}: Props) =>{
+export const InasistenciaContentDashboard = ({}: Props) =>{
     // const [reloadFlag, setReloadFlag] = useState(0); // Para actualizar studentTable
     // // const [openCreate] = useState(false); // Controla modal creación
 

@@ -9,10 +9,11 @@ const EscanearEntrada = () => {
   const [entrada, setEntrada] = useState<any>(null);
   const [mostrarModal, setMostrarModal] = useState(false);
   const navigate = useNavigate();
+  const endpointUrl =  import.meta.env.VITE_API_URL_DEV;//modo dev
 
   const obtenerEntrada = async (codigo: string, eventoId: string) => {
     try {
-      const respuesta = await fetch(`http://localhost:5000/entradas?evento_id=${eventoId}`);
+      const respuesta = await fetch(`${endpointUrl}/entradas?evento_id=${eventoId}`);
       const data = await respuesta.json();
       const entradaEncontrada = data.find((entrada: any) => entrada.id === codigo);
 
@@ -31,7 +32,7 @@ const EscanearEntrada = () => {
   const handleValidar = async () => {
     if (!entrada) return;
     try {
-      const respuesta = await fetch("http://localhost:5000/entradas", {
+      const respuesta = await fetch(`${endpointUrl}/entradas`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -1,6 +1,6 @@
 import functions_framework 
 ##from flask import Flask, jsonify, request
-from util.cors import apply_cors
+from util.cors import apply_cors, apply_cors_manual
 
 
 import functions_framework
@@ -57,7 +57,7 @@ def main(request):
     # Configuración básica de CORS para peticiones OPTIONS
     if request.method == 'OPTIONS':
         headers = {
-            'Access-Control-Allow-Origin': 'http://localhost:5173',
+            'Access-Control-Allow-Origin': 'https://abdance-app-frontend-83p6ivyci-camilos-projects-fd28538a.vercel.app',
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         }
@@ -89,18 +89,18 @@ def main(request):
     elif path == "/estadisticas/totales-por-anio":
         return apply_cors(totales_por_mes_anio(request))
     elif path == '/eventos':
-        return eventos(request)
+        return apply_cors_manual(eventos(request))
     elif path == '/entradas':
-        return entradas(request)
+        return apply_cors_manual(entradas(request))
     elif path == '/crear_preferencia':
-        return crear_preferencia(request)
+        return apply_cors_manual(crear_preferencia(request))
     elif path == '/api/registrar_entradas':
-        return entradas(request)
+        return apply_cors_manual(entradas(request))
     elif path == '/formularios-temporales':
-        return guardarFormularioTemporal(request)
+        return apply_cors_manual(guardarFormularioTemporal(request))
 
     elif path == '/usuarios/register-student':
-        return register_student(request) 
+        return apply_cors(register_student(request)) 
     elif path == '/usuarios':
         return usuarios(request)
     elif path == "/usuarios/eliminar" and method == "DELETE":
@@ -114,12 +114,8 @@ def main(request):
     elif path == '/disciplinas':
         return disciplinas(request)
     elif path == '/disciplinas/alumno':
-        return gestionarAlumnosDisciplina(request)
-        return ('Endpoint en construcción', 501)#se debe agregar, modificar, eliminar,y ver datos de un alumno de una disciplina segun su dni
-    elif path == '/disciplinas/horario':
-        return ('Endpoint en construcción', 501)#se debe agregar, modificar, eliminar,y ver datos de un horarios de una disciplina segun su id
-    elif path == '/disciplinas/profesor':
-        return ('Endpoint en construcción', 501) #se debe agregar, modificar, eliminar,y ver datos de un alumno de un profesor segun su dni
+        return apply_cors(gestionarAlumnosDisciplina(request))
+        #se debe agregar, modificar, eliminar,y ver datos de un alumno de un profesor segun su dni
     else:
         return 'Method not allowed', 405
     

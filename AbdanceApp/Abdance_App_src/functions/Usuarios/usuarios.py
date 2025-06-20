@@ -16,6 +16,7 @@ from util.cors import apply_cors
 
 @functions_framework.http
 def usuarios(request, uid=None, role=None):
+    
     if request.method == 'OPTIONS':
         return apply_cors(({'message': 'CORS preflight'}, 204))
     

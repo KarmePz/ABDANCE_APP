@@ -13,9 +13,9 @@ interface Props {
 
 export const SelectEventosConEntradas = ({ onSelect }: Props) => {
   const [eventos, setEventos] = useState<Evento[]>([]);
-
+  const endpointUrl =  import.meta.env.VITE_API_URL_DEV;//modo dev
   useEffect(() => {
-    fetch("http://localhost:5000/eventos")
+    fetch(`${endpointUrl}/eventos`)
       .then((res) => res.json())
       .then((data) => {
         const eventosConEntrada = data.filter((e: Evento) => e.conEntrada);

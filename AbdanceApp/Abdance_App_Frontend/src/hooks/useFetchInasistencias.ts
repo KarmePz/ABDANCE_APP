@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useAuthFetch } from "./useAuthFetch";
 
 // src/hooks/useFetchInasistencias.ts
 

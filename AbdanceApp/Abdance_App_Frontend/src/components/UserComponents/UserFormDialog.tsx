@@ -60,7 +60,7 @@ const handleDelete = async () => {
     // onClose();
     // }
     const token = localStorage.getItem("token");
-    const endpointUrl =  import.meta.env.VITE_API_URL_DEV
+    const endpointUrl =  import.meta.env.VITE_API_URL
     const confirm = window.confirm(`¿Eliminar al usuario con DNI ${user.dni} y todas sus inscripciones?`);
     if (!confirm) return;
 

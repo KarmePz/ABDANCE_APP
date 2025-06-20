@@ -71,9 +71,9 @@ def crear_preferencia(request):
             "items": items,
             "external_reference": f"{evento_id}__{form_id}",
             "back_urls": {
-                "success": f"https://45b8-190-183-84-54.ngrok-free.app/pago-exitoso?eventoId={evento_id}&formId={form_id}",
-                "failure": "https://tusitio.com/pago-error",
-                "pending": "https://tusitio.com/pago-pendiente"
+                "success": f"https://abdance-app-frontend-83p6ivyci-camilos-projects-fd28538a.vercel.app/pago-exitoso?eventoId={evento_id}&formId={form_id}",
+                "failure": "https://abdance-app-frontend-83p6ivyci-camilos-projects-fd28538a.vercel.app",
+                "pending": "https://abdance-app-frontend-83p6ivyci-camilos-projects-fd28538a.vercel.app"
             },
             "auto_return": "approved"
         }

@@ -11,6 +11,7 @@ export default function FormularioEntradasPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { entradasSeleccionadas, eventoId, evento } = location.state || {};
+  const endpointUrl =  import.meta.env.VITE_API_URL_DEV;//modo dev
 
   const entradas: { tipo: string; cantidad: number }[] = entradasSeleccionadas || [];
 
@@ -101,7 +102,7 @@ export default function FormularioEntradasPage() {
       }));
 
       // 💾 1. Guardar formularios temporales en backend
-      const guardarRes = await fetch("http://localhost:5000/formularios-temporales", {
+      const guardarRes = await fetch(`${endpointUrl}/formularios-temporales`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -123,7 +124,7 @@ export default function FormularioEntradasPage() {
       });
 
       // 📤 2. Crear preferencia de pago
-      const response = await fetch("http://localhost:5000/crear_preferencia", {
+      const response = await fetch(`${endpointUrl}/crear_preferencia`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

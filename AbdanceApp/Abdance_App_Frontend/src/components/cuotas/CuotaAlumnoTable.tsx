@@ -115,7 +115,7 @@ export function CuotaAlumnoTable() {
           </div>
         </div>
 
-        <div className="block md:hidden flex flex-wrap mt-10 justify-between">
+        <div className="md:hidden flex flex-wrap mt-10 justify-between">
             {cuotas?.map(c => (
                 <div key={c.id} className="relative flex w-50 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md mt-3 mx-1">
                     <div className="p-6">
@@ -180,7 +180,7 @@ export function CuotaAlumnoTable() {
 //Creacion de la preferencia de pago de Mercado Pago, recibe ID de la cuota a pagar
 //y un callback
 interface CrearPreferenciaProps { cuotaId: string; onCompleted: () => void; }
-export function CrearPreferencia({ cuotaId, onCompleted }: Readonly<CrearPreferenciaProps>) {
+export function CrearPreferencia({ cuotaId}: Readonly<CrearPreferenciaProps>) {
   //const publicKey = import.meta.env.MERCADO_PAGO_KEY;
   const publicKey = "APP_USR-5f823e37-e3e9-4c4c-9d9d-ff696f47ba7d"
   initMercadoPago(publicKey, { locale: 'es-AR' });

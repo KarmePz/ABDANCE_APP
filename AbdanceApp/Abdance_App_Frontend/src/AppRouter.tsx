@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import {  Navigate, Route, Routes } from "react-router-dom"; 
 import App from "./App";
 import { PrivateGuard } from "./guard/PrivateGuard";
-import { Loader} from './components'
+
 import Dashboard from "./pages/Dashboard";
 import Eventos from "./pages/Eventos";
 import EventoDetalle from "./pages/EventoDetalle"; 
@@ -11,12 +11,11 @@ import PagoExitoso from "./pages/PagoExitoso";
 import CuotaContentDashboard from "./components/cuotas/CuotaContentDashboard";
 import EstadisticasContentDashboard from "./components/Estadisticas/EstadisticasContentDashboard";
 
-
 interface Props{
     children : ReactNode
 }
 
-export const AppRouter = ({children}:Props) =>{
+export const AppRouter = ({}:Props) =>{
     return (
             <RoutesWithNoFound>
                 
@@ -53,7 +52,9 @@ export const AppRouter = ({children}:Props) =>{
                             <Route path="/dashboard/cuotas" element={<CuotaContentDashboard />} />
                             <Route path="/dashboard/cuotas/alumno_dni" element={<Dashboard/>} />
                             <Route path="/dashboard/cuotas/alumno_dni/id_cuota" element={<Dashboard/>} />
-
+                            <Route path="/dashboard/entradas" element={<EntradasDashboard/>} />
+                            
+                            <Route path="/dashboard/escanear" element={<EscanearEntrada/>} />
                             <Route path="/dashboard/estadisticas" element={<EstadisticasContentDashboard></EstadisticasContentDashboard>} />
                         </Route>
                 </Route>
@@ -79,6 +80,8 @@ import { Page_403 } from "./pages/Page_403";
 import UserContentDashboard from "./pages/UserContentDashboard";
 import InasistenciaContentDashboard from "./pages/InasistenciaContentDashboard";
 import DisciplinaContentDashboard from "./pages/DisciplinaContentDashboard";
+import EntradasDashboard from "./pages/EntradasDashboard";
+import EscanearEntrada from "./pages/EscanearEntrada";
 interface Props{
     children: ReactNode
 }

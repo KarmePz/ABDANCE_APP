@@ -11,7 +11,7 @@ interface Props{
     children?: ReactNode;
 }
 
-export const Dashboard = ({children}: Props) =>{
+export const Dashboard = ({}: Props) =>{
     
     useDocumentTitle("ABDANCE Dashboard");
     useFavicon("/dance.ico")

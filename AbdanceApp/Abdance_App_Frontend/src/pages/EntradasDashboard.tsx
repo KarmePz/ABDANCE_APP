@@ -23,12 +23,13 @@ export const EntradasDashboard = () => {
   const [busqueda, setBusqueda] = useState("");
   const [entradaSeleccionada, setEntradaSeleccionada] = useState<Entrada | null>(null);
   const [entradaAValidar, setEntradaAValidar] = useState<Entrada | null>(null);
+  const endpointUrl =  import.meta.env.VITE_API_URL_DEV;//modo dev
   const navigate = useNavigate();
   // Cargar entradas cuando cambia el evento
   useEffect(() => {
     if (!eventoSeleccionado) return;
 
-    fetch(`http://localhost:5000/entradas?evento_id=${eventoSeleccionado}`)
+    fetch(`${endpointUrl}/entradas?evento_id=${eventoSeleccionado}`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -48,11 +49,11 @@ export const EntradasDashboard = () => {
     const texto = `${e.nombre} ${e.apellido} ${e.dni} ${e.email}`.toLowerCase();
     return texto.includes(busqueda.toLowerCase());
   });
-
+  
   const validarEntrada = async () => {
     if (!entradaAValidar || !eventoSeleccionado) return;
 
-    const response = await fetch("http://localhost:5000/entradas", {
+    const response = await fetch(`${endpointUrl}/entradas`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuthFetch } from "../../hooks/useAuthFetch";
+
 import { Loader } from "..";
 import { useDisciplinaList } from "../../hooks/useDisciplinaList";
 import { useDisciplinaStudents } from "../../hooks/useDisciplinaStudents";
@@ -29,7 +29,7 @@ export function DisciplineStudentsTable({
     reloadFlag
   );
     // const [students, setStudents] = useState<Student[]>([]);
-    const [loading, setLoading] = useState(true);
+    //const [loading, setLoading] = useState(true);
     // const [nombreDisciplina, setNombreDisciplina] = useState("");
 
     

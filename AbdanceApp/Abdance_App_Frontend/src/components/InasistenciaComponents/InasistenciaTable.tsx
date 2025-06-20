@@ -1,6 +1,6 @@
 // src/components/Alumnos/InasistenciasTable.tsx
 import { useAuth } from "../../hooks/useAuth";
-import { Inasistencia, useFetchInasistencias } from "../../hooks/useFetchInasistencias";
+import { /*Inasistencia,*/ useFetchInasistencias } from "../../hooks/useFetchInasistencias";
 
     type Props = {
     dni: string;

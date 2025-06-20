@@ -10,7 +10,7 @@ interface Props {
     children?: ReactNode;
 }
 
-export const DisciplinaContentDashboard = ({ children }: Props) => {
+export const DisciplinaContentDashboard = ({}: Props) => {
     const { user } = useAuth();
     const navigate = useNavigate();
 

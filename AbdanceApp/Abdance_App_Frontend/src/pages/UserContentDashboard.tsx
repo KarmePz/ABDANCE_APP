@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import {UserTable} from '../components'
 import { CreateUserForm } from '../components/UserComponents/CreateUserForm';
 import { useAuth } from '../hooks/useAuth';
-import { replace, useNavigate } from 'react-router-dom';
+import { /*replace,*/ useNavigate } from 'react-router-dom';
 import { Component_403 } from './Page_403';
 
 
@@ -11,7 +11,7 @@ interface Props{
     children?: ReactNode;
 }
 
-export const UserContentDashboard = ({ children }: Props) => {
+export const UserContentDashboard = ({ /*children*/ }: Props) => {
     const { user } = useAuth();
     const navigate = useNavigate();
 

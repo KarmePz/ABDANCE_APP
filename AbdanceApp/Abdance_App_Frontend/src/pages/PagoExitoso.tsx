@@ -5,6 +5,8 @@ export default function PagoExitosoPage() {
   const [mensaje, setMensaje] = useState("Procesando tu compra...");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const endpointUrl =  import.meta.env.VITE_API_URL_DEV;//modo dev
+  //const endpointUrl= "https://def456.ngrok-free.app"//para preubas en ngrok
 
   useEffect(() => {
     const eventoId = searchParams.get("eventoId");
@@ -18,7 +20,7 @@ export default function PagoExitosoPage() {
     console.log("📤 Enviando confirmación:", { eventoId, formId });
     //https://959f-190-183-84-54.ngrok-free.app
     //http://localhost:5000
-    fetch("http://localhost:5000/api/registrar_entradas", {
+    fetch(`${endpointUrl}/api/registrar_entradas`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
