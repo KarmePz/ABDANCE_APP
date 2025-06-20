@@ -21,11 +21,11 @@ export function ManageDisciplineStudents({
     reloadFlag: number;
     onStudentsUpdated: () => void;
 }) {
-    const endpointUrl = import.meta.env.VITE_API_URL;
+    const endpointUrl = import.meta.env.VITE_API_URL_DEV;
     // const { user } = useAuth();
     
     // // Cargar lista de disciplinas
-    const { disciplinas, loading: loadingDisciplinas } = useDisciplinaList(endpointUrl);
+    const {  loading: loadingDisciplinas } = useDisciplinaList(endpointUrl);
     
     // Estado para alumnos disponibles (no inscritos)
     const [availableStudents, setAvailableStudents] = useState<Student[]>([]);
