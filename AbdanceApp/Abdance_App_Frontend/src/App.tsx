@@ -4,8 +4,6 @@ import {Background, Logo, LoginForm} from './components'
 import { useDocumentTitle } from './hooks/useDocumentTitle';
 import { useFavicon } from './hooks/useFavicon';
 import { useNavigate } from "react-router-dom";
-import PagosTest from './components/cuotas/PagosTest';
-
 
 
 function App() {

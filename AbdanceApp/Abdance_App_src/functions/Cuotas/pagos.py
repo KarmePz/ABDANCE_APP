@@ -48,11 +48,11 @@ def crear_preferencia_cuota(request, uid=None, role=None):
         preference_data = {
             "items": [
                 {
-                    "title": f"Cuota {cuota_data["concepto"]}",
+                    "title": f"Cuota {cuota_data['concepto']}",
                     "quantity": 1,
-                    "unit_price": int(cuota_data["precio_cuota"]),
+                    "unit_price": int(cuota_data['precio_cuota']),
                     "currency_id": "ARS",
-                    "description": f"Cuota del mes de {cuota_data["concepto"]}, para alumno con DNI: {cuota_data["dniAlumno"]}, de la disciplina: {disciplina_data["nombre"]}.",
+                    "description": f"Cuota del mes de {cuota_data['concepto']}, para alumno con DNI: {cuota_data['dniAlumno']}, de la disciplina: {disciplina_data['nombre']}.",
                 }
             ],
             "back_urls": {
@@ -73,7 +73,7 @@ def crear_preferencia_cuota(request, uid=None, role=None):
                 }
                 ]
             },
-            "external_reference": f"{cuota_data["id"]}",
+            "external_reference": f"{cuota_data['id']}",
             "metadata": {
                 "tipo_objeto_a_pagar": "cuota"
             }

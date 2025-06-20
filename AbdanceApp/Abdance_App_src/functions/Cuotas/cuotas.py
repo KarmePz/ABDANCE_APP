@@ -30,7 +30,7 @@ def cuotas(request):
         return deleteCuotas(request)
     
     else:
-        return 'hola pagos', 200
+        return 'hola cuotas', 200
 
 
 @require_auth(required_roles=['alumno', 'profesor', 'admin'])
@@ -67,7 +67,7 @@ def getCuotas(request, uid=None, role=None):
                 cuota_data = doc.to_dict()
             
                 precio_cuota = get_monto_cuota(doc.id, recargo_day)
-                cuota_data = ordenar_datos_cuotas(cuota_data, precio_cuota, doc.id)
+                cuota_data = ordenar_datos_cuotas(cuota_data, precio_cuota, doc.id, disciplina_id=id_disciplina)
 
                 cuotas.append(cuota_data)
 
@@ -227,7 +227,7 @@ def getCuotasDNIAlumno(request, uid=None, role=None):
         usuario_doc = usuario_ref.get()
 
         if not usuario_doc.exists:
-            return {'error': 'Usuario no encontrado.'}, 400
+            return {'error': 'Alumno no encontrado o el alumno ya no existe.'}, 400
         if usuario_doc.to_dict().get('user_uid') != uid:
             return {'error': 'No puede acceder a esta información.'}, 401
         
@@ -420,13 +420,11 @@ def crear_cuotas_mes(request):
 
         for disciplina in disciplinas_list:
             alumnos_inscriptos = disciplina.get("alumnos_inscriptos")
-            print(alumnos_inscriptos)
             #Evita que se cree mas de una cuota para un unico DNI
             cuotas_creadas_dnis = []
 
             for alumno in alumnos_inscriptos:
                 #Solo se saltea la creacion
-                print(alumno)
                 dni_alumno = alumno.get("dni")
                 if dni_alumno in cuotas_creadas_dnis:
                     continue
