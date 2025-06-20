@@ -14,7 +14,7 @@ export function CuotaContentDashboard() {
   
   return (
     <>
-      <h1 className="tracking-wide text-4xl font-black text-gray-300 md:dark:text-gray-900">CUOTAS</h1>
+      <h1 className="tracking-wide text-4xl font-black text-gray-300 md:dark:text-gray-900 mb-4 text-center">CUOTAS</h1>
       {usuario.rol === 'alumno' ? <CuotaAlumnoTable /> : <CuotaAdminTable />}
     </>
   );

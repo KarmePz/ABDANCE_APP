@@ -3,3 +3,19 @@ gcloud functions deploy main \
   --trigger-http \
   --allow-unauthenticated \
   --region southamerica-east1
+
+
+COMANDO CON SECRETOS:
+gcloud functions deploy main \
+  --runtime=python310 \
+  --trigger-http \
+  --allow-unauthenticated \
+  --region=southamerica-east1 \
+  --set-secrets \
+    MP_ACCESS_TOKEN_TEST=projects/675808082339/secrets/MP_ACCESS_TOKEN_TEST:latest,\
+MP_PUBLIC_KEY_TEST=projects/675808082339/secrets/MP_PUBLIC_KEY_TEST:latest,\
+MP_WEBHOOK_KEY=projects/675808082339/secrets/MP_WEBHOOK_KEY:latest,\
+MERCADOPAGO_ACCESS_TOKEN=projects/675808082339/secrets/MERCADOPAGO_ACCESS_TOKEN:latest,\
+MAIL_USER=projects/675808082339/secrets/MAIL_USER:latest,\
+MAIL_PASS=projects/675808082339/secrets/MAIL_PASS:latest,\
+MAIL_FROM=projects/675808082339/secrets/MAIL_FROM:latest

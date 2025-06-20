@@ -10,7 +10,7 @@ load_dotenv()
 ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN")
 
 if not ACCESS_TOKEN:
-    raise ValueError("Falta MERCADOPAGO_ACCESS_TOKEN en el archivo .env")
+    raise ValueError("Falta el token MERCADOPAGO_ACCESS_TOKEN.")
 
 # Inicializar el SDK de Mercado Pago
 sdk = mercadopago.SDK(ACCESS_TOKEN)
@@ -62,7 +62,7 @@ def crear_preferencia(request):
             "items": items,
             "external_reference": evento_id,
             "back_urls": {
-                "success": f"http://localhost:5173/pago-exitoso?eventoId={evento_id}",
+                "success": "https://www.geeksforgeeks.org/python/ternary-operator-in-python/",  #f"http://localhost:5173/pago-exitoso?eventoId={evento_id}",
                 "failure": "https://www.youtube.com/",
                 "pending": "https://www.instagram.com/?hl=es-la"
             },
