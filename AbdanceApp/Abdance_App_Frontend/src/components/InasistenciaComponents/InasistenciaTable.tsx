@@ -10,7 +10,7 @@ import { Inasistencia, useFetchInasistencias } from "../../hooks/useFetchInasist
     };
     
 
-    export function InasistenciasTable({ dni, nombre, apellido, onClose }: Props) {
+    export function InasistenciasTable({ dni, nombre, apellido, onClose }: Props) { //NO SE PASA EL ROL DEL USUARIO POR LO QUE SE OBTIENE AQUI CON UseAuth()
     const { inasistencias, loading, error } = useFetchInasistencias(dni);
     const { user } = useAuth();  // <-- obtener usuario con rol desde el hook
     const esAlumno = user?.rol === "alumno";

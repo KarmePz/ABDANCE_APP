@@ -71,8 +71,8 @@ def main(request):
         return apply_cors(registrar_inasistencia(request))
     elif path == '/disciplinas':
         return disciplinas(request)
-    elif path == '/disciplinas/alumno':
-        return gestionarAlumnosDisciplina(request)
+    elif path == '/disciplinas/gestionar-alumnos':
+        return apply_cors(gestionarAlumnosDisciplina(request))
         return ('Endpoint en construcción', 501)#se debe agregar, modificar, eliminar,y ver datos de un alumno de una disciplina segun su dni
     elif path == '/disciplinas/horario':
         return ('Endpoint en construcción', 501)#se debe agregar, modificar, eliminar,y ver datos de un horarios de una disciplina segun su id

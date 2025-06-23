@@ -161,6 +161,7 @@ def putUsuarios(request, uid=None, role=None):
 
 @require_auth(required_roles=['admin', 'profesor']) 
 def deleteUsuarios(request, uid=None, role=None):
+    import time
     data = request.get_json(silent=True) or {}
     
     if not data or 'dni' not in data:
@@ -169,6 +170,7 @@ def deleteUsuarios(request, uid=None, role=None):
     
     user_ref = db.collection('usuarios').document(data['dni'])
     user_doc = user_ref.get()
+    
     
     #control de errores 
     if not user_doc.exists:
@@ -210,6 +212,35 @@ def eliminar_usuario_con_inscripciones(request, uid=None, role=None):
     
     user_data = user_doc.to_dict()
     user_uid = user_data.get('user_uid')  # Aquí obtienes el UID para Auth
+    
+    
+    
+    #se eliminan todas las subcollections
+    def delete_all_subcollections(doc_ref):
+        for subcol in doc_ref.collections():
+            for doc in subcol.stream():
+                doc.reference.delete()
+            print(f"[OK] Subcolección {subcol.id} eliminada.")
+    
+    # Eliminar subcolecciones conocidas 
+    import time
+    subcolecciones = ['inasistencias']
+    for col_name in subcolecciones:
+        subcol_ref = user_ref.collection(col_name)
+        while True:
+            docs = list(subcol_ref.limit(500).stream())
+            if not docs:
+                break
+            batch = db.batch()
+            for doc in docs:
+                batch.delete(doc.reference)
+            batch.commit()
+            time.sleep(0.05)
+        
+    # eliminar dinámicamente todas las subcolecciones para asegurar eliminacion total
+    delete_all_subcollections(user_ref)
+    
+    
     
     #eliminacion de usuario
     user_ref.delete()

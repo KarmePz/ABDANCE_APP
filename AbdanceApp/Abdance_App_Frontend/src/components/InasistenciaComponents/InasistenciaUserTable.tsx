@@ -8,7 +8,7 @@ type Props = {
     onClose: () => void;
 };
 
-export function InasistenciasTable({ dni, nombre, apellido, rol, onClose }: Props) {
+export function InasistenciasTable({ dni, nombre, apellido, rol, onClose }: Props) { //SE PASA EL ROL DEL USUARIO COMO PROPIEDAD DEL COMPONENTE
     const { inasistencias, loading, error } = useFetchInasistencias(dni);
     const resolvedRol = rol;
     const esAlumno = resolvedRol?.toLowerCase().trim() === "alumno";
