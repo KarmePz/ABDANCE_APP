@@ -2,9 +2,9 @@ import { ReactNode, useState } from 'react';
 import {UserTable} from '../components'
 import { CreateUserForm } from '../components/UserComponents/CreateUserForm';
 import { DisciplineStudentsTable } from '../components/InasistenciaComponents/DisciplineStudentsTable';
-import { InasistenciasTable } from '../components/InasistenciaComponents/InasistenciaUserTable';
 import { StudentsInasistenciasTable } from '../components/InasistenciaComponents/StudentsInasistenciasTable';
 import { useAuth } from '../hooks/useAuth';
+import { InasistenciasTable } from '../components/InasistenciaComponents/InasistenciaTable';
 
 
 

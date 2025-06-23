@@ -23,7 +23,7 @@ export function DisciplinaTable() {
     if (!disciplinas || disciplinas.length === 0) return <p>No hay disciplinas registradas.</p>;
 
     return (
-        <table className="min-w-full table-auto border border-gray-200 shadow-sm rounded-md">
+        <table className="min-w-full table-auto border border-gray-200 shadow-sm rounded-md scrollable-table">
             <thead className="bg-gray-100">
                 <tr>
                     <th className="px-4 py-2 text-center">Nombre</th>

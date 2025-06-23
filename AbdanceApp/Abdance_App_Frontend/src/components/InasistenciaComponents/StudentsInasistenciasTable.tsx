@@ -49,7 +49,7 @@
 
     return (
         <div className="w-full overflow-x-auto">
-        <div className="min-w-[640px] mx-auto">
+        <div className="min-w-[640px] mx-auto scrollable-table">
             <table className="table-fixed min-w-[99%] rounded-xl border-none md:border m-1 bg-transparent md:bg-[#1a0049] border-separate border-spacing-x-1 border-spacing-y-1 w-auto">
             <thead>
                 <tr className="bg-transparent">

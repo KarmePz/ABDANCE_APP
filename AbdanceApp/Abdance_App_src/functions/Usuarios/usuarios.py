@@ -94,6 +94,15 @@ def postUsuarios(request, uid=None, role=None):
         if not user_dni or not user_apellido or not user_name or not user_email or not user_rol:
             return {'Error':'Faltan datos, revise dni, nombre, apellido, correo electronico, rol'}, 400
         
+        # --- Verificar si el DNI ya existe ---
+        dni_doc = db.collection("usuarios").document(str(user_dni)).get()
+        if dni_doc.exists:
+            return {'Error': 'El DNI ya está registrado'}, 400
+
+        # --- Verificar si el email ya existe ---
+        email_query = db.collection("usuarios").where("email", "==", user_email).limit(1).get()
+        if len(email_query) > 0:
+            return {'Error': 'El email ya está registrado'}, 400
         # Intenta parsear las fechas si vienen como string
         try:
             birthdate = datetime.fromisoformat(user_birthdate) if user_birthdate else None
@@ -131,7 +140,7 @@ def postUsuarios(request, uid=None, role=None):
             
             return {'message': 'Usuario registrado exitosamente', 'user_id': usuario.uid}, 201
         except Exception as e:
-            return {'error': str(e)}, 400
+            return {'error': str(e) }, 400
             return
 
 @require_auth(required_roles=['admin', 'profesor']) 

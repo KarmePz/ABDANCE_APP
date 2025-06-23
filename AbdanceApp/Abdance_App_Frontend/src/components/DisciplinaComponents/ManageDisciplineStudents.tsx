@@ -133,7 +133,7 @@ export function ManageDisciplineStudents({
     const tableCellStyle = "bg-white text-blue-600 rounded-xl m-0.5 p-1";
 
     return (
-        <div className="w-full overflow-x-auto p-4">
+        <div className="w-full overflow-x-auto p-4 ">
             <h2 className="text-xl font-bold text-white mb-4">
                 Gestión de Alumnos - {nombreDisciplina}
             </h2>

@@ -9,6 +9,7 @@ from firebase_admin import credentials, firestore, auth
 
 
 from functions.Asistencias.asistencias import (
+    eliminar_inasistencias_usuario,
     inasistencias, 
     registrar_inasistencia
 )
@@ -73,6 +74,8 @@ def main(request):
         return disciplinas(request)
     elif path == '/disciplinas/gestionar-alumnos':
         return apply_cors(gestionarAlumnosDisciplina(request))
+    elif path == '/inasistencias/eliminar' and method == 'POST':
+        return apply_cors(eliminar_inasistencias_usuario(request))
         return ('Endpoint en construcción', 501)#se debe agregar, modificar, eliminar,y ver datos de un alumno de una disciplina segun su dni
     elif path == '/disciplinas/horario':
         return ('Endpoint en construcción', 501)#se debe agregar, modificar, eliminar,y ver datos de un horarios de una disciplina segun su id

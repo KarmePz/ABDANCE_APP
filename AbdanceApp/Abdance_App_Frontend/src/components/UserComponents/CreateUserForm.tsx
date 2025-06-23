@@ -44,21 +44,28 @@ const onSubmit = async (data: UserFormData) => {
     const token = localStorage.getItem("token");
     const endpointUrl = import.meta.env.VITE_API_URL;
 
-    const res = await fetch(`${endpointUrl}/usuarios`, {
-        method: "POST",
-        headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    });
 
-    if (!res.ok) {
-        alert("Error al crear usuario");
-    } else {
-        alert("Usuario creado");
-        reset();
-        onUserCreated(); // <-- Notifica al padre que se creó un usuario
+    try {
+        const res = await fetch(`${endpointUrl}/usuarios`, {
+            method: "POST",
+            headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({})); // Si no hay JSON, usa objeto vacío
+            const errorMessage = errorData.Error || errorData.error || res.statusText;
+            alert(`Error al crear usuario: ${errorMessage}`); // Muestra el mensaje específico
+        } else {
+            alert("Usuario creado");
+            reset();
+            onUserCreated(); // <-- Notifica al padre que se creó un usuario
+        }
+    }catch (error : any){
+        alert("Error de conexión: " + error.message); 
     }
 };
 
@@ -106,10 +113,11 @@ return (
     {/* Rol */}
     <div className="mb-4">
         <label className="block mb-1 font-medium">Rol</label>
-        <select {...register("rol")} className="border p-2 w-full">
+        <select {...register("rol")}  className="border p-2 w-full">
+        
+        <option value="alumno">Alumno</option>
         <option value="admin">Admin</option>
         <option value="profesor">Profesor</option>
-        <option value="alumno">Alumno</option>
         </select>
         {errors.rol && <p className="text-red-500 text-sm">{errors.rol.message}</p>}
     </div>
