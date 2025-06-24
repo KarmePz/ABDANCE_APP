@@ -65,7 +65,7 @@ export function CreateDisciplinaForm({ onDisciplinaCreated }: CreateDisciplinaFo
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="max-w-md mx-auto p-6 bg-white rounded shadow-md">
+        <form onSubmit={handleSubmit(onSubmit)} className="max-w-md mx-auto p-6 bg-white rounded shadow-md z-50">
             <h2 className="text-xl font-bold mb-4">Crear nueva disciplina</h2>
 
             <div className="mb-4">

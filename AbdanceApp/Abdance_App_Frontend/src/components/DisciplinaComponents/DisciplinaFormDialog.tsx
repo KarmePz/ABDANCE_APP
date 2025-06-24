@@ -116,7 +116,7 @@ export function DisciplinaFormDialog({ open, disciplina, onClose, onDisciplinaUp
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 flex justify-center items-center bg-[#00000060] bg-opacity-40">
+        <div className="fixed inset-0  z-50 flex justify-center items-center bg-[#00000060] bg-opacity-40 ">
             <div className="bg-white p-6 rounded shadow-md w-96 max-h-[80vh] overflow-y-auto">
                 <h2 className="text-xl font-bold mb-4">Editar Disciplina</h2>
                 
