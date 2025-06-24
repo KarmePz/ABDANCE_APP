@@ -4,6 +4,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth"; 
 import NeonButton from "../components/NeonButton"; 
+import CrearEventoModal from "../components/CrearEventoModal";
 
 interface Evento {
   codigo: string;
@@ -17,6 +18,7 @@ const Eventos = () => {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const [mostrarModal, setMostrarModal] = useState(false);
 
   useEffect(() => {
     const fetchEventos = async () => {
@@ -44,10 +46,14 @@ const Eventos = () => {
       {/* Botón Agregar Evento solo para admins */}
       {user?.rol === "admin" && (
         <div className="flex justify-center mb-6">
-          <NeonButton onClick={() => navigate("/dashboard/eventos/agregar")}>
+          <NeonButton onClick={() => setMostrarModal(true)}>
             Agregar Evento
           </NeonButton>
         </div>
+      )}
+
+      {mostrarModal && (
+        <CrearEventoModal onClose={() => setMostrarModal(false)} />
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

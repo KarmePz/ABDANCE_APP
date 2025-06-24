@@ -24,17 +24,20 @@ export default function FormularioEntradasPage() {
   const [errores, setErrores] = useState<{ [campo: string]: boolean }>({});
 
   const [datos, setDatos] = useState<DatosFormulario[]>(() => {
-    const guardado = localStorage.getItem(STORAGE_KEY);
+  const guardado = localStorage.getItem(STORAGE_KEY);
     if (guardado) return JSON.parse(guardado);
 
-    return formularios.map(() => ({
+    // ✅ CAMBIO AQUÍ: Incluir 'tipo_entrada' en cada objeto del formulario
+    return formularios.map((form) => ({
       nombre: "",
       apellido: "",
       dni: "",
       email: "",
       telefono: "",
+      tipo_entrada: form.tipo, // <-- ¡Añadido esto!
     }));
   });
+
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
@@ -101,29 +104,7 @@ export default function FormularioEntradasPage() {
         precio: precios[entrada.tipo] || 0,
       }));
 
-      // 💾 1. Guardar formularios temporales en backend
-      const guardarRes = await fetch(`${endpointUrl}/formularios-temporales`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          evento_id: eventoId,
-          formularios: datos,
-          entradas: entradasConPrecio,
-        }),
-      });
-
-      const guardarData = await guardarRes.json();
-      if (!guardarRes.ok || !guardarData.formId) {
-        throw new Error("No se pudo guardar los formularios.");
-      }
-
-      const formId = guardarData.formId;
-      console.log("📦 Enviando a backend:", {
-        evento_id: eventoId,
-        datos,
-      });
-
-      // 📤 2. Crear preferencia de pago
+      // ✅ CAMBIO CLAVE AQUÍ: Llama DIRECTAMENTE a /crear_preferencia
       const response = await fetch(`${endpointUrl}/crear_preferencia`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -134,22 +115,30 @@ export default function FormularioEntradasPage() {
           fecha: evento?.fecha || "",
           imagen: evento?.imagen || "",
           entradas: entradasConPrecio,
-          form_id: formId, // 🔁 ¡importante! se usa en el retorno
+          datosCompradores: datos, // ✅ Envía los datos completos del formulario aquí
         }),
       });
 
       const data = await response.json();
-      if (data.init_point) {
-        window.location.href = data.init_point;
-      } else {
-        alert("Error al generar preferencia de pago.");
+      
+      // Verifica si la respuesta de crear_preferencia fue exitosa y tiene init_point y formId
+      if (!response.ok || !data.init_point || !data.formId) {
+        throw new Error("Error al generar preferencia de pago o guardar formularios.");
       }
+
+      const formId = data.formId; // El backend ya te devuelve el formId generado
+      localStorage.setItem('mercadoPagoFormId', formId);
+      
+      // Redirecciona a MercadoPago usando el init_point
+      window.location.href = data.init_point;
+      localStorage.removeItem(STORAGE_KEY); // Limpia los datos del localStorage
+
     } catch (error) {
       console.error("Error creando preferencia:", error);
       alert("Ocurrió un error al procesar el pago.");
     }
   };
-
+  
   if (!datos[formIndex]) {
     return <div className="text-white text-center mt-20">Cargando formulario...</div>;
   }

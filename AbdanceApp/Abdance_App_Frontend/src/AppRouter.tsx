@@ -7,7 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Eventos from "./pages/Eventos";
 import EventoDetalle from "./pages/EventoDetalle"; 
 import FormularioEntradasPage from './pages/FormularioEntradasPage';
-import PagoExitoso from "./pages/PagoExitoso";
+import EstadoPago from "./pages/EstadoPago";
 import CuotaContentDashboard from "./components/cuotas/CuotaContentDashboard";
 import EstadisticasContentDashboard from "./components/Estadisticas/EstadisticasContentDashboard";
 
@@ -24,7 +24,7 @@ export const AppRouter = ({}:Props) =>{
                 <Route path="/eventos" element={<Eventos />} />
                 <Route path="/evento/:id" element={<EventoDetalle />} />
                 <Route path="/formulario-entradas" element={<FormularioEntradasPage />} />
-                <Route path="/pago-exitoso" element={<PagoExitoso />} />
+                <Route path="/estado-pago" element={<EstadoPago />} />
                 
 
                 <Route element={<PrivateGuard   />} >

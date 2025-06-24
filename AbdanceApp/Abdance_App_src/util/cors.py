@@ -19,7 +19,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 
 ALLOWED_ORIGINS = [
-    "https://abdance-app-frontend-37vdurqtt-camilos-projects-fd28538a.vercel.app"
+    "https://abdance-app-frontend-epu45bv2q-camilos-projects-fd28538a.vercel.app"
 ]
 
 
@@ -34,7 +34,7 @@ ALLOWED_ORIGINS = [
 def apply_cors(response_tuple):
     data, status = response_tuple
     response = make_response(jsonify(data), status)
-    response.headers['Access-Control-Allow-Origin'] = 'https://abdance-app-frontend-37vdurqtt-camilos-projects-fd28538a.vercel.app'
+    response.headers['Access-Control-Allow-Origin'] = 'https://abdance-app-frontend-epu45bv2q-camilos-projects-fd28538a.vercel.app'
     return response
 
 from flask import make_response
