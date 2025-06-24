@@ -83,6 +83,9 @@ export function EstadisticasTable() {
     }
   };
 
+  const tableHeaderStyle = "bg-[#fff0] text-[#fff] justify-center text-lg";
+  const tableDatacellStyle = "text-blue-500 bg-white rounded-xl m-0.5 p-1";
+
   return (
     <div className="p-4 space-y-4">
       {/* Modo */}
@@ -105,19 +108,19 @@ export function EstadisticasTable() {
       {mode !== 0 && (
         <div className="flex flex-wrap gap-4 items-center justify-center">
           <div>
-            <p className="block text-sm font-medium">Año</p>
+            <p className="block text-lg font-medium">Año</p>
             <input
               type="number"
-              className="mt-1 block w-24 rounded border-gray-300 p-1"
+              className="text-gray-900 mt-1 block w-24 rounded border-gray-300 bg-pink-300 p-2"
               value={year}
               onChange={e => setYear(Number(e.target.value))}
             />
           </div>
           {mode === 2 && (
             <div>
-              <p className="block text-sm font-medium">Mes</p>
+              <p className="block text-lg font-medium">Mes</p>
               <select
-                className="mt-1 block rounded border-gray-300 p-1"
+                className="text-gray-900 mt-1 block w-24 h-10 rounded border-gray-300 bg-pink-300 p-2"
                 value={month}
                 onChange={e => setMonth(Number(e.target.value))}
               >
@@ -128,7 +131,7 @@ export function EstadisticasTable() {
             </div>
           )}
           <button
-            className="px-4 py-2 bg-green-500 text-white rounded"
+            className="px-4 py-2 bg-green-500 text-white rounded self-end"
             onClick={mode===1? handleFetchByYear : handleFetchByMonth}
           >
             Consultar
@@ -142,18 +145,18 @@ export function EstadisticasTable() {
 
       {/* Resultados */}
       {byYearData && (
-         <table className="w-full table-auto border rounded">
+         <table className="table-fixed min-w-[60%] max-w-[80%] rounded-xl border-none md:border m-1 bg-transparent md:bg-[#1a0049] border-separate border-spacing-x-1 border-spacing-y-1 mx-auto">
             <thead>
-            <tr className="bg-gray-100">
-                <th className="p-2 text-gray-900">Mes</th>
-                <th className="p-2 text-gray-900">Total</th>
+            <tr className="bg-transparent">
+                <th className={tableHeaderStyle}>Mes</th>
+                <th className={tableHeaderStyle}>Total</th>
             </tr>
             </thead>
             <tbody>
             {MONTH_ORDER.map(monthName => (
                 <tr key={monthName} className="border-t">
-                <td className="p-2 capitalize">{monthName}</td>
-                <td className="p-2">
+                <td className={`${tableDatacellStyle} capitalize`}>{monthName}</td>
+                <td className={`${tableDatacellStyle}`}>
                     ${byYearData[monthName] ?? 0}
                 </td>
                 </tr>
@@ -164,27 +167,27 @@ export function EstadisticasTable() {
 
       {byMonthData && (
         <div className="space-y-2">
-          <table className="w-full table-auto border rounded table-fixed">
-            <thead><tr className="bg-gray-100">
-              <th className="text-gray-900 p-2">Concepto</th>
-              <th className="text-gray-900 p-2">Fecha Pago</th>
-              <th className="text-gray-900 p-2">DNI de Alumno</th>
-              <th className="text-gray-900 p-2">Monto</th>
+          <table className="mx-auto table-fixed min-w-[90%] rounded-xl border-none md:border m-1 bg-transparent md:bg-[#1a0049] border-separate border-spacing-x-1 border-spacing-y-1">
+            <thead><tr className="bg-transparent">
+              <th className={tableHeaderStyle + "w-[30px]"}>Concepto</th>
+              <th className={tableHeaderStyle + "w-[100px]"}>Fecha Pago</th>
+              <th className={tableHeaderStyle + "w-[40px]"}>DNI de Alumno</th>
+              <th className={tableHeaderStyle + "w-[40px]"}>Monto</th>
             </tr></thead>
             <tbody>
               {byMonthData.Detalle.map((d,i) => (
                 <tr key={i} className="border-t">
-                  <td className='p-2'>{d.concepto}</td>
-                  <td className="p-2">{new Date(d.fechaPago).toLocaleString()}</td>
-                  <td className="p-2">{d.DNIAlumno}</td>
-                  <td className="p-2">${d.montoPagado}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[150px] capitalize`}>{d.concepto}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{new Date(d.fechaPago).toLocaleString()}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[100px] capitalize`}>{d.DNIAlumno}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[100px] capitalize`}>${d.montoPagado}</td>
                 </tr>
               ))}
-              <tr className="font-bold bg-gray-50">
-                <td className="text-gray-900 p-2">Total</td>
+              <tr className="bg-transparent">
+                <td className={tableHeaderStyle + "w-[40px] text-lg font-medium p-2 text-center"}>Total</td>
                 <td></td>
                 <td></td>
-                <td className="text-gray-900 p-2">${byMonthData.Total}</td>
+                <td className={tableHeaderStyle + "w-[40px] text-md font-medium"}>${byMonthData.Total}</td>
               </tr>
             </tbody>
           </table>

@@ -4,11 +4,6 @@ import { CuotaAlumnoTable } from './CuotaAlumnoTable';
 import '../../../public/dance.ico'
 
 
-// interface Props{
-//     children?: ReactNode;
-// }
-
-
 export function CuotaContentDashboard() {
   const usuario = JSON.parse(localStorage.getItem('usuario') ?? '{}');
   

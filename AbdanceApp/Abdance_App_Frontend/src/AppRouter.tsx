@@ -62,15 +62,10 @@ export const AppRouter = ({}:Props) =>{
 
                 <Route element={<PrivateGuard RolesPermitidos={["profesor"]} />}>
                     <Route path="/dashboard/asistencias/tomar_asistencia" element={<h1>ACA SE TOMA ASISTENCIA </h1>} />
-                
-                
-                
                 </Route>
                 <Route path="/403" element={<Page_403 />} />
                 </RoutesWithNoFound>
                 /* Rutas no existentes/encontradas */
-            
-        
     )
 }
 

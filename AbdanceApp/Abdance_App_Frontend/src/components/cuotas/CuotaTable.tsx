@@ -166,7 +166,7 @@ export function CuotaAdminTable() {
             onChange={e => setDisciplinaFilter(e.target.value)}
           >
             <option value="">Todas</option>
-            {disciplinas.map(d => <option className="capitalize" key={d} value={d}>{d}</option>)}
+            {disciplinas.map(d => <option key={d} value={d}>{d}</option>)}
           </select>
         </div>
         <div className="flex flex-col items-center">
