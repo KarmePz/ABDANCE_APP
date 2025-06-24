@@ -95,7 +95,7 @@ export function DisciplinaTableMain({ reloadFlag, onDisciplinaUpdated, onSelectD
             <div className="w-full overflow-x-auto scrollable-table">
     
                 <div className="min-w-[640px] mx-auto">
-                    <table className="table-fixed min-w-[99%] rounded-xl border-none md:border m-1 bg-transparent md:bg-[#1a0049] border-separate border-spacing-x-1 border-spacing-y-1 w-auto">
+                    <table className="table-fixed min-w-[99%] rounded-xl border-none md:border m-1 bg-transparent md:bg-[#1a0049] border-separate border-spacing-x-1 border-spacing-y-1 w-auto z-10">
                         <thead>
                             <tr className="bg-transparent">
                                 <th className={tableHeaderStyle}>Nombre</th>

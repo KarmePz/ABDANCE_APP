@@ -58,7 +58,7 @@ export function UserTable({ reloadFlag, onUserUpdated, onCreateUserClick}: { rel
                         placeholder="Buscar por DNI, nombre, apellido, email o rol"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full px-3 py-2 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="w-full px-3 py-2 mb-4 border text-white border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                     <button
                         id="create-user-button"

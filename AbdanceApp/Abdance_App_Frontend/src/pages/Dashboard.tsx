@@ -26,7 +26,7 @@ export const Dashboard = ({children}: Props) =>{
                 <img src="/Logo.png" className="h-8 md:h-16 max-w-[160px] object-cover" alt="logo" />
                 <div className='flex flex-row self-center'>
                     <h1 className="text-white text-2xl p-2 align-middle whitespace-nowrap overflow-hidden text-ellipsis">{user?.nombre} {user?.apellido}</h1>
-                    <Icon icon="qlementine-icons:user-16" width="46" height="46" className='align-middle shrink-0' /></div>
+                    <Icon icon="qlementine-icons:user-16" width="46" height="46" className='align-middle shrink-0 text-white' /></div>
                 <LogoutButton />
             </div>
             <div className='flex flex-row md:gap-5'>

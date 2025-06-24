@@ -61,7 +61,7 @@ export const UserContentDashboard = ({ children }: Props) => {
 
     return (
         <>
-        <h1 className="text-2xl font-bold mb-4">USUARIOS</h1>
+        <h1 className="text-2xl font-bold mb-4 text-white">USUARIOS</h1>
         
         <UserTable reloadFlag={reloadFlag} onUserUpdated={handleUserUpdated} onCreateUserClick={() => setOpenCreate(true)}/>
 

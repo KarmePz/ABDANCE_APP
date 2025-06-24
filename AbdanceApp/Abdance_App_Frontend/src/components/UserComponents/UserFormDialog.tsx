@@ -70,7 +70,7 @@ const handleDelete = async () => {
 if (!open) return null;
 
 return (
-    <div className="fixed inset-0 flex justify-center items-center bg-[#00000060] bg-opacity-40">
+    <div className="fixed inset-0 z-50 flex justify-center items-center bg-[#00000060] bg-opacity-40">
     <div className="bg-white p-6 rounded shadow-md w-96">
         <h2 className="text-xl font-bold mb-4">Editar Usuario</h2>
         <label className="block mb-2">DNI</label>

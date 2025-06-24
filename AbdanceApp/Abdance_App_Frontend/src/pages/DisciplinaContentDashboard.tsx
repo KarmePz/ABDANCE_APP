@@ -68,7 +68,7 @@ export const DisciplinaContentDashboard = ({ children }: Props) => {
 
     return (
         <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">DISCIPLINAS</h1>
+            <h1 className="text-2xl font-bold mb-4 text-white">DISCIPLINAS</h1>
 
             {!mostrarGestionAlumnos ? (
                 <>
