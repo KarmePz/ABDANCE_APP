@@ -56,11 +56,10 @@ def crear_preferencia_cuota(request, uid=None, role=None):
                 }
             ],
             "back_urls": {
-                "success": "https://www.nationstates.net/nation=midnight_horrors",
-                "failure": "https://www.youtube.com",
-                "pending": "https://www.google.com",
+                "success": "https://abdance-app-frontend-f6awegxqw-camilos-projects-fd28538a.vercel.app/dashboard/cuotas",
+                "failure": "https://abdance-app-frontend-f6awegxqw-camilos-projects-fd28538a.vercel.app/dashboard/cuotas",
+                "pending": "https://abdance-app-frontend-f6awegxqw-camilos-projects-fd28538a.vercel.app/dashboard/cuotas",
             },
-            "auto_return": "approved",
             "payment_methods": {
                 "excluded_payment_methods": [
                 {

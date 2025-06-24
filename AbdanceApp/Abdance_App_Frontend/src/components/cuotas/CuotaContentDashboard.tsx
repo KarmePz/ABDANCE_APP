@@ -1,12 +1,6 @@
-import { ReactNode } from 'react';
 import { CuotaAdminTable } from './CuotaTable';
 import { CuotaAlumnoTable } from './CuotaAlumnoTable';
 import '../../../public/dance.ico'
-
-
-interface Props{
-    children?: ReactNode;
-}
 
 
 export function CuotaContentDashboard() {
