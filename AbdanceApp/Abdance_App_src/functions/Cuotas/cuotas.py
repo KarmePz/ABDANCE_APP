@@ -365,6 +365,10 @@ def pagar_cuotas_manualmente(request_cuotas_id, uid=None, role=None):
             cuota_doc = cuota_ref.get()
             monto_pagado = get_monto_cuota(cuota_doc.id, recargo_day)
 
+            cuota_dict = cuota_doc.to_dict()
+            if cuota_dict.get('estado').lower() == 'pagada':
+                return {'error': 'Una o varias cuotas ya están pagadas.'}, 400
+
             #SE ASUME QUE EL PAGO SE HACE EN EFECTIVO
             if cuota_doc.exists: 
                 cuota_ref.update({
@@ -408,7 +412,6 @@ def crear_cuotas_mes(request):
             doc_disciplina_id = doc.id
             
             alumnos_inscriptos_id = getAlumnosPorDisciplina(doc_disciplina_id)
-            #agregar horarios y profesores de la misma manera
             disciplina_data = ordenar_datos_disciplina(data_disciplina, alumnos_inscriptos_id)
             
             disciplinas_data.append(disciplina_data)

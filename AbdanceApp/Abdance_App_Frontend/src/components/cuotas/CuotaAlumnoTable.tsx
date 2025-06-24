@@ -180,7 +180,7 @@ export function CuotaAlumnoTable() {
 //Creacion de la preferencia de pago de Mercado Pago, recibe ID de la cuota a pagar
 //y un callback
 interface CrearPreferenciaProps { cuotaId: string; onCompleted: () => void; }
-export function CrearPreferencia({ cuotaId, onCompleted }: Readonly<CrearPreferenciaProps>) {
+export function CrearPreferencia({ cuotaId }: Readonly<CrearPreferenciaProps>) {
   //const publicKey = import.meta.env.MERCADO_PAGO_KEY;
   const publicKey = "APP_USR-5f823e37-e3e9-4c4c-9d9d-ff696f47ba7d"
   initMercadoPago(publicKey, { locale: 'es-AR' });
@@ -212,6 +212,6 @@ export function CrearPreferencia({ cuotaId, onCompleted }: Readonly<CrearPrefere
       {idPreferencia && <Wallet customization={{
         theme: 'dark',
         valueProp: "security_details"
-    }} initialization={{ preferenceId: idPreferencia }} />}
+    }} initialization={{ preferenceId: idPreferencia, redirectMode: "blank" }} />}
     </div>);
 }
