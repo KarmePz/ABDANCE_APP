@@ -2,8 +2,8 @@ import { ReactNode, useEffect, useState } from 'react';
 import {UserTable} from '../components'
 import { CreateUserForm } from '../components/UserComponents/CreateUserForm';
 import { useAuth } from '../hooks/useAuth';
-import { replace, useNavigate } from 'react-router-dom';
 import { Component_403 } from './Page_403';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -62,15 +62,9 @@ export const UserContentDashboard = ({ children }: Props) => {
     return (
         <>
         <h1 className="text-2xl font-bold mb-4">USUARIOS</h1>
+        
+        <UserTable reloadFlag={reloadFlag} onUserUpdated={handleUserUpdated} onCreateUserClick={() => setOpenCreate(true)}/>
 
-        <UserTable reloadFlag={reloadFlag} onUserUpdated={handleUserUpdated} />
-
-        <button
-            onClick={() => setOpenCreate(true)}
-            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-            Crear Usuario
-        </button>
 
         {openCreate && (
             <div className="fixed inset-0 z-50 overflow-y-auto bg-[#00000060] bg-opacity-50">

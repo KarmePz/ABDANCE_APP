@@ -34,7 +34,17 @@ body {
 #burguer-button{
   background-color: #0000003c;
 }
-
+#create-user-button{
+  background-color: var(--color-blue-600);
+  padding-inline: calc(var(--spacing) * 4);
+  border-radius: 0.25rem ;
+  font-size:0.50rem;
+  &:hover {
+        @media (hover: hover) {
+            background-color: var(--color-blue-700) /* oklch(48.8% 0.243 264.376) = #1447e6 */;
+        }
+    }
+}
 button {
   border-radius: 8px;
   border: 1px solid transparent;
