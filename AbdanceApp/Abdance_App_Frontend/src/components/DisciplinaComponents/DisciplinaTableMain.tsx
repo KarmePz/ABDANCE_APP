@@ -17,11 +17,12 @@ type Disciplina = {
     };
 };
 
-export function DisciplinaTableMain({ reloadFlag, onDisciplinaUpdated, onSelectDisciplina }: { reloadFlag: number; onDisciplinaUpdated: () => void ; onSelectDisciplina?: (disciplinaId: string) => void;}) {
+export function DisciplinaTableMain({ reloadFlag, onDisciplinaUpdated, onSelectDisciplina, onCreateDisciplinaClick }: { reloadFlag: number; onDisciplinaUpdated: () => void ; onSelectDisciplina?: (disciplinaId: string) => void; onCreateDisciplinaClick: () => void;}) {
     const endpointUrl = import.meta.env.VITE_API_URL;
     const { data: disciplinas, loading, error } = useAuthFetch<Disciplina[]>(`${endpointUrl}/disciplinas?reload=${reloadFlag}`);
     const [selectedDisciplina, setSelectedDisciplina] = useState<Disciplina | null>(null);
     const [open, setOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const handleEdit = (disciplina: Disciplina) => {
         setSelectedDisciplina(disciplina);
@@ -32,26 +33,36 @@ export function DisciplinaTableMain({ reloadFlag, onDisciplinaUpdated, onSelectD
         setOpen(false);
         setSelectedDisciplina(null);
     };
-
+    
+    const lower = searchTerm.toLowerCase();
+    const filteredDisciplinas = disciplinas?.filter((disc) => {
+        //const inscriptos = disc.alumnos_inscriptos?.length.toString();
+        return (
+            disc.nombre.toLowerCase().includes(lower) ||
+            disc.edadMinima.toString().includes(lower) ||
+            disc.edadMaxima.toString().includes(lower) ||
+            disc.alumnos_inscriptos?.length.toString().includes(lower)
+    );
+});
 
     // Modificar la columna de acciones para incluir botón de gestionar alumnos
     const renderActions = (disciplina: Disciplina) => (
-        <>
-            <button 
+        <div className="flex flex-row">
+            <button id="action-button"
                 onClick={() => handleEdit(disciplina)}
                 className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 mr-2"
             >
                 Editar
             </button>
             {onSelectDisciplina && (
-                <button
+                <button id="action-button"
                     onClick={() => onSelectDisciplina(disciplina.disciplina_id)}
                     className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
                 >
-                    Gestionar Alumnos
+                    Alumnos
                 </button>
             )}
-        </>
+        </div>
     )
 
 
@@ -65,7 +76,24 @@ export function DisciplinaTableMain({ reloadFlag, onDisciplinaUpdated, onSelectD
 
     return (
         <>
+                    <div className="flex flex-col md:flex-col  md:items-center md:justify-between gap-4 mb-4">
+                    <input
+                        type="text"
+                        placeholder="Buscar por nombre, rango de edad o cantidad de alumnos inscriptos"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <button
+                        id="create-disciplina-button"
+                        onClick={onCreateDisciplinaClick}
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    >
+                        Crear Disciplina
+                    </button>
+                </div>
             <div className="w-full overflow-x-auto scrollable-table">
+    
                 <div className="min-w-[640px] mx-auto">
                     <table className="table-fixed min-w-[99%] rounded-xl border-none md:border m-1 bg-transparent md:bg-[#1a0049] border-separate border-spacing-x-1 border-spacing-y-1 w-auto">
                         <thead>
@@ -82,9 +110,9 @@ export function DisciplinaTableMain({ reloadFlag, onDisciplinaUpdated, onSelectD
                             </tr>
                         </thead>
                         <tbody className="">
-                            {disciplinas.map((disc) => (
+                            {filteredDisciplinas?.map((disc) => (
                                 <tr key={disc.disciplina_id}>
-                                    <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{disc.nombre}</td>
+                                    <td className={`${tableDatacellStyle} truncate`}>{disc.nombre}</td>
                                     <td className={tableDatacellStyle}>{disc.edadMinima}</td>
                                     <td className={tableDatacellStyle}>{disc.edadMaxima}</td>
                                     <td className={tableDatacellStyle}>{disc.alumnos_inscriptos.length}</td>
@@ -92,7 +120,7 @@ export function DisciplinaTableMain({ reloadFlag, onDisciplinaUpdated, onSelectD
                                     <td className={tableDatacellStyle}>${disc.precios.montoBase}</td>
                                     <td className={tableDatacellStyle}>${disc.precios.montoNuevo15}</td>
                                     <td className={tableDatacellStyle}>${disc.precios.montoRecargo}</td>
-                                    <td className="w-[80px]">
+                                    <td className="">
                                         {/* <button id="action-button" onClick={() => handleEdit(disc)}>
                                             Ver
                                         </button> */}

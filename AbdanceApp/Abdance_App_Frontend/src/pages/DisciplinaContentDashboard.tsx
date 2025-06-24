@@ -75,15 +75,9 @@ export const DisciplinaContentDashboard = ({ children }: Props) => {
                     <DisciplinaTableMain 
                         reloadFlag={reloadFlag} 
                         onDisciplinaUpdated={handleDisciplinaUpdated}
-                        onSelectDisciplina={handleSelectDisciplina} // Nueva prop para selección
+                        onSelectDisciplina={handleSelectDisciplina} 
+                        onCreateDisciplinaClick={() => setOpenCreate(true)}
                     />
-
-                    <button
-                        onClick={() => setOpenCreate(true)}
-                        className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                    >
-                        Crear Disciplina
-                    </button>
 
                     {openCreate && (
                         <div className="fixed inset-0 z-50 overflow-y-auto bg-[#00000060] bg-opacity-50">
