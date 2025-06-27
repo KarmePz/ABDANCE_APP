@@ -148,7 +148,7 @@ export function CuotaAdminTable() {
       <>
       <div className="flex flex-wrap gap-4 gap-x-6 mb-4 mx-4 justify-center md:justify-around">
         <div>
-          <p className="block text-lg font-medium">Estado:</p>
+          <p className="block text-lg font-medium text-gray-200 md:text-gray-800">Estado:</p>
           <select
             className="text-gray-900 mt-1 block w-full rounded border-gray-300 bg-pink-300 p-2 cursor-pointer"
             value={estadoFilter}
@@ -159,7 +159,7 @@ export function CuotaAdminTable() {
           </select>
         </div>
         <div>
-          <p className="block text-lg font-medium">Disciplina:</p>
+          <p className="block text-lg font-medium text-gray-200 md:text-gray-800">Disciplina:</p>
           <select
             className="text-gray-900 mt-1 block w-full rounded border-gray-300 bg-pink-300 p-2 cursor-pointer"
             value={disciplinaFilter}
@@ -170,7 +170,7 @@ export function CuotaAdminTable() {
           </select>
         </div>
         <div className="flex flex-col items-center">
-          <p className="block text-lg font-medium">DNI Alumno:</p>
+          <p className="block text-lg font-medium text-gray-200 md:text-gray-800">DNI Alumno:</p>
           <input
             type="text"
             className="text-gray-900 mt-1 block w-full rounded border-gray-300 bg-pink-300 p-2 min-w-[150px] max-w-[150px]"
@@ -213,7 +213,7 @@ export function CuotaAdminTable() {
                 <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{c.fechaPago?.trim() == "" ? "-" : generalDateParsing(c.fechaPago)}</td>
                 <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.nombreDisciplina}</td>
                 <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.metodoPago?.trim() == "" ? "-" : c.metodoPago}</td>
-                <td className={`${tableDatacellStyle} truncate max-w-[50px]`}>{c.precio_cuota}</td>
+                <td className={`${tableDatacellStyle} truncate max-w-[50px]`}>${c.precio_cuota}</td>
               </tr>
             ))}
           </tbody>
@@ -224,7 +224,7 @@ export function CuotaAdminTable() {
         <button
           onClick={openModal}
           disabled={selectedIds.size === 0}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+          className="mt-4 mb-4 px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
         >
           Pagar Seleccionadas
         </button>

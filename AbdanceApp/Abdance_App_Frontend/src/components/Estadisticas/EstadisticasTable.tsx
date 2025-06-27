@@ -108,7 +108,7 @@ export function EstadisticasTable() {
       {mode !== 0 && (
         <div className="flex flex-wrap gap-4 items-center justify-center">
           <div>
-            <p className="block text-lg font-medium">Año</p>
+            <p className="block text-lg font-medium text-gray-200 md:text-gray-800">Año</p>
             <input
               type="number"
               className="text-gray-900 mt-1 block w-24 rounded border-gray-300 bg-pink-300 p-2"
@@ -118,7 +118,7 @@ export function EstadisticasTable() {
           </div>
           {mode === 2 && (
             <div>
-              <p className="block text-lg font-medium">Mes</p>
+              <p className="block text-lg font-medium text-gray-200 md:text-gray-800">Mes</p>
               <select
                 className="text-gray-900 mt-1 block w-24 h-10 rounded border-gray-300 bg-pink-300 p-2"
                 value={month}

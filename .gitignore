@@ -177,3 +177,4 @@ serviceKey.json
 firebase-config.ts
 EntornoAbdance/
 .venv
+AbdanceApp/Abdance_App_Frontend/src/firebase-config.ts

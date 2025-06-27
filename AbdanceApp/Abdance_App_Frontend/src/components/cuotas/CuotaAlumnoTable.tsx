@@ -66,10 +66,10 @@ export function CuotaAlumnoTable() {
     <>
       <>
       <div className="flex flex-wrap gap-4 gap-x-6 mb-4 mx-4 justify-center md:justify-around"></div>
-        <div>
-          <p className="block text-lg font-medium">Disciplina:</p>
+        <div className="flex flex-col justify-center mb-3">
+          <p className="block text-lg font-medium text-gray-200 md:text-gray-800">Disciplina:</p>
           <select
-            className="text-gray-900 mt-1 block w-full rounded border-gray-300 bg-pink-300 p-2 cursor-pointer"
+            className="text-gray-900 mt-1 block w-50 rounded border-gray-300 bg-pink-300 p-2 cursor-pointer self-center"
             value={disciplinaFilter}
             onChange={e => setDisciplinaFilter(e.target.value)}
           >
@@ -99,15 +99,15 @@ export function CuotaAlumnoTable() {
                 <tr
                   key={c.id}
                   onClick={() => handleRowClick(c)}
-                  className={`${c.estado.toLowerCase()==='pagada'? 'opacity-50 cursor-not-allowed':'cursor-pointer hover:bg-gray-100'}`}
+                  className={`${c.estado.toLowerCase()==='pagada'? 'opacity-70 cursor-not-allowed':'cursor-pointer hover:scale-[1.01] transform-gpu hover:bg-gray-100 transition-all duration-500'}`}
                 >
                   <td className={`${tableDatacellStyle} truncate max-w-[100px] capitalize`}>{c.concepto}</td>
                   <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.dniAlumno}</td>
                   <td className={`${tableDatacellStyle} truncate max-w-[110px] capitalize`}>{c.estado}</td>
                   <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{c.fechaPago?.trim() == "" ? "-" : generalDateParsing(c.fechaPago)}</td>
-                  <td className={`${tableDatacellStyle} truncate max-w-[100px]`}>{c.nombreDisciplina}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[200px]`}>{c.nombreDisciplina}</td>
                   <td className={`${tableDatacellStyle} truncate max-w-[200px] capitalize`}>{c.metodoPago?.trim() == "" ? "-" : c.metodoPago}</td>
-                  <td className={`${tableDatacellStyle} truncate max-w-[50px]`}>{c.precio_cuota}</td>
+                  <td className={`${tableDatacellStyle} truncate max-w-[50px]`}>${c.precio_cuota}</td>
                 </tr>
               ))}
             </tbody>
@@ -115,18 +115,24 @@ export function CuotaAlumnoTable() {
           </div>
         </div>
 
-        <div className="block md:hidden flex flex-wrap mt-10 justify-between">
+        <div className="block md:hidden flex flex-wrap mt-10 justify-between mb-4 mx-2">
             {cuotas?.map(c => (
                 <div key={c.id} className="relative flex w-50 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md mt-3 mx-1">
                     <div className="p-6">
                         <h5 className="mb-2 block font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
                         {c.concepto}
                         </h5>
-                        <p className="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
-                        <strong>A pagar:</strong> ${c.precio_cuota}
+                        <h6 className="mb-2 block font-sans text-base font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased capitalize">
+                        {c.nombreDisciplina}
+                        </h6>
+                        <p className="block font-sans text-base leading-relaxed text-inherit antialiased">
+                        <b>A pagar:</b> ${c.precio_cuota}
                         </p>
-                        <p className="capitalize block font-sans text-base font-light leading-relaxed text-inherit antialiased">
-                        <strong>Estado:</strong> {c.estado}
+                        <p className="capitalize block font-sans text-base leading-relaxed text-inherit antialiased">
+                        <b>Estado:</b> {c.estado}
+                        </p>
+                        <p className="capitalize block font-sans text-base leading-relaxed text-inherit antialiased">
+                        <b>Fecha de Pago:</b> {c.fechaPago?.trim() == "" ? "-" : generalDateParsing(c.fechaPago)}
                         </p>
                     </div>
                     <div className="p-6 pt-0">
@@ -138,6 +144,7 @@ export function CuotaAlumnoTable() {
                 </div>
             ))}
         </div>
+        <p className="md:block hidden italic text-lg font-medium text-gray-200 md:text-gray-800">Presione en una cuota sin pagar para pagarla.</p>
 
         {/* Modal de confirmación e integración de MercadoPago */}
         {selectedCuota && (
