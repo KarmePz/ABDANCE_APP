@@ -14,12 +14,13 @@ from flask import jsonify, make_response
 #     # return (response_body, status, headers)
 
 from flask import Flask, request, make_response
-from flask_cors import CORS
+# from flask_cors import CORS
 
 app = Flask(__name__)
 
 ALLOWED_ORIGINS = [
-    "https://abdance-app-frontend-epu45bv2q-camilos-projects-fd28538a.vercel.app"
+    "https://abdance-app-frontend-c5qs95aip-camilos-projects-fd28538a.vercel.app"
+    #"http://localhost:5173"
 ]
 
 
@@ -34,10 +35,13 @@ ALLOWED_ORIGINS = [
 def apply_cors(response_tuple):
     data, status = response_tuple
     response = make_response(jsonify(data), status)
-    response.headers['Access-Control-Allow-Origin'] = 'https://abdance-app-frontend-epu45bv2q-camilos-projects-fd28538a.vercel.app'
+    #response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
+    response.headers['Access-Control-Allow-Origin'] = 'https://abdance-app-frontend-c5qs95aip-camilos-projects-fd28538a.vercel.app'
     return response
 
 from flask import make_response
+
+from flask import jsonify, make_response, request
 
 def apply_cors_manual(response_tuple):
     """
@@ -45,15 +49,15 @@ def apply_cors_manual(response_tuple):
     """
     if isinstance(response_tuple, tuple):
         data, status = response_tuple
-        response = make_response(data, status)
+        response = make_response(jsonify(data), status)  # 🔧 ESTE CAMBIO ES CLAVE
     else:
-        response = make_response(response_tuple)
+        response = make_response(jsonify(response_tuple))  # 🔧
 
     origin = request.headers.get("Origin")
-    if origin in ALLOWED_ORIGINS:
-        response.headers["Access-Control-Allow-Origin"] = origin
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
-        response.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS"
+   
+    response.headers["Access-Control-Allow-Origin"] = "https://abdance-app-frontend-c5qs95aip-camilos-projects-fd28538a.vercel.app"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS"
 
     if origin and "ngrok-free.app" in origin:
         response.headers["Access-Control-Allow-Origin"] = origin

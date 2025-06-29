@@ -4,7 +4,7 @@ from util.cors import apply_cors, apply_cors_manual
 
 import functions_framework
 import firebase_admin
-from firebase_admin import credentials, firestore, auth
+from firebase_admin import credentials, firestore, auth, storage
 
 from functions.Asistencias.asistencias import (
     eliminar_inasistencias_usuario,
@@ -28,8 +28,9 @@ from functions.Usuarios.auth_users import register_student
 from functions.Usuarios.usuarios import eliminar_usuario_con_inscripciones, usuarios
 from functions.Eventos.eventos import eventos
 from functions.Disciplinas.disciplinas import disciplinas, gestionarAlumnosDisciplina
-from functions.Eventos.entradas import _process_mercadopago_notification_task, entradas, webhook_mercadopago_processor
+from functions.Eventos.entradas import  entradas, procesar_webhook
 from functions.Eventos.crear_preferencia import crear_preferencia
+from functions.Eventos.imagenes import get_images, delete_image
 #from functions.Eventos.entradas import guardarFormularioTemporal
 
 # #funciones 
@@ -51,8 +52,9 @@ def main(request):
     # Configuración básica de CORS para peticiones OPTIONS
     if request.method == 'OPTIONS':
         headers = {
-            'Access-Control-Allow-Origin': 'https://abdance-app-frontend-epu45bv2q-camilos-projects-fd28538a.vercel.app',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
+            'Access-Control-Allow-Origin': 'https://abdance-app-frontend-c5qs95aip-camilos-projects-fd28538a.vercel.app',
+            #'Access-Control-Allow-Origin':'http://localhost:5173',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         }
         return ('', 204, headers)
@@ -87,18 +89,16 @@ def main(request):
     elif path == '/entradas':
         return apply_cors_manual(entradas(request))
     elif path == '/crear_preferencia':
-        return apply_cors_manual(crear_preferencia(request))
+        return apply_cors(crear_preferencia(request))
     elif path == '/api/registrar_entradas':
         return apply_cors_manual(entradas(request))
-    # elif path == '/formularios-temporales':
-    #     return apply_cors_manual(guardarFormularioTemporal(request))
-    elif path == '/webhook/mercadopago' and method == 'POST':
-        # No aplicamos CORS aquí, ya que Mercado Pago es quien hace la llamada.
-        # La función 'webhook_mercadopago_processor' ya contendrá la lógica de validación
-        return webhook_mercadopago_processor(request)
-    
-    elif path == "/tasks/mercadopago-processor" and method == "POST":
-        return _process_mercadopago_notification_task(request)
+    elif path == '/procesar_webhook' and method == 'POST':
+        return procesar_webhook(request) 
+    elif path == '/images' and method == 'GET':
+        return apply_cors_manual(get_images(request)) # Usamos apply_cors_manual para consistencia
+    elif path == '/images' and method == 'DELETE':
+        return apply_cors_manual(delete_image(request)) # DELETE requests pueden tener body
+   
 
     
     elif path == '/usuarios/register-student':
@@ -136,28 +136,28 @@ def main(request):
 
 # --- Ejecutar localmente si hace falta (NO interfiere con Cloud Functions) ---
 """
-if __name__ == "__main__":
-    from flask import Flask, request
-    import logging
-    from werkzeug.serving import run_simple
+# if __name__ == "__main__":
+#     from flask import Flask, request
+#     import logging
+#     from werkzeug.serving import run_simple
 
-    logging.basicConfig(level=logging.DEBUG)
+#     logging.basicConfig(level=logging.DEBUG)
 
-    flask_app = Flask(__name__)
+#     flask_app = Flask(__name__)
 
-    @flask_app.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
-    @flask_app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
-    def catch_all(path):
-        try:
-            return main(request)
-        except Exception as e:
-            flask_app.logger.error(f"Error interno: {e}", exc_info=True)
-            return "Error interno en el servidor", 500
+#     @flask_app.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+#     @flask_app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+#     def catch_all(path):
+#         try:
+#             return main(request)
+#         except Exception as e:
+#             flask_app.logger.error(f"Error interno: {e}", exc_info=True)
+#             return "Error interno en el servidor", 500
 
-    # GCP espera que escuche en el puerto 8080
-    import os
-    port = int(os.environ.get("PORT", 8080))
-    run_simple('0.0.0.0', port, flask_app, use_debugger=True, use_reloader=True)
+#     # GCP espera que escuche en el puerto 8080
+#     import os
+#     port = int(os.environ.get("PORT", 8080))
+#     run_simple('0.0.0.0', port, flask_app, use_debugger=True, use_reloader=True)
 
 
-# --- Fin de comentarios ---
+# # --- Fin de comentarios ---

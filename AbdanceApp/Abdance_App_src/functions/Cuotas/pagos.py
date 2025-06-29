@@ -56,9 +56,9 @@ def crear_preferencia_cuota(request, uid=None, role=None):
                 }
             ],
             "back_urls": {
-                "success": "https://abdance-app-frontend-f6awegxqw-camilos-projects-fd28538a.vercel.app/dashboard/cuotas",
-                "failure": "https://abdance-app-frontend-f6awegxqw-camilos-projects-fd28538a.vercel.app/dashboard/cuotas",
-                "pending": "https://abdance-app-frontend-f6awegxqw-camilos-projects-fd28538a.vercel.app/dashboard/cuotas",
+                "success": "https://abdance-app-frontend-c5qs95aip-camilos-projects-fd28538a.vercel.app/dashboard/cuotas",
+                "failure": "https://abdance-app-frontend-c5qs95aip-camilos-projects-fd28538a.vercel.app/dashboard/cuotas",
+                "pending": "https://abdance-app-frontend-c5qs95aip-camilos-projects-fd28538a.vercel.app/dashboard/cuotas",
             },
             "payment_methods": {
                 "excluded_payment_methods": [

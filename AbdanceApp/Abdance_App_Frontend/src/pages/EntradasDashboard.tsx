@@ -18,7 +18,10 @@ interface Entrada {
 }
 
 export const EntradasDashboard = () => {
-  const [eventoSeleccionado, setEventoSeleccionado] = useState<string>("");
+  const [eventoSeleccionado, setEventoSeleccionado] = useState<string>(
+    localStorage.getItem("evento_seleccionado") || ""
+  );
+  //const [eventoSeleccionado, setEventoSeleccionado] = useState<string>("");
   const [entradas, setEntradas] = useState<Entrada[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [entradaSeleccionada, setEntradaSeleccionada] = useState<Entrada | null>(null);
@@ -99,43 +102,58 @@ export const EntradasDashboard = () => {
           <h2 className="text-black text-center mt-2 text-sm font-bold">
             Buscar por <strong>Nombre, Email, DNI.</strong>
           </h2>
+          <ul className="mt-4 space-y-3">
+            {filtradas.map((entrada) => (
+              <li
+                key={entrada.id}
+                className="bg-white p-4 rounded-xl shadow flex items-center justify-between text-left"
+              >
+                <div className="text-[#1D094E] font-semibold">
+                  {entrada.nombre} {entrada.apellido} - {entrada.dni}
+                  <span className="text-sm text-gray-500"> ({entrada.tipo_entrada})</span>
+                </div>
+
+                <div className="flex items-center space-x-3">
+                  {/* Botón Info */}
+                  <button onClick={() => setEntradaSeleccionada(entrada)} title="Ver detalles">
+                    <FaInfoCircle className="text-yellow-500 text-xl" />
+                  </button>
+
+                  {/* Icono Validar */}
+                  <FaCheckCircle
+                    onClick={() => {
+                      if (entrada.estado === "activa") {
+                        setEntradaAValidar(entrada);
+                      }
+                    }}
+                    className={`cursor-pointer text-xl ${
+                      entrada.estado === "validada"
+                        ? "text-green-500"
+                        : "text-white border border-gray-300"
+                    }`}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="flex justify-center gap-6 mt-6">
+            <button className="text-cyan-400 text-3xl">
+              <FaSearch />
+            </button>
+            <button
+              className="text-white text-3xl"
+              onClick={() => navigate("/dashboard/escanear")}
+            >
+              <FaExpand />
+            </button>
+          </div>
+          
         </>
       )}
 
-      <ul className="mt-4 space-y-3">
-        {filtradas.map((entrada) => (
-          <li
-            key={entrada.id}
-            className="bg-white p-4 rounded-xl shadow flex items-center justify-between text-left"
-          >
-            <div className="text-[#1D094E] font-semibold">
-              {entrada.nombre} {entrada.apellido} - {entrada.dni}
-              <span className="text-sm text-gray-500"> ({entrada.tipo_entrada})</span>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              {/* Botón Info */}
-              <button onClick={() => setEntradaSeleccionada(entrada)} title="Ver detalles">
-                <FaInfoCircle className="text-yellow-500 text-xl" />
-              </button>
-
-              {/* Icono Validar */}
-              <FaCheckCircle
-                onClick={() => {
-                  if (entrada.estado === "activa") {
-                    setEntradaAValidar(entrada);
-                  }
-                }}
-                className={`cursor-pointer text-xl ${
-                  entrada.estado === "validada"
-                    ? "text-green-500"
-                    : "text-white border border-gray-300"
-                }`}
-              />
-            </div>
-          </li>
-        ))}
-      </ul>
+      
+      
+      
 
       {/* Modal para Info general */}
       {entradaSeleccionada && (
@@ -169,17 +187,8 @@ export const EntradasDashboard = () => {
           onValidar={validarEntrada}
         />
       )}
-      <div className="flex justify-center gap-6 mt-6">
-        <button className="text-cyan-400 text-3xl">
-          <FaSearch />
-        </button>
-        <button
-          className="text-white text-3xl"
-          onClick={() => navigate("/dashboard/escanear")}
-        >
-          <FaExpand />
-        </button>
-      </div>
+      
+      
 
 
 

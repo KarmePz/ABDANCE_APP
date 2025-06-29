@@ -33,7 +33,9 @@ body {
   color: #000; /* texto negro para pantallas pequeñas */
 
 }
-
+.text-label-white{
+  color: #fff;
+}
 
 #burguer-button{
   background-color: #0000003c;
@@ -279,6 +281,18 @@ button:focus-visible {
   50% {
     transform: rotate(calc(var(--rotation) * 1deg)) translate(0, calc(var(--translation) * 1.5%));
   }
+}
+
+body.modal-abierto {
+  overflow: hidden;                  /* Evita el scroll */
+}
+
+.blur-overlay {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(6px);
+  z-index: 40;                       /* Debajo del modal, encima del fondo */
+  pointer-events: none;             /* No permite interacción */
 }
 
 

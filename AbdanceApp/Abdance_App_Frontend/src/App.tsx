@@ -21,11 +21,11 @@ function App() {
         {/* <PagosTest></PagosTest> */}
         <Background />
         <Logo /> 
-        <div className="min-h-screen flex flex-col items-center justify-center px-4">
+        <div className="text-label-white min-h-screen flex flex-col items-center justify-center px-4">
           <LoginForm ></LoginForm>
           
 
-          <h3 className='relative top-40'>
+          <h3 className='text-label-white relative top-40'>
             ¿Te interesa saber sobre nuestros eventos?{" "}
             <button onClick={irAEventos} className='text-blue-400 underline hover:text-blue-600'>
               ¡Hace click Aquí!

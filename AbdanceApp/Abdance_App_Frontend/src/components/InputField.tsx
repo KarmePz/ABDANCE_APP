@@ -1,9 +1,16 @@
+// InputField.tsx
+//import React from 'react';
+
+// Define las props para tu InputField
 interface InputFieldProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  type?: React.HTMLInputTypeAttribute;
-  className?: string;
+  type?: string; // Propiedad opcional para el tipo de input (text, date, etc.)
+  // Aquí es donde agregamos la propiedad 'readOnly'
+  readOnly?: boolean; // <--- ¡Esta es la línea clave que necesitas añadir!
+  placeholder?: string; // Si ya lo tenías, mantenlo.
+  className?: string; // Si ya lo tenías, mantenlo.
 }
 
 export default function InputField({
@@ -11,16 +18,34 @@ export default function InputField({
   value,
   onChange,
   type = "text",
-  className = "", 
+  readOnly = false,
+  placeholder,
+  className
 }: InputFieldProps) {
   return (
-    <div className="flex flex-col mb-4 w-full">
-      <label className="text-[#1D094E] font-semibold mb-0 text-left px-3">{label}</label>
+    <div className="mb-4">
+      <label className="block text-[#1D094E] text-base font-semibold mb-2">
+        {label}
+      </label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`bg-[#1D094E] text-white rounded-full px-4 py-2 outline-none focus:ring-2 focus:ring-white transition duration-150 ${className}`} // ✅ Aplica clase personalizada
+        readOnly={readOnly}
+        placeholder={placeholder}
+        className={`
+          w-full 
+          p-3 
+          bg-[#1D094E] 
+          text-white 
+          border border-transparent 
+          rounded-2xl 
+          focus:outline-none 
+          focus:ring-2 
+          focus:ring-white 
+          placeholder-white 
+          ${className || ''}
+        `}
       />
     </div>
   );
